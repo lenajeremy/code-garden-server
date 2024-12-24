@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -47,13 +47,13 @@ func main() {
 
 		bytes, err := io.ReadAll(r.Body)
 		if err != nil {
-			writeRes(w, response{"", http.StatusBadRequest, errors.New("bad request").Error()})
+			writeRes(w, response{"", http.StatusBadRequest, fmt.Sprintf("bad request: %s", err.Error())})
 			return
 		}
 
 		err = json.Unmarshal(bytes, &body)
 		if err != nil {
-			writeRes(w, response{"", http.StatusBadRequest, errors.New("bad request: failed to parse req body").Error()})
+			writeRes(w, response{"", http.StatusBadRequest, fmt.Sprintf("bad request: failed to parse req body, %s", err.Error())})
 			return
 		}
 
@@ -73,19 +73,19 @@ func main() {
 			commands = []string{"go", "run"}
 			filename = "run.go"
 		} else {
-			writeRes(w, response{"", http.StatusBadRequest, errors.New("bad request: unsupported language").Error()})
+			writeRes(w, response{"", http.StatusBadRequest, fmt.Sprintf("bad request: unsupported language, %s", err.Error())})
 			return
 		}
 
 		file, err := os.Create(filename)
 		if err != nil {
-			writeRes(w, response{"", http.StatusInternalServerError, errors.New("internal server error: failed to create file").Error()})
+			writeRes(w, response{"", http.StatusInternalServerError, fmt.Sprintf("internal server error: failed to create file, %s", err.Error())})
 			return
 		}
 
 		_, err = file.WriteString(body.Code)
 		if err != nil {
-			writeRes(w, response{"", http.StatusInternalServerError, errors.New("internal server error: failed to write to file").Error()})
+			writeRes(w, response{"", http.StatusInternalServerError, fmt.Sprintf("internal server error: failed to write to file, %s", err.Error())})
 			return
 		}
 
@@ -94,7 +94,7 @@ func main() {
 
 		output, err := cmd.CombinedOutput()
 		if err != nil {
-			writeRes(w, response{string(output), http.StatusInternalServerError, "failed to run command"})
+			writeRes(w, response{string(output), http.StatusInternalServerError, fmt.Sprintf("failed to run command %s", err.Error())})
 			return
 		}
 
