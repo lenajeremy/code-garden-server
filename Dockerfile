@@ -1,10 +1,4 @@
-FROM golang:1.18-bullseye AS base
-
-RUN apt-get update && apt-get install -y --no-install-recommends git \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN go install github.com/cosmtrek/air@latest
+FROM golang:1.23-alpine AS base
 
 WORKDIR /app
 
@@ -14,6 +8,10 @@ RUN go mod download
 
 COPY . .
 
-EXPOSE 8000
+RUN go build -ldflags="-s -w" -o main
 
-CMD ["air"]
+
+FROM alpine
+COPY --from=base /app/main ./
+EXPOSE 8000
+CMD ./main
