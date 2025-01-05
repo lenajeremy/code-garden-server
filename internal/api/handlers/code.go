@@ -1,4 +1,4 @@
-package controllers
+package handlers
 
 import (
 	"code-garden-server/utils"
@@ -11,12 +11,13 @@ import (
 	"time"
 )
 
-type reqbody struct {
-	Code     string `json:"code"`
-	Language string `json:"language"`
+type CodeHandler struct{}
+
+func NewCodeHandler() *CodeHandler {
+	return new(CodeHandler)
 }
 
-func HelloController(w http.ResponseWriter, r *http.Request) {
+func (_ *CodeHandler) SayHello(w http.ResponseWriter, r *http.Request) {
 	name := r.URL.Query().Get("name")
 	if name == "" {
 		name = "World"
@@ -27,7 +28,12 @@ func HelloController(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func HandleRunCode(w http.ResponseWriter, r *http.Request) {
+func (_ *CodeHandler) HandleRunCode(w http.ResponseWriter, r *http.Request) {
+	type reqbody struct {
+		Code     string `json:"code"`
+		Language string `json:"language"`
+	}
+
 	var body reqbody
 
 	time.Sleep(time.Second * 10)

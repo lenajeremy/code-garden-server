@@ -1,18 +1,25 @@
-package server
+package api
 
 import (
-	"code-garden-server/routes"
 	"errors"
 	"fmt"
+	"github.com/docker/docker/client"
 	"log"
 	"net/http"
 )
 
+type Route struct {
+	Method  string
+	Path    string
+	Handler http.HandlerFunc
+}
+
 type Server struct {
-	isRunning bool
-	routes    []routes.Route
-	Port      int
-	mux       *http.ServeMux
+	isRunning    bool
+	routes       []Route
+	Port         int
+	mux          *http.ServeMux
+	dockerClient *client.Client
 }
 
 // Start sets up all the routes and starts the server
@@ -30,7 +37,7 @@ func (s *Server) Start() {
 }
 
 // AddRoute adds a new route to the server
-func (s *Server) AddRoute(r routes.Route) {
+func (s *Server) AddRoute(r Route) {
 	if s.isRunning {
 		panic(errors.New("cannot add a route to a running server"))
 	}
@@ -38,12 +45,13 @@ func (s *Server) AddRoute(r routes.Route) {
 }
 
 // New creates a new server with the default values
-func New(port int) *Server {
+func New(port int, dockerClient *client.Client, db interface{}) *Server {
 	mux := http.NewServeMux()
 	return &Server{
 		false,
-		[]routes.Route{},
+		[]Route{},
 		port,
 		mux,
+		dockerClient,
 	}
 }
