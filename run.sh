@@ -36,4 +36,4 @@ cat > "$FILE"
 $RUN_CMD
 
 # Delete the source code file after execution
-#rm "$FILE"
+rm "$FILE"

@@ -49,7 +49,7 @@ func (ds *Service) ListRunningContainers() ([]types.Container, error) {
 
 func (ds *Service) RunLanguageContainer(lang Language, codeSrc string) (string, error) {
 	// Create a context with timeout to prevent hanging containers
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	image, ok := LanguageToImageMap[lang]
@@ -108,27 +108,22 @@ func (ds *Service) RunLanguageContainer(lang Language, codeSrc string) (string, 
 	}
 	defer attachResp.Close()
 
+	// Create error channels for input/output operations
+	inputDone := make(chan error, 1)
+	outputDone := make(chan error, 1)
+	var outputBuf bytes.Buffer
+
 	// Write code to container in a separate goroutine
 	go func() {
 		defer attachResp.CloseWrite()
-		if _, err := io.Copy(attachResp.Conn, strings.NewReader(codeSrc)); err != nil {
-			log.Printf("error writing to container: %v", err)
-		}
+		_, err := io.Copy(attachResp.Conn, strings.NewReader(codeSrc))
+		inputDone <- err
 	}()
-
-	// Create a buffer to store container output
-	var outputBuf bytes.Buffer
-	outputDone := make(chan error)
 
 	// Read container output in separate goroutine
 	go func() {
 		_, err := stdcopy.StdCopy(&outputBuf, &outputBuf, attachResp.Reader)
-		if err != nil {
-			log.Printf("Error reading container output: %v", err)
-			outputDone <- err
-			return
-		}
-		outputDone <- nil
+		outputDone <- err
 	}()
 
 	// Wait for container completion with timeout
@@ -137,26 +132,51 @@ func (ds *Service) RunLanguageContainer(lang Language, codeSrc string) (string, 
 	case err := <-errCh:
 		return "", fmt.Errorf("container wait error: %w", err)
 	case status := <-statusCh:
-		if status.StatusCode != 0 {
-			return "", fmt.Errorf("container exited with status %d: %s",
-				status.StatusCode, status.Error.Message)
+		// Handle input completion
+		if err := <-inputDone; err != nil {
+			return "", fmt.Errorf("error writing to container: %w", err)
 		}
+
+		// Handle output completion
+		if err := <-outputDone; err != nil {
+			return "", fmt.Errorf("error reading container output: %w", err)
+		}
+
+		log.Printf("Container %s completed execution in %v", resp.ID, time.Since(start))
+
+		if status.StatusCode != 0 {
+			// Get container logs for error details
+			logOptions := container.LogsOptions{
+				ShowStdout: true,
+				ShowStderr: true,
+				Since:      start.Format(time.RFC3339),
+			}
+
+			logs, err := ds.client.ContainerLogs(ctx, resp.ID, logOptions)
+			if err != nil {
+				return "", fmt.Errorf("container failed with status %d and error getting logs: %w",
+					status.StatusCode, err)
+			}
+			defer logs.Close()
+
+			var errorOutput bytes.Buffer
+			if _, err := stdcopy.StdCopy(&errorOutput, &errorOutput, logs); err != nil {
+				return "", fmt.Errorf("container failed with status %d and error reading logs: %w",
+					status.StatusCode, err)
+			}
+
+			// return 10kb of error output
+			return string(errorOutput.Bytes()[0 : 1024*10]), fmt.Errorf("container failed with status %d",
+				status.StatusCode)
+		}
+
 	case <-ctx.Done():
-		err = fmt.Errorf("container execution timed out after %v", time.Since(start))
 		return "", fmt.Errorf("container execution timed out after %v", time.Since(start))
 	}
 
-	// Wait for output processing to complete
-	if err := <-outputDone; err != nil {
-		return "", fmt.Errorf("error reading container output: %w", err)
-	}
-
-	log.Printf("Container %s completed execution in %v", resp.ID, time.Since(start))
-
-	fmt.Printf("OUTPUT\n\n"+
-		"%s\n", outputBuf.String())
-
-	return outputBuf.String(), nil
+	output := outputBuf.String()
+	log.Printf("Output:\n%s", output)
+	return output, nil
 }
 
 func (ds *Service) BuildLanguageImage(language Language) error {

@@ -73,7 +73,7 @@ func (d *DockerHandler) RunCodeSafe(w http.ResponseWriter, r *http.Request) {
 
 	res, err := d.service.RunLanguageContainer(docker.Language(body.Language), body.Code)
 	if err != nil {
-		utils.WriteRes(w, utils.Response{Status: http.StatusInternalServerError, Error: fmt.Sprintf("internal server error: %s", err.Error())})
+		utils.WriteRes(w, utils.Response{Status: http.StatusInternalServerError, Output: res, Error: fmt.Sprintf("internal server error: %s", err.Error())})
 		return
 	}
 
