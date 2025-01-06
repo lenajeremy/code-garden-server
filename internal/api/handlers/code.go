@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"time"
 )
 
 type CodeHandler struct{}
@@ -35,8 +34,6 @@ func (_ *CodeHandler) HandleRunCode(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var body reqbody
-
-	time.Sleep(time.Second * 10)
 
 	defer func(body io.ReadCloser) {
 		err := body.Close()
@@ -82,6 +79,8 @@ func (_ *CodeHandler) HandleRunCode(w http.ResponseWriter, r *http.Request) {
 		utils.WriteRes(w, utils.Response{Status: http.StatusInternalServerError, Error: fmt.Sprintf("internal server error: failed to create file, %s", err)})
 		return
 	}
+	defer file.Close()
+	defer os.Remove(file.Name())
 
 	_, err = file.WriteString(body.Code)
 	if err != nil {

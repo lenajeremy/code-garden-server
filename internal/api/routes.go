@@ -15,6 +15,7 @@ func InitServer(p int, dc *client.Client) {
 		{"POST", "/", codeHandler.HandleRunCode},
 		{"GET", "/hello", codeHandler.SayHello},
 		{"GET", "/containers", dockerHandler.ListContainers},
+		{"POST", "/run-safe", dockerHandler.RunCodeSafe},
 	}
 
 	for _, r := range appRoutes {

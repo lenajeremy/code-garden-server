@@ -2,10 +2,12 @@ package handlers
 
 import (
 	"code-garden-server/internal/services/docker"
+	"code-garden-server/utils"
 	"encoding/json"
+	"fmt"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
-	"log"
+	"io"
 	"net/http"
 )
 
@@ -15,11 +17,6 @@ type DockerHandler struct {
 
 func NewDockerHandler(dc *client.Client) *DockerHandler {
 	dockerService := docker.NewDockerService(dc)
-	for _, language := range docker.SupportedLanguages {
-		if err := dockerService.BuildLanguageImage(language); err != nil {
-			log.Fatal(err)
-		}
-	}
 	return &DockerHandler{dockerService}
 }
 
@@ -45,4 +42,40 @@ func (d *DockerHandler) ListContainers(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), 500)
 		return
 	}
+}
+
+func (d *DockerHandler) RunCodeSafe(w http.ResponseWriter, r *http.Request) {
+	type reqbody struct {
+		Code     string `json:"code"`
+		Language string `json:"language"`
+	}
+
+	var body reqbody
+
+	defer func(body io.ReadCloser) {
+		err := body.Close()
+		if err != nil {
+			return
+		}
+	}(r.Body)
+
+	bytes, err := io.ReadAll(r.Body)
+	if err != nil {
+		utils.WriteRes(w, utils.Response{Status: http.StatusBadRequest, Error: fmt.Sprintf("bad request: %s", err.Error())})
+		return
+	}
+
+	err = json.Unmarshal(bytes, &body)
+	if err != nil {
+		utils.WriteRes(w, utils.Response{Status: http.StatusBadRequest, Error: fmt.Sprintf("bad request: failed to parse req body, %s", err.Error())})
+		return
+	}
+
+	res, err := d.service.RunLanguageContainer(docker.Language(body.Language), body.Code)
+	if err != nil {
+		utils.WriteRes(w, utils.Response{Status: http.StatusInternalServerError, Error: fmt.Sprintf("internal server error: %s", err.Error())})
+		return
+	}
+
+	utils.WriteRes(w, utils.Response{Status: http.StatusOK, Output: res})
 }

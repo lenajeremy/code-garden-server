@@ -6,10 +6,10 @@ var SupportedLanguages = []Language{
 	"python", "node", "go",
 }
 
-var LanguageImageMap = map[Language]string{
-	"python": "python:3.8",
-	"node":   "node:14",
-	"go":     "golang:1.16",
+var LanguageToImageMap = map[Language]string{
+	"python": "code-garden-python",
+	"node":   "code-garden-node",
+	"go":     "code-garden-go",
 	"java":   "openjdk:11",
 	"ruby":   "ruby:2.7",
 }
