@@ -1,0 +1,10 @@
+FROM golang:1.23-alpine AS base
+
+# Copy the shell script into the container
+COPY go.sh /usr/local/bin/go.sh
+
+# Make the shell script executable
+RUN chmod +x /usr/local/bin/go.sh
+
+# Set the entrypoint to the shell script
+ENTRYPOINT ["/usr/local/bin/go.sh"]

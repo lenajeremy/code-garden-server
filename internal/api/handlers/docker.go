@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"code-garden-server/internal/services"
+	"code-garden-server/internal/services/docker"
 	"encoding/json"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
@@ -10,16 +10,21 @@ import (
 )
 
 type DockerHandler struct {
-	dockerClient *client.Client
+	service *docker.Service
 }
 
 func NewDockerHandler(dc *client.Client) *DockerHandler {
-	return &DockerHandler{dc}
+	dockerService := docker.NewDockerService(dc)
+	for _, language := range docker.SupportedLanguages {
+		if err := dockerService.BuildLanguageImage(language); err != nil {
+			log.Fatal(err)
+		}
+	}
+	return &DockerHandler{dockerService}
 }
 
 func (d *DockerHandler) ListContainers(w http.ResponseWriter, r *http.Request) {
-	containers, err := services.ListRunningContainers(d.dockerClient)
-	log.Printf("%#v\n", containers)
+	containers, err := d.service.ListRunningContainers()
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return

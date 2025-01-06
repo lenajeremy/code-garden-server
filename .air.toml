@@ -48,4 +48,4 @@ tmp_dir = "tmp"
 
 [screen]
   clear_on_rebuild = true
-  keep_scroll = true
+  keep_scroll = false
