@@ -22,10 +22,10 @@ type Service struct {
 
 func NewDockerService(dc *client.Client) *Service {
 	s := &Service{dc}
-	err := s.SetupClient()
-	if err != nil {
-		log.Fatal(err)
-	}
+	//err := s.SetupClient()
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
 	return s
 }
 

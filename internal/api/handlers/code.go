@@ -27,7 +27,7 @@ func (_ *CodeHandler) SayHello(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (_ *CodeHandler) HandleRunCode(w http.ResponseWriter, r *http.Request) {
+func (_ *CodeHandler) RunCodeUnsafe(w http.ResponseWriter, r *http.Request) {
 	type reqbody struct {
 		Code     string `json:"code"`
 		Language string `json:"language"`
