@@ -1,39 +1,42 @@
 package api
 
 import (
+	"code-garden-server/internal/api/handlers"
+	"code-garden-server/internal/database"
 	"github.com/docker/docker/client"
 	"net/http"
 )
 
-func InitServer(p int, dc *client.Client) {
-	s := NewServer(p, dc, nil)
+func InitServer(p int, dc *client.Client, dbc *database.DBClient) {
+	s := NewServer(p, dc, dbc)
 
-	/* PREVIOUS CODE */
+	codeHandler := handlers.NewCodeHandler()
+	dockerHandler := handlers.NewDockerHandler(dc, dbc)
 
-	//codeHandler := handlers.NewCodeHandler()
-	//dockerHandler := handlers.NewDockerHandler(dc)
+	corsMiddleware := Middleware{func(w http.ResponseWriter, r *http.Request) (http.ResponseWriter, *http.Request, bool) {
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8080")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
-	//appRoutes := []Route{
-	//	{"POST", "/run-unsafe", codeHandler.RunCodeUnsafe},
-	//	{"GET", "/hello", codeHandler.SayHello},
-	//	{"GET", "/containers", dockerHandler.ListContainers},
-	//	{"POST", "/run-safe", dockerHandler.RunCodeSafe},
-	//}
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return w, r, false
+		}
 
-	evonMedicsHeaderMiddleware := Middleware{func(w http.ResponseWriter, r *http.Request) (http.ResponseWriter, *http.Request, bool) {
-		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("EvonMedics", "BABYYYYYYYYYY")
-		w.Header().Set("Access-Control-Allow-Origin", "*")
 		return w, r, true
 	}}
 
 	r := s.DefaultRouter()
-	v1 := r.Group("/v1", evonMedicsHeaderMiddleware)
-	v1.Get("/sing", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("singing for evonmedics"))
+	r.Use(corsMiddleware)
+
+	r.Post("/run-unsafe", codeHandler.RunCodeUnsafe)
+	r.Get("/hello", codeHandler.SayHello)
+	r.Get("/containers", dockerHandler.ListContainers)
+	r.Post("/run-safe", dockerHandler.RunCodeSafe)
+
+	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("OK"))
 	})
-	v1.Get("/dance", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("dancing for evonmedics"))
-	})
+
 	s.Start()
 }

@@ -3,6 +3,7 @@ package docker
 import (
 	"archive/tar"
 	"bytes"
+	"code-garden-server/internal/database"
 	"context"
 	"fmt"
 	"github.com/docker/docker/api/types"
@@ -17,15 +18,12 @@ import (
 )
 
 type Service struct {
-	client *client.Client
+	dockerClient   *client.Client
+	databaseClient *database.DBClient
 }
 
-func NewDockerService(dc *client.Client) *Service {
-	s := &Service{dc}
-	//err := s.SetupClient()
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
+func NewDockerService(dc *client.Client, dbClient *database.DBClient) *Service {
+	s := &Service{dc, dbClient}
 	return s
 }
 
@@ -39,7 +37,7 @@ func NewDockerClient() (*client.Client, error) {
 }
 
 func (ds *Service) ListRunningContainers() ([]types.Container, error) {
-	containers, err := ds.client.ContainerList(context.Background(), container.ListOptions{All: true})
+	containers, err := ds.dockerClient.ContainerList(context.Background(), container.ListOptions{All: true})
 	if err != nil {
 		return []types.Container{}, err
 	}
@@ -68,7 +66,7 @@ func (ds *Service) RunLanguageContainer(lang Language, codeSrc string) (string, 
 	}
 
 	start := time.Now()
-	resp, err := ds.client.ContainerCreate(ctx, config, &container.HostConfig{
+	resp, err := ds.dockerClient.ContainerCreate(ctx, config, &container.HostConfig{
 		CapDrop: []string{"ALL"},
 	}, nil, nil, "")
 	if err != nil {
@@ -81,7 +79,7 @@ func (ds *Service) RunLanguageContainer(lang Language, codeSrc string) (string, 
 		removeCtx, cancel := context.WithTimeout(context.Background(), timeout)
 		defer cancel()
 
-		if err := ds.client.ContainerRemove(removeCtx, resp.ID, container.RemoveOptions{
+		if err := ds.dockerClient.ContainerRemove(removeCtx, resp.ID, container.RemoveOptions{
 			Force: true,
 		}); err != nil {
 			log.Printf("failed to remove container %s: %v", resp.ID, err)
@@ -90,14 +88,14 @@ func (ds *Service) RunLanguageContainer(lang Language, codeSrc string) (string, 
 		}
 	}()
 
-	if err := ds.client.ContainerStart(ctx, resp.ID, container.StartOptions{}); err != nil {
+	if err := ds.dockerClient.ContainerStart(ctx, resp.ID, container.StartOptions{}); err != nil {
 		return "", fmt.Errorf("failed to start container: %w", err)
 	}
 
 	log.Printf("Container %s started in %v", resp.ID, time.Since(start))
 
 	// Attach to container with improved error handling
-	attachResp, err := ds.client.ContainerAttach(ctx, resp.ID, container.AttachOptions{
+	attachResp, err := ds.dockerClient.ContainerAttach(ctx, resp.ID, container.AttachOptions{
 		Stream: true,
 		Stdin:  true,
 		Stdout: true,
@@ -127,7 +125,7 @@ func (ds *Service) RunLanguageContainer(lang Language, codeSrc string) (string, 
 	}()
 
 	// Wait for container completion with timeout
-	statusCh, errCh := ds.client.ContainerWait(ctx, resp.ID, container.WaitConditionNotRunning)
+	statusCh, errCh := ds.dockerClient.ContainerWait(ctx, resp.ID, container.WaitConditionNotRunning)
 	select {
 	case err := <-errCh:
 		return "", fmt.Errorf("container wait error: %w", err)
@@ -152,7 +150,7 @@ func (ds *Service) RunLanguageContainer(lang Language, codeSrc string) (string, 
 				Since:      start.Format(time.RFC3339),
 			}
 
-			logs, err := ds.client.ContainerLogs(ctx, resp.ID, logOptions)
+			logs, err := ds.dockerClient.ContainerLogs(ctx, resp.ID, logOptions)
 			if err != nil {
 				return "", fmt.Errorf("container failed with status %d and error getting logs: %w",
 					status.StatusCode, err)
@@ -188,7 +186,7 @@ func (ds *Service) BuildLanguageImage(language Language) error {
 		return err
 	}
 
-	imgBuildResponse, err := ds.client.ImageBuild(context.Background(), buildContext, types.ImageBuildOptions{
+	imgBuildResponse, err := ds.dockerClient.ImageBuild(context.Background(), buildContext, types.ImageBuildOptions{
 		Tags:       []string{LanguageToImageMap[language]},
 		Dockerfile: dockerfile,
 		Remove:     false,

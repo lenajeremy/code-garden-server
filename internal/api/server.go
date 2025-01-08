@@ -1,6 +1,7 @@
 package api
 
 import (
+	"code-garden-server/internal/database"
 	"fmt"
 	"github.com/docker/docker/client"
 	"log"
@@ -15,44 +16,29 @@ type Route struct {
 }
 
 type Server struct {
-	isRunning    bool
 	routes       []Route
 	Port         int
 	mux          *http.ServeMux
 	dockerClient *client.Client
+	db           *database.DBClient
 }
 
 // NewServer creates a new server with the default values
-func NewServer(port int, dockerClient *client.Client, db interface{}) *Server {
+func NewServer(port int, dockerClient *client.Client, db *database.DBClient) *Server {
 	mux := http.NewServeMux()
 	return &Server{
-		false,
 		[]Route{},
 		port,
 		mux,
 		dockerClient,
+		db,
 	}
 }
 
 // Start sets up all the routes and starts the server
 func (s *Server) Start() {
-	//if s.isRunning {
-	//	panic(errors.New("server is already running"))
-	//}
-	//
-	//for _, r := range s.routes {
-	//	s.mux.HandleFunc(fmt.Sprintf("%s %s", r.Method, r.Path), r.Handler)
-	s.isRunning = true
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", s.Port), s.mux))
 }
-
-//// AddRoute adds a new route to the server
-//func (s *Server) AddRoute(r Route) {
-//	if s.isRunning {
-//		panic(errors.New("cannot add a route to a running server"))
-//	}
-//	s.routes = append(s.routes, r)
-//}
 
 func (s *Server) DefaultRouter() *Router {
 	return newRouter(s.mux, "/")
@@ -69,9 +55,14 @@ func newRouter(mux *http.ServeMux, path string) *Router {
 }
 
 func (r *Router) Group(path string, middlewares ...Middleware) *Router {
+	path = filepath.Join(r.path, path)
 	rout := newRouter(r.mux, path)
 	rout.middlewares = middlewares
 	return rout
+}
+
+func (r *Router) Use(middleware Middleware) {
+	r.middlewares = append(r.middlewares, middleware)
 }
 
 type Middleware struct {
@@ -80,8 +71,7 @@ type Middleware struct {
 
 func (r *Router) Get(path string, handler http.HandlerFunc) {
 	resolvedPath := filepath.Join(r.path, path)
-	fmt.Printf("Resolved path: %s\n", resolvedPath)
-	r.mux.HandleFunc(fmt.Sprintf("%s %s", "GET", resolvedPath), func(w http.ResponseWriter, req *http.Request) {
+	r.mux.HandleFunc(fmt.Sprintf("%s %s", http.MethodGet, resolvedPath), func(w http.ResponseWriter, req *http.Request) {
 		w, req, ok := r.RunAllMiddleware(w, req, true)
 		if !ok {
 			return
@@ -92,7 +82,15 @@ func (r *Router) Get(path string, handler http.HandlerFunc) {
 }
 
 func (r *Router) Post(path string, handler http.HandlerFunc) {
-	r.mux.HandleFunc(fmt.Sprintf("%s %s", "POST", path), handler)
+	resolvedPath := filepath.Join(r.path, path)
+	r.mux.HandleFunc(fmt.Sprintf("%s %s", http.MethodPost, resolvedPath), func(w http.ResponseWriter, req *http.Request) {
+		w, req, ok := r.RunAllMiddleware(w, req, true)
+		if !ok {
+			return
+		} else {
+			handler(w, req)
+		}
+	})
 }
 
 func (r *Router) RunAllMiddleware(w http.ResponseWriter, req *http.Request, ok bool) (http.ResponseWriter, *http.Request, bool) {

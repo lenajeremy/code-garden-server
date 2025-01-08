@@ -74,7 +74,7 @@ func (_ *CodeHandler) RunCodeUnsafe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	file, err := os.Create(filename)
+	file, err := os.CreateTemp("/Users/jeremiahlena/Desktop", filename)
 	if err != nil {
 		utils.WriteRes(w, utils.Response{Status: http.StatusInternalServerError, Error: fmt.Sprintf("internal server error: failed to create file, %s", err)})
 		return
@@ -88,7 +88,7 @@ func (_ *CodeHandler) RunCodeUnsafe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	commands = append(commands, filename)
+	commands = append(commands, file.Name())
 	cmd := exec.Command(commands[0], commands[1:]...)
 
 	output, err := cmd.CombinedOutput()

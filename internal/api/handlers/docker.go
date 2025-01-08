@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"code-garden-server/internal/database"
 	"code-garden-server/internal/services/docker"
 	"code-garden-server/utils"
 	"encoding/json"
@@ -15,8 +16,8 @@ type DockerHandler struct {
 	service *docker.Service
 }
 
-func NewDockerHandler(dc *client.Client) *DockerHandler {
-	dockerService := docker.NewDockerService(dc)
+func NewDockerHandler(dc *client.Client, dbc *database.DBClient) *DockerHandler {
+	dockerService := docker.NewDockerService(dc, dbc)
 	return &DockerHandler{dockerService}
 }
 
