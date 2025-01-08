@@ -3,10 +3,11 @@ package api
 import (
 	"code-garden-server/internal/database"
 	"fmt"
-	"github.com/docker/docker/client"
 	"log"
 	"net/http"
 	"path/filepath"
+
+	"github.com/docker/docker/client"
 )
 
 type Route struct {

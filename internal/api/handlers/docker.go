@@ -54,29 +54,33 @@ func (d *DockerHandler) RunCodeSafe(w http.ResponseWriter, r *http.Request) {
 	var body reqbody
 
 	defer func(body io.ReadCloser) {
-		err := body.Close()
-		if err != nil {
-			return
-		}
+		_ = body.Close()
 	}(r.Body)
 
-	bytes, err := io.ReadAll(r.Body)
-	if err != nil {
-		utils.WriteRes(w, utils.Response{Status: http.StatusBadRequest, Error: fmt.Sprintf("bad request: %s", err.Error())})
-		return
-	}
-
-	err = json.Unmarshal(bytes, &body)
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&body)
 	if err != nil {
 		utils.WriteRes(w, utils.Response{Status: http.StatusBadRequest, Error: fmt.Sprintf("bad request: failed to parse req body, %s", err.Error())})
 		return
 	}
 
+	// bytes, err := io.ReadAll(r.Body)
+	// if err != nil {
+	// 	utils.WriteRes(w, utils.Response{Status: http.StatusBadRequest, Error: fmt.Sprintf("bad request: %s", err.Error())})
+	// 	return
+	// }
+
+	// err = json.Unmarshal(bytes, &body)
+	// if err != nil {
+	// 	utils.WriteRes(w, utils.Response{Status: http.StatusBadRequest, Error: fmt.Sprintf("bad request: failed to parse req body, %s", err.Error())})
+	// 	return
+	// }
+
 	res, err := d.service.RunLanguageContainer(docker.Language(body.Language), body.Code)
 	if err != nil {
-		utils.WriteRes(w, utils.Response{Status: http.StatusInternalServerError, Output: res, Error: fmt.Sprintf("internal server error: %s", err.Error())})
+		utils.WriteRes(w, utils.Response{Status: http.StatusInternalServerError, Data: res, Error: fmt.Sprintf("internal server error: %s", err.Error()), Message: "Error"})
 		return
 	}
 
-	utils.WriteRes(w, utils.Response{Status: http.StatusOK, Output: res})
+	utils.WriteRes(w, utils.Response{Status: http.StatusOK, Data: res, Message: "Success"})
 }

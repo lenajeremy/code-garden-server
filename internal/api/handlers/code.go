@@ -1,6 +1,9 @@
 package handlers
 
 import (
+	"code-garden-server/internal/database"
+	"code-garden-server/internal/database/models"
+	"code-garden-server/internal/services/docker"
 	"code-garden-server/utils"
 	"encoding/json"
 	"fmt"
@@ -10,13 +13,22 @@ import (
 	"os/exec"
 )
 
-type CodeHandler struct{}
-
-func NewCodeHandler() *CodeHandler {
-	return new(CodeHandler)
+type CodeHandler struct {
+	DbClient *database.DBClient
 }
 
-func (_ *CodeHandler) SayHello(w http.ResponseWriter, r *http.Request) {
+type reqbody struct {
+	Code     string `json:"code"`
+	Language string `json:"language"`
+}
+
+func NewCodeHandler(dbClient *database.DBClient) *CodeHandler {
+	return &CodeHandler{
+		dbClient,
+	}
+}
+
+func (*CodeHandler) SayHello(w http.ResponseWriter, r *http.Request) {
 	name := r.URL.Query().Get("name")
 	if name == "" {
 		name = "World"
@@ -27,12 +39,7 @@ func (_ *CodeHandler) SayHello(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (_ *CodeHandler) RunCodeUnsafe(w http.ResponseWriter, r *http.Request) {
-	type reqbody struct {
-		Code     string `json:"code"`
-		Language string `json:"language"`
-	}
-
+func (*CodeHandler) RunCodeUnsafe(w http.ResponseWriter, r *http.Request) {
 	var body reqbody
 
 	defer func(body io.ReadCloser) {
@@ -93,10 +100,41 @@ func (_ *CodeHandler) RunCodeUnsafe(w http.ResponseWriter, r *http.Request) {
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		utils.WriteRes(w, utils.Response{Output: string(output), Status: http.StatusInternalServerError, Error: fmt.Sprintf("failed to run command %s", err)})
+		utils.WriteRes(w, utils.Response{Data: string(output), Status: http.StatusInternalServerError, Error: fmt.Sprintf("failed to run command %s", err), Message: "Error"})
 		return
 	}
 
-	utils.WriteRes(w, utils.Response{Output: string(output), Status: http.StatusOK})
-	return
+	utils.WriteRes(w, utils.Response{Data: string(output), Status: http.StatusOK, Message: "Success"})
+}
+
+func (c *CodeHandler) ShareCodeSnippet(w http.ResponseWriter, r *http.Request) {
+
+	type sharecodereqbody struct {
+		Code     string `json:"code"`
+		Language string `json:"language"`
+		Output   string `json:"output"`
+	}
+
+	var body sharecodereqbody
+
+	defer func(body io.ReadCloser) {
+		_ = body.Close()
+	}(r.Body)
+
+	decoder := json.NewDecoder(r.Body)
+	decoder.Decode(&body)
+
+	if _, ok := docker.LanguageToImageMap[docker.Language(body.Language)]; !ok {
+		utils.WriteRes(w, utils.Response{Data: nil, Message: "Unsupported Language", Status: http.StatusBadRequest, Error: "unsupported language"})
+		return
+	}
+
+	snippet := models.Snippet{Code: body.Code, Language: body.Language, Output: body.Output}
+	tx := c.DbClient.Create(&snippet)
+	if tx.Error != nil {
+		utils.WriteRes(w, utils.Response{Data: nil, Message: "Failed to create snipped", Status: http.StatusInternalServerError, Error: tx.Error.Error()})
+		return
+	}
+
+	utils.WriteRes(w, utils.Response{Data: snippet, Message: "Snippet created successfully", Status: http.StatusCreated, Error: ""})
 }

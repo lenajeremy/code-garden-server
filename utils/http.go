@@ -6,9 +6,10 @@ import (
 )
 
 type Response struct {
-	Output string `json:"output"`
-	Status int    `json:"status"`
-	Error  string `json:"error"`
+	Data    interface{} `json:"data"`
+	Message string      `json:"message"`
+	Status  int         `json:"status"`
+	Error   string      `json:"error"`
 }
 
 func WriteRes(w http.ResponseWriter, rb Response) {

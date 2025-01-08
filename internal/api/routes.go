@@ -10,7 +10,7 @@ import (
 func InitServer(p int, dc *client.Client, dbc *database.DBClient) {
 	s := NewServer(p, dc, dbc)
 
-	codeHandler := handlers.NewCodeHandler()
+	codeHandler := handlers.NewCodeHandler(dbc)
 	dockerHandler := handlers.NewDockerHandler(dc, dbc)
 
 	corsMiddleware := Middleware{func(w http.ResponseWriter, r *http.Request) (http.ResponseWriter, *http.Request, bool) {
@@ -33,6 +33,7 @@ func InitServer(p int, dc *client.Client, dbc *database.DBClient) {
 	r.Get("/hello", codeHandler.SayHello)
 	r.Get("/containers", dockerHandler.ListContainers)
 	r.Post("/run-safe", dockerHandler.RunCodeSafe)
+	r.Post("/share", codeHandler.ShareCodeSnippet)
 
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("OK"))

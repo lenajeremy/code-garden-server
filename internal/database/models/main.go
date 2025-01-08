@@ -1,16 +1,17 @@
 package models
 
 import (
-	"gorm.io/gorm"
 	"math/rand"
 	"strings"
+
+	"gorm.io/gorm"
 )
 
 type Snippet struct {
 	gorm.Model
-	Title    string `json:"title"`
 	Code     string `json:"code"`
 	Language string `json:"language"`
+	Output   string `json:"output"`
 	PublicId string `json:"public_url" gorm:"unique"`
 }
 
