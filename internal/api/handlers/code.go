@@ -6,11 +6,14 @@ import (
 	"code-garden-server/internal/services/docker"
 	"code-garden-server/utils"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"os/exec"
+
+	"gorm.io/gorm"
 )
 
 type CodeHandler struct {
@@ -137,4 +140,46 @@ func (c *CodeHandler) ShareCodeSnippet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.WriteRes(w, utils.Response{Data: snippet, Message: "Snippet created successfully", Status: http.StatusCreated, Error: ""})
+}
+
+func (c *CodeHandler) GetSnippet(w http.ResponseWriter, r *http.Request) {
+	publicId := r.PathValue("publicId")
+
+	if publicId == "" {
+		utils.WriteRes(w, utils.Response{
+			Error:   "bad request: empty public id",
+			Data:    nil,
+			Status:  http.StatusBadRequest,
+			Message: "Invalid Public ID",
+		})
+		return
+	}
+
+	s := new(models.Snippet)
+
+	if tx := c.DbClient.Model(s).First(s, "public_id = ?", publicId); tx.Error != nil {
+		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+			utils.WriteRes(w, utils.Response{
+				Error:   tx.Error.Error(),
+				Data:    nil,
+				Status:  http.StatusNotFound,
+				Message: fmt.Sprintf("Snippet with ID %s not found", publicId),
+			})
+		} else {
+			utils.WriteRes(w, utils.Response{
+				Error:   tx.Error.Error(),
+				Data:    nil,
+				Status:  http.StatusInternalServerError,
+				Message: "An error occurred",
+			})
+		}
+		return
+	}
+
+	utils.WriteRes(w, utils.Response{
+		Error:   "",
+		Data:    s,
+		Status:  http.StatusOK,
+		Message: "Successfully retrieved code snipppet",
+	})
 }

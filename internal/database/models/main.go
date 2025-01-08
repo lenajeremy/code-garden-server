@@ -12,7 +12,7 @@ type Snippet struct {
 	Code     string `json:"code"`
 	Language string `json:"language"`
 	Output   string `json:"output"`
-	PublicId string `json:"public_url" gorm:"unique"`
+	PublicId string `json:"public_id" gorm:"unique"`
 }
 
 // BeforeCreate hook

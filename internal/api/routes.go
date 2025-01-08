@@ -3,8 +3,9 @@ package api
 import (
 	"code-garden-server/internal/api/handlers"
 	"code-garden-server/internal/database"
-	"github.com/docker/docker/client"
 	"net/http"
+
+	"github.com/docker/docker/client"
 )
 
 func InitServer(p int, dc *client.Client, dbc *database.DBClient) {
@@ -33,7 +34,10 @@ func InitServer(p int, dc *client.Client, dbc *database.DBClient) {
 	r.Get("/hello", codeHandler.SayHello)
 	r.Get("/containers", dockerHandler.ListContainers)
 	r.Post("/run-safe", dockerHandler.RunCodeSafe)
+
+	// snippets sharing and retrieving
 	r.Post("/share", codeHandler.ShareCodeSnippet)
+	r.Get("/get-snippet/{publicId}", codeHandler.GetSnippet)
 
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("OK"))
