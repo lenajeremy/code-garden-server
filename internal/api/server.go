@@ -94,6 +94,18 @@ func (r *Router) Post(path string, handler http.HandlerFunc) {
 	})
 }
 
+func (r *Router) Put(path string, handler http.HandlerFunc) {
+	resolvedPath := filepath.Join(r.path, path)
+	r.mux.HandleFunc(fmt.Sprintf("%s %s", http.MethodPut, resolvedPath), func(w http.ResponseWriter, req *http.Request) {
+		w, req, ok := r.RunAllMiddleware(w, req, true)
+		if !ok {
+			return
+		} else {
+			handler(w, req)
+		}
+	})
+}
+
 func (r *Router) RunAllMiddleware(w http.ResponseWriter, req *http.Request, ok bool) (http.ResponseWriter, *http.Request, bool) {
 	for _, m := range r.middlewares {
 		w, req, ok = m.Handler(w, req)

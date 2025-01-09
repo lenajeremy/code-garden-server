@@ -5,6 +5,7 @@ import (
 	"code-garden-server/internal/database/models"
 	"code-garden-server/internal/services/docker"
 	"code-garden-server/utils"
+
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -79,6 +80,9 @@ func (*CodeHandler) RunCodeUnsafe(w http.ResponseWriter, r *http.Request) {
 	} else if body.Language == "go" {
 		commands = []string{"go", "run"}
 		filename = "run.go"
+	} else if body.Language == "swift" {
+		commands = []string{"swift"}
+		filename = "run.swift"
 	} else {
 		utils.WriteRes(w, utils.Response{Status: http.StatusBadRequest, Error: fmt.Sprintf("bad request: unsupported language, %s", err)})
 		return
@@ -110,15 +114,15 @@ func (*CodeHandler) RunCodeUnsafe(w http.ResponseWriter, r *http.Request) {
 	utils.WriteRes(w, utils.Response{Data: string(output), Status: http.StatusOK, Message: "Success"})
 }
 
-func (c *CodeHandler) ShareCodeSnippet(w http.ResponseWriter, r *http.Request) {
+func (c *CodeHandler) CreateCodeSnippet(w http.ResponseWriter, r *http.Request) {
 
-	type sharecodereqbody struct {
+	type createcodereqbody struct {
 		Code     string `json:"code"`
 		Language string `json:"language"`
 		Output   string `json:"output"`
 	}
 
-	var body sharecodereqbody
+	var body createcodereqbody
 
 	defer func(body io.ReadCloser) {
 		_ = body.Close()
@@ -140,6 +144,42 @@ func (c *CodeHandler) ShareCodeSnippet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.WriteRes(w, utils.Response{Data: snippet, Message: "Snippet created successfully", Status: http.StatusCreated, Error: ""})
+}
+
+func (c *CodeHandler) UpdateSnippet(w http.ResponseWriter, r *http.Request) {
+	type updatecodereqbody struct {
+		Code     string `json:"code"`
+		Language string `json:"language"`
+		Output   string `json:"output"`
+	}
+
+	publicId := r.PathValue("publicId")
+
+	var body updatecodereqbody
+
+	defer func(body io.ReadCloser) {
+		_ = body.Close()
+	}(r.Body)
+
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		utils.WriteRes(w, utils.Response{Data: nil, Message: "Bad request", Status: http.StatusBadRequest, Error: "bad request"})
+		return
+	}
+
+	if _, ok := docker.LanguageToImageMap[docker.Language(body.Language)]; !ok {
+		utils.WriteRes(w, utils.Response{Data: nil, Message: "Unsupported Language", Status: http.StatusBadRequest, Error: "unsupported language"})
+		return
+	}
+
+	snippet := models.Snippet{Code: body.Code, Language: body.Language, Output: body.Output}
+	tx := c.DbClient.Model(&snippet).Where("public_id = ?", publicId).Updates(snippet)
+	if tx.Error != nil {
+		utils.WriteRes(w, utils.Response{Data: nil, Message: "Failed to update snippet", Status: http.StatusInternalServerError, Error: tx.Error.Error()})
+		return
+	}
+
+	utils.WriteRes(w, utils.Response{Data: snippet, Message: "Snippet updated successfully", Status: http.StatusOK, Error: ""})
 }
 
 func (c *CodeHandler) GetSnippet(w http.ResponseWriter, r *http.Request) {

@@ -12,6 +12,7 @@ var LanguageToImageMap = map[Language]string{
 	"go":     "code-garden-go",
 	"java":   "openjdk:11",
 	"ruby":   "ruby:2.7",
+	"swift": "swiftlang-6.0.0",
 }
 
 var LanguageToDockerFileMap = map[Language]string{
