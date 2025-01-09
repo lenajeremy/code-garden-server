@@ -67,11 +67,14 @@ func (r *Router) Use(middleware Middleware) {
 }
 
 type Middleware struct {
-	Handler func(w http.ResponseWriter, r *http.Request) (http.ResponseWriter, *http.Request, bool)
+	Handler    func(w http.ResponseWriter, r *http.Request) (http.ResponseWriter, *http.Request, bool)
+	PreHandler *func(path string)
 }
 
 func (r *Router) Get(path string, handler http.HandlerFunc) {
 	resolvedPath := filepath.Join(r.path, path)
+
+	r.RunAllPreMiddleware(resolvedPath)
 	r.mux.HandleFunc(fmt.Sprintf("%s %s", http.MethodGet, resolvedPath), func(w http.ResponseWriter, req *http.Request) {
 		w, req, ok := r.RunAllMiddleware(w, req, true)
 		if !ok {
@@ -84,6 +87,8 @@ func (r *Router) Get(path string, handler http.HandlerFunc) {
 
 func (r *Router) Post(path string, handler http.HandlerFunc) {
 	resolvedPath := filepath.Join(r.path, path)
+
+	r.RunAllPreMiddleware(resolvedPath)
 	r.mux.HandleFunc(fmt.Sprintf("%s %s", http.MethodPost, resolvedPath), func(w http.ResponseWriter, req *http.Request) {
 		w, req, ok := r.RunAllMiddleware(w, req, true)
 		if !ok {
@@ -96,6 +101,8 @@ func (r *Router) Post(path string, handler http.HandlerFunc) {
 
 func (r *Router) Put(path string, handler http.HandlerFunc) {
 	resolvedPath := filepath.Join(r.path, path)
+
+	r.RunAllPreMiddleware(resolvedPath)
 	r.mux.HandleFunc(fmt.Sprintf("%s %s", http.MethodPut, resolvedPath), func(w http.ResponseWriter, req *http.Request) {
 		w, req, ok := r.RunAllMiddleware(w, req, true)
 		if !ok {
@@ -114,4 +121,13 @@ func (r *Router) RunAllMiddleware(w http.ResponseWriter, req *http.Request, ok b
 		}
 	}
 	return w, req, ok
+}
+
+func (r *Router) RunAllPreMiddleware(path string) {
+	for _, m := range r.middlewares {
+		if m.PreHandler != nil {
+			f := *m.PreHandler
+			f(path)
+		}
+	}
 }

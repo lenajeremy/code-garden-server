@@ -3,7 +3,6 @@ package api
 import (
 	"code-garden-server/internal/api/handlers"
 	"code-garden-server/internal/database"
-	"fmt"
 	"math/rand"
 	"net/http"
 	"time"
@@ -21,22 +20,9 @@ func InitServer(p int, dc *client.Client, dbc *database.DBClient) {
 		delay := time.Second * time.Duration(1+rand.Intn(4))
 		time.Sleep(delay)
 		return w, r, true
-	}}
+	}, nil}
 
-	corsMiddleware := Middleware{func(w http.ResponseWriter, r *http.Request) (http.ResponseWriter, *http.Request, bool) {
-		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8080")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-
-		fmt.Println(r.Method)
-
-		if r.Method == http.MethodOptions {
-			w.WriteHeader(http.StatusNoContent)
-			return w, r, false
-		}
-
-		return w, r, true
-	}}
+	corsMiddleware := NewCorsMiddleware(s)
 
 	r := s.DefaultRouter()
 	r.Use(corsMiddleware)
@@ -50,7 +36,7 @@ func InitServer(p int, dc *client.Client, dbc *database.DBClient) {
 	// snippets sharing and retrieving
 	r.Post("/snippet/create", codeHandler.CreateCodeSnippet)
 	r.Get("/snippet/{publicId}", codeHandler.GetSnippet)
-	r.Post("/snippet/{publicId}", codeHandler.UpdateSnippet)
+	r.Put("/snippet/{publicId}", codeHandler.UpdateSnippet)
 
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("OK"))
