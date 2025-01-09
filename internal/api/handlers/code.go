@@ -70,25 +70,28 @@ func (*CodeHandler) RunCodeUnsafe(w http.ResponseWriter, r *http.Request) {
 
 	if body.Language == "javascript" {
 		commands = []string{"node"}
-		filename = "main.js"
+		filename = "main*.js"
 	} else if body.Language == "python" {
 		commands = []string{"python3"}
-		filename = "main.py"
+		filename = "main*.py"
 	} else if body.Language == "typescript" {
 		commands = []string{"ts-node"}
-		filename = "main.ts"
+		filename = "main*.ts"
 	} else if body.Language == "go" {
 		commands = []string{"go", "run"}
-		filename = "run.go"
+		filename = "main*.go"
 	} else if body.Language == "swift" {
 		commands = []string{"swift"}
-		filename = "run.swift"
+		filename = "main*swift"
+	} else if body.Language == "c++" {
+		filename = "main*.cpp"
+		commands = []string{"./run-cpp.sh"}
 	} else {
 		utils.WriteRes(w, utils.Response{Status: http.StatusBadRequest, Error: fmt.Sprintf("bad request: unsupported language, %s", err)})
 		return
 	}
 
-	file, err := os.CreateTemp("/Users/jeremiahlena/Desktop", filename)
+	file, err := os.CreateTemp("/Users/jeremiahlena/Desktop/code-garden-server", filename)
 	if err != nil {
 		utils.WriteRes(w, utils.Response{Status: http.StatusInternalServerError, Error: fmt.Sprintf("internal server error: failed to create file, %s", err)})
 		return
