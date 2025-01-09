@@ -4,6 +4,7 @@ import (
 	"code-garden-server/internal/api/handlers"
 	"code-garden-server/internal/database"
 	"fmt"
+	"math/rand"
 	"net/http"
 	"time"
 
@@ -17,7 +18,8 @@ func InitServer(p int, dc *client.Client, dbc *database.DBClient) {
 	dockerHandler := handlers.NewDockerHandler(dc, dbc)
 
 	delayMiddleware := Middleware{func(w http.ResponseWriter, r *http.Request) (http.ResponseWriter, *http.Request, bool) {
-		time.Sleep(time.Second * 3)
+		delay := time.Second * time.Duration(1+rand.Intn(4))
+		time.Sleep(delay)
 		return w, r, true
 	}}
 
