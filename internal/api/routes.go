@@ -16,17 +16,21 @@ func InitServer(p int, dc *client.Client, dbc *database.DBClient) {
 	codeHandler := handlers.NewCodeHandler(dbc)
 	dockerHandler := handlers.NewDockerHandler(dc, dbc)
 
-	delayMiddleware := Middleware{func(w http.ResponseWriter, r *http.Request) (http.ResponseWriter, *http.Request, bool) {
-		delay := time.Second * time.Duration(1+rand.Intn(4))
-		time.Sleep(delay)
-		return w, r, true
-	}, nil}
+	delayMiddleware := Middleware{
+		Handler: func(w http.ResponseWriter, r *http.Request) (http.ResponseWriter, *http.Request, bool) {
+			delay := time.Second * time.Duration(1+rand.Intn(4))
+			time.Sleep(delay)
+			return w, r, true
+		},
+	}
 
 	corsMiddleware := NewCorsMiddleware(s)
+	loggerMiddlware := NewLoggerMiddlware(s)
 
 	r := s.DefaultRouter()
 	r.Use(corsMiddleware)
 	r.Use(delayMiddleware)
+	r.Use(loggerMiddlware)
 
 	r.Post("/run-unsafe", codeHandler.RunCodeUnsafe)
 	r.Get("/hello", codeHandler.SayHello)

@@ -2,19 +2,28 @@ package api
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 )
 
 type Middleware struct {
-	Handler    func(w http.ResponseWriter, r *http.Request) (http.ResponseWriter, *http.Request, bool)
-	PreHandler *func(path string)
+	Handler     func(w http.ResponseWriter, r *http.Request) (http.ResponseWriter, *http.Request, bool)
+	PreHandler  func(path string)
+	PostHandler func(w http.ResponseWriter, r *http.Request)
 }
 
+func NewLoggerMiddlware(s *Server) Middleware {
+	postHandler := func(w http.ResponseWriter, r *http.Request) {
+		status := w.Header().Get("Status")
+		path := r.URL.String()
+		log.Printf("%s \t %s\n", path, status)
+	}
+	m := Middleware{PostHandler: postHandler}
+	return m
+}
 
 func NewCorsMiddleware(s *Server) Middleware {
-
 	registeredPaths := map[string]bool{}
-
 	// sets up options handler for every request
 	preHandler := func(path string) {
 		if _, ok := registeredPaths[path]; !ok {
@@ -31,7 +40,7 @@ func NewCorsMiddleware(s *Server) Middleware {
 		return w, r, true
 	}
 
-	return Middleware{Handler: handler, PreHandler: &preHandler}
+	return Middleware{Handler: handler, PreHandler: preHandler}
 }
 
 func setCorsHeaders(w http.ResponseWriter, isOptions bool) {

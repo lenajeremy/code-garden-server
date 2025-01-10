@@ -66,17 +66,17 @@ func (r *Router) Use(middleware Middleware) {
 	r.middlewares = append(r.middlewares, middleware)
 }
 
-
 func (r *Router) Get(path string, handler http.HandlerFunc) {
 	resolvedPath := filepath.Join(r.path, path)
 
-	r.RunAllPreMiddleware(resolvedPath)
+	r.RunAllPreMiddlewareHandlers(resolvedPath)
 	r.mux.HandleFunc(fmt.Sprintf("%s %s", http.MethodGet, resolvedPath), func(w http.ResponseWriter, req *http.Request) {
-		w, req, ok := r.RunAllMiddleware(w, req, true)
+		w, req, ok := r.RunAllMiddlewareHandlers(w, req, true)
 		if !ok {
 			return
 		} else {
 			handler(w, req)
+			r.RunAllPostMiddlewareHandlers(w, req)
 		}
 	})
 }
@@ -84,13 +84,14 @@ func (r *Router) Get(path string, handler http.HandlerFunc) {
 func (r *Router) Post(path string, handler http.HandlerFunc) {
 	resolvedPath := filepath.Join(r.path, path)
 
-	r.RunAllPreMiddleware(resolvedPath)
+	r.RunAllPreMiddlewareHandlers(resolvedPath)
 	r.mux.HandleFunc(fmt.Sprintf("%s %s", http.MethodPost, resolvedPath), func(w http.ResponseWriter, req *http.Request) {
-		w, req, ok := r.RunAllMiddleware(w, req, true)
+		w, req, ok := r.RunAllMiddlewareHandlers(w, req, true)
 		if !ok {
 			return
 		} else {
 			handler(w, req)
+			r.RunAllPostMiddlewareHandlers(w, req)
 		}
 	})
 }
@@ -98,19 +99,23 @@ func (r *Router) Post(path string, handler http.HandlerFunc) {
 func (r *Router) Put(path string, handler http.HandlerFunc) {
 	resolvedPath := filepath.Join(r.path, path)
 
-	r.RunAllPreMiddleware(resolvedPath)
+	r.RunAllPreMiddlewareHandlers(resolvedPath)
 	r.mux.HandleFunc(fmt.Sprintf("%s %s", http.MethodPut, resolvedPath), func(w http.ResponseWriter, req *http.Request) {
-		w, req, ok := r.RunAllMiddleware(w, req, true)
+		w, req, ok := r.RunAllMiddlewareHandlers(w, req, true)
 		if !ok {
 			return
 		} else {
 			handler(w, req)
+			r.RunAllPostMiddlewareHandlers(w, req)
 		}
 	})
 }
 
-func (r *Router) RunAllMiddleware(w http.ResponseWriter, req *http.Request, ok bool) (http.ResponseWriter, *http.Request, bool) {
+func (r *Router) RunAllMiddlewareHandlers(w http.ResponseWriter, req *http.Request, ok bool) (http.ResponseWriter, *http.Request, bool) {
 	for _, m := range r.middlewares {
+		if m.Handler == nil {
+			break
+		}
 		w, req, ok = m.Handler(w, req)
 		if !ok {
 			break
@@ -119,11 +124,18 @@ func (r *Router) RunAllMiddleware(w http.ResponseWriter, req *http.Request, ok b
 	return w, req, ok
 }
 
-func (r *Router) RunAllPreMiddleware(path string) {
+func (r *Router) RunAllPreMiddlewareHandlers(path string) {
 	for _, m := range r.middlewares {
 		if m.PreHandler != nil {
-			f := *m.PreHandler
-			f(path)
+			m.PreHandler(path)
+		}
+	}
+}
+
+func (r *Router) RunAllPostMiddlewareHandlers(w http.ResponseWriter, req *http.Request) {
+	for _, m := range r.middlewares {
+		if m.PostHandler != nil {
+			m.PostHandler(w, req)
 		}
 	}
 }

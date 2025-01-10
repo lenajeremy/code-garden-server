@@ -37,10 +37,8 @@ func (*CodeHandler) SayHello(w http.ResponseWriter, r *http.Request) {
 	if name == "" {
 		name = "World"
 	}
-	_, err := fmt.Fprintf(w, "Hello %s!", name)
-	if err != nil {
-		return
-	}
+
+	utils.WriteRes(w, utils.Response{Status: 200, Message: "Hello " + name + "!"})
 }
 
 func (*CodeHandler) RunCodeUnsafe(w http.ResponseWriter, r *http.Request) {
