@@ -8,7 +8,7 @@ import (
 )
 
 type Snippet struct {
-	gorm.Model
+	BaseModel
 	Code     string `json:"code"`
 	Language string `json:"language"`
 	Output   string `json:"output"`
