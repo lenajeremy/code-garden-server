@@ -4,7 +4,10 @@ go 1.23.0
 
 require (
 	github.com/docker/docker v27.4.1+incompatible
+	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
+	gorm.io/driver/postgres v1.5.11
+	gorm.io/gorm v1.25.12
 )
 
 require (
@@ -41,7 +44,5 @@ require (
 	golang.org/x/sys v0.29.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 	golang.org/x/time v0.9.0 // indirect
-	gorm.io/driver/postgres v1.5.11 // indirect
-	gorm.io/gorm v1.25.12 // indirect
 	gotest.tools/v3 v3.5.1 // indirect
 )

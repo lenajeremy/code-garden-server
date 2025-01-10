@@ -5,6 +5,12 @@ import (
 	"net/http"
 )
 
+type Middleware struct {
+	Handler    func(w http.ResponseWriter, r *http.Request) (http.ResponseWriter, *http.Request, bool)
+	PreHandler *func(path string)
+}
+
+
 func NewCorsMiddleware(s *Server) Middleware {
 
 	registeredPaths := map[string]bool{}
@@ -26,7 +32,6 @@ func NewCorsMiddleware(s *Server) Middleware {
 	}
 
 	return Middleware{Handler: handler, PreHandler: &preHandler}
-
 }
 
 func setCorsHeaders(w http.ResponseWriter, isOptions bool) {

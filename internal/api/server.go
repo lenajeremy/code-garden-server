@@ -66,10 +66,6 @@ func (r *Router) Use(middleware Middleware) {
 	r.middlewares = append(r.middlewares, middleware)
 }
 
-type Middleware struct {
-	Handler    func(w http.ResponseWriter, r *http.Request) (http.ResponseWriter, *http.Request, bool)
-	PreHandler *func(path string)
-}
 
 func (r *Router) Get(path string, handler http.HandlerFunc) {
 	resolvedPath := filepath.Join(r.path, path)
