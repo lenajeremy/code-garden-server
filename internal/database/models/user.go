@@ -1,16 +1,18 @@
 package models
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type User struct {
 	BaseModel
-	Email     string    `json:"email" gorm:"unique; not null"`
-	Password  string    `json:"password" gorm:"not null"`
-	FirstName string    `json:"firstName" gorm:"first_name"`
-	LastName  string    `json:"lastName" gorm:"last_name"`
+	Email     string `json:"email" gorm:"unique; not null"`
+	Password  string `json:"password" gorm:"not null"`
+	FirstName string `json:"firstName" gorm:"first_name"`
+	LastName  string `json:"lastName" gorm:"last_name"`
 }
 
 type SafeUser struct {
@@ -33,3 +35,12 @@ func (u User) BeforeCreate(*gorm.DB) error {
 	u.ID = uuid.New()
 	return nil
 }
+
+type VerificationToken struct {
+	BaseModel
+	Token   string `gorm:"token"`
+	Expires time.Time ``
+	UserId  uuid.UUID
+}
+
+

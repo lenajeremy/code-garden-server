@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"code-garden-server/internal/database"
 	"code-garden-server/internal/services/emails"
-	"fmt"
 	"html/template"
 )
 
@@ -45,9 +44,6 @@ func (as *AuthService) LoginWithEmail(email string) error {
 
 	tmplHtml.Execute(&htmlBuf, input{token})
 	tmplText.Execute(&textBuf, input{token})
-
-	fmt.Printf("%s\n", htmlBuf.String())
-	fmt.Printf("%s\n", textBuf.String())
 
 	err := emails.SendMail(emails.Mail{
 		Emails:  []string{email},
