@@ -113,7 +113,9 @@ func (ds *Service) RunLanguageContainer(lang Language, codeSrc string) (string, 
 
 	// Write code to container in a separate goroutine
 	go func() {
-		defer attachResp.CloseWrite()
+		defer func() {
+			_ = attachResp.CloseWrite()
+		}()
 		_, err := io.Copy(attachResp.Conn, strings.NewReader(codeSrc))
 		inputDone <- err
 	}()
@@ -155,7 +157,9 @@ func (ds *Service) RunLanguageContainer(lang Language, codeSrc string) (string, 
 				return "", fmt.Errorf("container failed with status %d and error getting logs: %w",
 					status.StatusCode, err)
 			}
-			defer logs.Close()
+			defer func() {
+				_ = logs.Close()
+			}()
 
 			var errorOutput bytes.Buffer
 			if _, err := stdcopy.StdCopy(&errorOutput, &errorOutput, logs); err != nil {
@@ -197,7 +201,10 @@ func (ds *Service) BuildLanguageImage(language Language) error {
 		return err
 	}
 
-	defer imgBuildResponse.Body.Close()
+	defer func() {
+		_ = imgBuildResponse.Body.Close()
+	}()
+
 	body, err := io.ReadAll(imgBuildResponse.Body)
 	if err != nil {
 		log.Println("error reading build response body:", err)

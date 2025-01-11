@@ -15,7 +15,7 @@ type Snippet struct {
 }
 
 // BeforeCreate hook
-func (s *Snippet) BeforeCreate(tx *gorm.DB) (err error) {
+func (s *Snippet) BeforeCreate(*gorm.DB) (err error) {
 	randString, err := utils.GenerateRandomString(8)
 	if err != nil {
 		return err

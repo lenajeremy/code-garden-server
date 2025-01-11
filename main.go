@@ -4,7 +4,6 @@ import (
 	"code-garden-server/internal/api"
 	"code-garden-server/internal/database"
 	"code-garden-server/internal/services/docker"
-	"database/sql"
 	"log"
 )
 
@@ -13,7 +12,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer dckClient.Close()
+	defer func() {
+		_ = dckClient.Close()
+	}()
 
 	// create a new database client
 	dbClient, err := database.NewDBClient()
@@ -27,14 +28,11 @@ func main() {
 		log.Fatal("failed to get database connection", err)
 	}
 
-	defer func(conn *sql.DB) {
+	defer func() {
 		log.Println("closing database connection")
-		err := conn.Close()
-		if err != nil {
-
-		}
+		_ = conn.Close()
 		log.Println("database connection closed")
-	}(conn)
+	}()
 
 	// run the setup required to get the database ready
 	// migrations and other setup

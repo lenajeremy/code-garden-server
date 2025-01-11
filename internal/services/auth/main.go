@@ -4,28 +4,29 @@ import (
 	"bytes"
 	"code-garden-server/internal/database"
 	"code-garden-server/internal/services/emails"
+	"fmt"
 	"html/template"
 )
 
-type AuthService struct {
+type Service struct {
 	db *database.DBClient
 }
 
-func NewAuthService(db *database.DBClient) *AuthService {
-	return &AuthService{
+func NewAuthService(db *database.DBClient) *Service {
+	return &Service{
 		db,
 	}
 }
 
-func (as *AuthService) LoginEmailPassword(email, password string) {
+func (as *Service) LoginEmailPassword(email, password string) {
+	fmt.Println(email, password)
+}
+
+func (as *Service) LoginGithub() {
 
 }
 
-func (as *AuthService) LoginGithub() {
-
-}
-
-func (as *AuthService) LoginWithEmail(email string) error {
+func (as *Service) LoginWithEmail(email string) error {
 	type input struct {
 		Token string
 	}
@@ -42,10 +43,17 @@ func (as *AuthService) LoginWithEmail(email string) error {
 	tmplHtml := template.Must(template.ParseFiles(emailTemplatePath))
 	tmplText := template.Must(template.ParseFiles(emailTemplateText))
 
-	tmplHtml.Execute(&htmlBuf, input{token})
-	tmplText.Execute(&textBuf, input{token})
+	err := tmplHtml.Execute(&htmlBuf, input{token})
+	if err != nil {
+		return err
+	}
 
-	err := emails.SendMail(emails.Mail{
+	err = tmplText.Execute(&textBuf, input{token})
+	if err != nil {
+		return err
+	}
+
+	err = emails.SendMail(emails.Mail{
 		Emails:  []string{email},
 		Html:    htmlBuf.String(),
 		Text:    textBuf.String(),

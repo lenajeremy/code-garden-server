@@ -21,7 +21,7 @@ type CodeHandler struct {
 	DbClient *database.DBClient
 }
 
-type reqbody struct {
+type requestBody struct {
 	Code     string `json:"code"`
 	Language string `json:"language"`
 }
@@ -42,7 +42,7 @@ func (*CodeHandler) SayHello(w http.ResponseWriter, r *http.Request) {
 }
 
 func (*CodeHandler) RunCodeUnsafe(w http.ResponseWriter, r *http.Request) {
-	var body reqbody
+	var body requestBody
 
 	defer func(body io.ReadCloser) {
 		err := body.Close()
@@ -89,13 +89,23 @@ func (*CodeHandler) RunCodeUnsafe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	file, err := os.CreateTemp("/Users/jeremiahlena/Desktop/code-garden-server", filename)
+	dir, err := os.Getwd()
+	if err != nil {
+		utils.WriteRes(w, utils.Response{Status: http.StatusInternalServerError, Error: "internal server error: failed to get working directory"})
+		return
+	}
+
+	file, err := os.CreateTemp(dir, filename)
 	if err != nil {
 		utils.WriteRes(w, utils.Response{Status: http.StatusInternalServerError, Error: fmt.Sprintf("internal server error: failed to create file, %s", err)})
 		return
 	}
-	defer file.Close()
-	defer os.Remove(file.Name())
+	defer func() {
+		_ = file.Close()
+	}()
+	defer func() {
+		_ = os.Remove(file.Name())
+	}()
 
 	_, err = file.WriteString(body.Code)
 	if err != nil {
@@ -117,20 +127,23 @@ func (*CodeHandler) RunCodeUnsafe(w http.ResponseWriter, r *http.Request) {
 
 func (c *CodeHandler) CreateCodeSnippet(w http.ResponseWriter, r *http.Request) {
 
-	type createcodereqbody struct {
+	type createCodeRequestBody struct {
 		Code     string `json:"code"`
 		Language string `json:"language"`
 		Output   string `json:"output"`
 	}
 
-	var body createcodereqbody
+	var body createCodeRequestBody
 
-	defer func(body io.ReadCloser) {
-		_ = body.Close()
-	}(r.Body)
+	defer func() {
+		_ = r.Body.Close()
+	}()
 
-	decoder := json.NewDecoder(r.Body)
-	decoder.Decode(&body)
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		utils.WriteRes(w, utils.Response{Data: nil, Message: "Bad request", Status: http.StatusBadRequest, Error: err.Error()})
+		return
+	}
 
 	if _, ok := docker.LanguageToImageMap[docker.Language(body.Language)]; !ok {
 		utils.WriteRes(w, utils.Response{Data: nil, Message: "Unsupported Language", Status: http.StatusBadRequest, Error: "unsupported language"})
@@ -148,7 +161,7 @@ func (c *CodeHandler) CreateCodeSnippet(w http.ResponseWriter, r *http.Request) 
 }
 
 func (c *CodeHandler) UpdateSnippet(w http.ResponseWriter, r *http.Request) {
-	type updatecodereqbody struct {
+	type updateCodeRequestBody struct {
 		Code     string `json:"code"`
 		Language string `json:"language"`
 		Output   string `json:"output"`
@@ -156,7 +169,7 @@ func (c *CodeHandler) UpdateSnippet(w http.ResponseWriter, r *http.Request) {
 
 	publicId := r.PathValue("publicId")
 
-	var body updatecodereqbody
+	var body updateCodeRequestBody
 
 	defer func(body io.ReadCloser) {
 		_ = body.Close()
@@ -221,6 +234,6 @@ func (c *CodeHandler) GetSnippet(w http.ResponseWriter, r *http.Request) {
 		Error:   "",
 		Data:    s,
 		Status:  http.StatusOK,
-		Message: "Successfully retrieved code snipppet",
+		Message: "Successfully retrieved code snippet",
 	})
 }

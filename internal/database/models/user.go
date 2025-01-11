@@ -1,6 +1,7 @@
 package models
 
 import (
+	"code-garden-server/utils"
 	"time"
 
 	"github.com/google/uuid"
@@ -38,9 +39,16 @@ func (u User) BeforeCreate(*gorm.DB) error {
 
 type VerificationToken struct {
 	BaseModel
-	Token   string `gorm:"token"`
-	Expires time.Time ``
-	UserId  uuid.UUID
+	Token     string    `gorm:"token"`
+	ExpiresAt time.Time `gorm:"expires_at"`
+	UserId    uuid.UUID
 }
 
-
+func (vt VerificationToken) BeforeCreate(*gorm.DB) error {
+	randStr, err := utils.GenerateRandomString(10)
+	if err != nil {
+		return err
+	}
+	vt.Token = randStr
+	return nil
+}

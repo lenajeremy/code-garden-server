@@ -21,7 +21,7 @@ func NewDockerHandler(dc *client.Client, dbc *database.DBClient) *DockerHandler 
 	return &DockerHandler{dockerService}
 }
 
-func (d *DockerHandler) ListContainers(w http.ResponseWriter, r *http.Request) {
+func (d *DockerHandler) ListContainers(w http.ResponseWriter, _ *http.Request) {
 	containers, err := d.service.ListRunningContainers()
 	if err != nil {
 		http.Error(w, err.Error(), 500)
@@ -46,12 +46,12 @@ func (d *DockerHandler) ListContainers(w http.ResponseWriter, r *http.Request) {
 }
 
 func (d *DockerHandler) RunCodeSafe(w http.ResponseWriter, r *http.Request) {
-	type reqbody struct {
+	type reqBody struct {
 		Code     string `json:"code"`
 		Language string `json:"language"`
 	}
 
-	var body reqbody
+	var body reqBody
 
 	defer func(body io.ReadCloser) {
 		_ = body.Close()

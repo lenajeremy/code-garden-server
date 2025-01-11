@@ -12,7 +12,7 @@ type Middleware struct {
 	PostHandler func(w http.ResponseWriter, r *http.Request)
 }
 
-func NewLoggerMiddlware(s *Server) Middleware {
+func NewLoggerMiddleware() Middleware {
 	postHandler := func(w http.ResponseWriter, r *http.Request) {
 		status := w.Header().Get("Status")
 		path := r.URL.String()

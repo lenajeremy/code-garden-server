@@ -9,7 +9,7 @@ import (
 )
 
 type AuthHandler struct {
-	service *auth.AuthService
+	service *auth.Service
 }
 
 func NewAuthHandler(db *database.DBClient) *AuthHandler {
@@ -19,12 +19,14 @@ func NewAuthHandler(db *database.DBClient) *AuthHandler {
 }
 
 func (h *AuthHandler) LoginWithEmail(w http.ResponseWriter, r *http.Request) {
-	type reqbody struct {
+	type requestBody struct {
 		Email string `json:"email"`
 	}
-	defer r.Body.Close()
+	defer func() {
+		_ = r.Body.Close()
+	}()
 
-	var body reqbody
+	var body requestBody
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
 		utils.WriteRes(w, utils.Response{Status: 400, Error: err.Error(), Message: "Bad request body"})

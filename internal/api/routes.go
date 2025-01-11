@@ -4,6 +4,7 @@ import (
 	"code-garden-server/internal/api/handlers"
 	"code-garden-server/internal/database"
 	"net/http"
+	"time"
 
 	"github.com/docker/docker/client"
 )
@@ -15,21 +16,20 @@ func InitServer(p int, dc *client.Client, dbc *database.DBClient) {
 	dockerHandler := handlers.NewDockerHandler(dc, dbc)
 	authHandler := handlers.NewAuthHandler(dbc)
 
-	// delayMiddleware := Middleware{
-	// 	Handler: func(w http.ResponseWriter, r *http.Request) (http.ResponseWriter, *http.Request, bool) {
-	// 		delay := time.Second * time.Duration(1+rand.Intn(4))
-	// 		time.Sleep(delay)
-	// 		return w, r, true
-	// 	},
-	// }
+	delayMiddleware := Middleware{
+		Handler: func(w http.ResponseWriter, r *http.Request) (http.ResponseWriter, *http.Request, bool) {
+			time.Sleep(time.Second)
+			return w, r, true
+		},
+	}
 
 	corsMiddleware := NewCorsMiddleware(s)
-	loggerMiddlware := NewLoggerMiddlware(s)
+	loggerMiddleware := NewLoggerMiddleware()
 
 	r := s.DefaultRouter()
 	r.Use(corsMiddleware)
-	// r.Use(delayMiddleware)
-	r.Use(loggerMiddlware)
+	r.Use(delayMiddleware)
+	r.Use(loggerMiddleware)
 
 	r.Post("/run-unsafe", codeHandler.RunCodeUnsafe)
 	r.Get("/hello", codeHandler.SayHello)
@@ -42,7 +42,7 @@ func InitServer(p int, dc *client.Client, dbc *database.DBClient) {
 	r.Put("/snippet/{publicId}", codeHandler.UpdateSnippet)
 
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("OK"))
+		_, _ = w.Write([]byte("OK"))
 	})
 
 	auth := r.Group("auth")
