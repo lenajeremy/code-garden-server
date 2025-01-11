@@ -58,7 +58,7 @@ func newRouter(mux *http.ServeMux, path string) *Router {
 func (r *Router) Group(path string, middlewares ...Middleware) *Router {
 	path = filepath.Join(r.path, path)
 	rout := newRouter(r.mux, path)
-	rout.middlewares = middlewares
+	rout.middlewares = append(r.middlewares, middlewares...)
 	return rout
 }
 

@@ -3,9 +3,7 @@ package api
 import (
 	"code-garden-server/internal/api/handlers"
 	"code-garden-server/internal/database"
-	"math/rand"
 	"net/http"
-	"time"
 
 	"github.com/docker/docker/client"
 )
@@ -15,21 +13,22 @@ func InitServer(p int, dc *client.Client, dbc *database.DBClient) {
 
 	codeHandler := handlers.NewCodeHandler(dbc)
 	dockerHandler := handlers.NewDockerHandler(dc, dbc)
+	authHandler := handlers.NewAuthHandler(dbc)
 
-	delayMiddleware := Middleware{
-		Handler: func(w http.ResponseWriter, r *http.Request) (http.ResponseWriter, *http.Request, bool) {
-			delay := time.Second * time.Duration(1+rand.Intn(4))
-			time.Sleep(delay)
-			return w, r, true
-		},
-	}
+	// delayMiddleware := Middleware{
+	// 	Handler: func(w http.ResponseWriter, r *http.Request) (http.ResponseWriter, *http.Request, bool) {
+	// 		delay := time.Second * time.Duration(1+rand.Intn(4))
+	// 		time.Sleep(delay)
+	// 		return w, r, true
+	// 	},
+	// }
 
 	corsMiddleware := NewCorsMiddleware(s)
 	loggerMiddlware := NewLoggerMiddlware(s)
 
 	r := s.DefaultRouter()
 	r.Use(corsMiddleware)
-	r.Use(delayMiddleware)
+	// r.Use(delayMiddleware)
 	r.Use(loggerMiddlware)
 
 	r.Post("/run-unsafe", codeHandler.RunCodeUnsafe)
@@ -45,6 +44,9 @@ func InitServer(p int, dc *client.Client, dbc *database.DBClient) {
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("OK"))
 	})
+
+	auth := r.Group("auth")
+	auth.Post("/login-with-email", authHandler.LoginWithEmail)
 
 	s.Start()
 }

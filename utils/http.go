@@ -17,7 +17,7 @@ func WriteRes(w http.ResponseWriter, rb Response) {
 	w.WriteHeader(rb.Status)
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Status", strconv.Itoa(rb.Status))
-	
+
 	err := json.NewEncoder(w).Encode(rb)
 	if err != nil {
 		http.Error(w, "internal server error: failed to encode response", http.StatusInternalServerError)
