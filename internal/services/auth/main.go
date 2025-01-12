@@ -6,7 +6,6 @@ import (
 	"code-garden-server/internal/database"
 	"code-garden-server/internal/database/models"
 	"code-garden-server/internal/database/queries"
-	"code-garden-server/internal/services/emails"
 	"errors"
 	"fmt"
 	"html/template"
@@ -46,48 +45,58 @@ func (as *Service) RegisterWithEmail(email, clientHost string) error {
 		ClientHost, Token string
 	}
 
+	fmt.Println(email)
+
 	var user = models.User{Email: email}
-	tx := as.db.Create(&user)
-	if tx.Error != nil {
-		return tx.Error
-	}
+	err := as.db.Transaction(func(db *gorm.DB) error {
+		tx := as.db.FirstOrCreate(&user, "email = ?", email)
+		if tx.Error != nil {
+			return tx.Error
+		}
 
-	token := models.VerificationToken{
-		ExpiresAt: time.Now().Add(time.Minute * 10),
-		UserID:    user.ID,
-	}
+		fmt.Println(user)
 
-	tx = as.db.Create(&token)
-	if tx.Error != nil {
-		return tx.Error
-	}
+		token := models.VerificationToken{
+			ExpiresAt: time.Now().Add(time.Minute * 10),
+			UserID:    user.ID,
+		}
 
-	i := input{clientHost, token.Token}
+		tx = as.db.Create(&token)
+		if tx.Error != nil {
+			return tx.Error
+		}
 
-	var htmlBuf bytes.Buffer
-	var textBuf bytes.Buffer
+		i := input{clientHost, token.Token}
 
-	emailTemplatePath := "./internal/services/emails/templates/register.html"
-	emailTemplateText := "./internal/services/emails/templates/register.txt"
+		var htmlBuf bytes.Buffer
+		var textBuf bytes.Buffer
 
-	tmplHtml := template.Must(template.ParseFiles(emailTemplatePath))
-	tmplText := template.Must(template.ParseFiles(emailTemplateText))
+		emailTemplatePath := "./internal/services/emails/templates/register.html"
+		emailTemplateText := "./internal/services/emails/templates/register.txt"
 
-	err := tmplHtml.Execute(&htmlBuf, i)
-	if err != nil {
+		tmplHtml := template.Must(template.ParseFiles(emailTemplatePath))
+		tmplText := template.Must(template.ParseFiles(emailTemplateText))
+
+		err := tmplHtml.Execute(&htmlBuf, i)
+		if err != nil {
+			return err
+		}
+
+		err = tmplText.Execute(&textBuf, i)
+		if err != nil {
+			return err
+		}
+
+		fmt.Println(textBuf.String())
+
+		// err = emails.SendMail(emails.Mail{
+		// 	Emails:  []string{email},
+		// 	Html:    htmlBuf.String(),
+		// 	Text:    textBuf.String(),
+		// 	Subject: "Verify your Email",
+		// })
+
 		return err
-	}
-
-	err = tmplText.Execute(&textBuf, i)
-	if err != nil {
-		return err
-	}
-
-	err = emails.SendMail(emails.Mail{
-		Emails:  []string{email},
-		Html:    htmlBuf.String(),
-		Text:    textBuf.String(),
-		Subject: "Verify your Email",
 	})
 
 	return err
@@ -104,47 +113,53 @@ func (as *Service) LoginWithEmail(email, clientHost string) error {
 		return err
 	}
 
+	if !user.EmailVerified {
+		return as.RegisterWithEmail(email, "http://localhost:8080/auth/verify-email")
+	}
+
 	// generate token
 	token := models.VerificationToken{
 		ExpiresAt: time.Now().Add(time.Minute * 10),
 		UserID:    user.ID,
 	}
 
-	tx := as.db.Create(&token)
-	if tx.Error != nil {
-		return tx.Error
-	}
+	return as.db.Transaction(func(db *gorm.DB) error {
+		tx := as.db.Create(&token)
+		if tx.Error != nil {
+			return tx.Error
+		}
 
-	var htmlBuf bytes.Buffer
-	var textBuf bytes.Buffer
+		var htmlBuf bytes.Buffer
+		var textBuf bytes.Buffer
 
-	// build email
-	emailTemplatePath := "./internal/services/emails/templates/login.html"
-	emailTemplateText := "./internal/services/emails/templates/login.txt"
+		// build email
+		emailTemplatePath := "./internal/services/emails/templates/login.html"
+		emailTemplateText := "./internal/services/emails/templates/login.txt"
 
-	tmplHtml := template.Must(template.ParseFiles(emailTemplatePath))
-	tmplText := template.Must(template.ParseFiles(emailTemplateText))
+		tmplHtml := template.Must(template.ParseFiles(emailTemplatePath))
+		tmplText := template.Must(template.ParseFiles(emailTemplateText))
 
-	err = tmplHtml.Execute(&htmlBuf, input{clientHost, token.Token})
-	if err != nil {
+		err = tmplHtml.Execute(&htmlBuf, input{clientHost, token.Token})
+		if err != nil {
+			return err
+		}
+
+		err = tmplText.Execute(&textBuf, input{clientHost, token.Token})
+		if err != nil {
+			return err
+		}
+
+		fmt.Println(textBuf.String())
+
+		// err = emails.SendMail(emails.Mail{
+		// 	Emails:  []string{email},
+		// 	Html:    htmlBuf.String(),
+		// 	Text:    textBuf.String(),
+		// 	Subject: "Sign in to Code Garden",
+		// })
+
 		return err
-	}
-
-	err = tmplText.Execute(&textBuf, input{clientHost, token.Token})
-	if err != nil {
-		return err
-	}
-
-	fmt.Println(textBuf.String())
-
-	err = emails.SendMail(emails.Mail{
-		Emails:  []string{email},
-		Html:    htmlBuf.String(),
-		Text:    textBuf.String(),
-		Subject: "Sign in to Code Garden",
 	})
-
-	return err
 }
 
 func (as *Service) VerifyUserEmail(token string) (*models.VerificationToken, error) {
@@ -164,7 +179,12 @@ func (as *Service) VerifyUserEmail(token string) (*models.VerificationToken, err
 		}
 
 		now := time.Now()
-		return db.Model(&t.User).Updates(models.User{EmailVerified: true, EmailVerifiedAt: &now}).Error
+		tx = db.Model(&t.User).Updates(models.User{EmailVerified: true, EmailVerifiedAt: &now})
+		if tx.Error != nil {
+			fmt.Println(tx.Error)
+			return tx.Error
+		}
+		return nil
 	})
 
 	if err != nil {
@@ -181,11 +201,16 @@ func (as *Service) GenerateJwtFromToken(tokenStr string) (string, error) {
 	}
 
 	jwtSecret := []byte(config.GetEnv("JWT_SECRET"))
-	claims := jwt.RegisteredClaims{
-		Issuer:    "code-garden-server",
-		IssuedAt:  jwt.NewNumericDate(time.Now()),
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24 * 30)), // tokens last a month
-		ID:        token.UserID.String(),
+	claims := struct {
+		jwt.RegisteredClaims
+		User models.User `json:"user"`
+	}{
+		jwt.RegisteredClaims{
+			Issuer:    "code-garden-server",
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24 * 30)), // tokens last a month
+		},
+		token.User,
 	}
 
 	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

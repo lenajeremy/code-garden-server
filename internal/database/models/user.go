@@ -2,7 +2,6 @@ package models
 
 import (
 	"code-garden-server/utils"
-	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -29,7 +28,6 @@ type VerificationToken struct {
 }
 
 func (vt *VerificationToken) BeforeCreate(tx *gorm.DB) error {
-	fmt.Println("creating verification token", vt)
 	err := vt.BaseModel.BeforeCreate(tx)
 	if err != nil {
 		return err
