@@ -6,8 +6,9 @@ import (
 	"code-garden-server/utils"
 	"encoding/json"
 	"errors"
-	"gorm.io/gorm"
 	"net/http"
+
+	"gorm.io/gorm"
 )
 
 type AuthHandler struct {
@@ -24,14 +25,16 @@ type requestBody struct {
 	Email string `json:"email"`
 }
 
-func (h *AuthHandler) VerifyToken(w http.ResponseWriter, r *http.Request) {
+func (h *AuthHandler) VerifyUserEmail(w http.ResponseWriter, r *http.Request) {
 	tokenString := r.PathValue("token")
+
 	if tokenString == "" {
 		utils.WriteRes(w, utils.Response{Status: 400, Message: "Bad request: Invalid token", Error: "Invalid token"})
 		return
 	}
 
-	err := h.service.VerifyToken(tokenString)
+	_, err := h.service.VerifyUserEmail(tokenString)
+
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			utils.WriteRes(w, utils.Response{Status: 404, Message: "failed to verify token", Error: err.Error()})
@@ -57,7 +60,7 @@ func (h *AuthHandler) RegisterWithEmail(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	err = h.service.RegisterWithEmail(body.Email, "http://localhost:3000/auth/verify-token")
+	err = h.service.RegisterWithEmail(body.Email, "http://localhost:8080/auth/verify-email")
 	if err != nil {
 		utils.WriteRes(w, utils.Response{Status: 500, Error: err.Error(), Message: "Failed to create account"})
 		return
@@ -78,7 +81,7 @@ func (h *AuthHandler) LoginWithEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.service.LoginWithEmail(body.Email, "http://localhost:8080/auth/verify-token")
+	err = h.service.LoginWithEmail(body.Email, "http://localhost:8080/auth/sign-in-with-token")
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			utils.WriteRes(w, utils.Response{Status: 404, Error: err.Error(), Message: "User with email not found."})
@@ -89,4 +92,21 @@ func (h *AuthHandler) LoginWithEmail(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.WriteRes(w, utils.Response{Status: 200, Message: "Email sent"})
+}
+
+func (h *AuthHandler) SignInWithToken(w http.ResponseWriter, r *http.Request) {
+	token := r.PathValue("token")
+
+	if token == "" {
+		utils.WriteRes(w, utils.Response{Status: 400, Error: "invalid token", Message: "Bad request. Invalid token"})
+		return
+	}
+
+	jwtToken, err := h.service.GenerateJwtFromToken(token)
+	if err != nil {
+		utils.WriteRes(w, utils.Response{Status: 500, Error: err.Error(), Message: "Failed to sign user in"})
+		return
+	}
+
+	utils.WriteRes(w, utils.Response{Status: 200, Message: "Successfully signed in!", Data: map[string]string{"token": jwtToken}})
 }

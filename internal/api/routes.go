@@ -48,7 +48,8 @@ func InitServer(p int, dc *client.Client, dbc *database.DBClient) {
 	auth := r.Group("auth")
 	auth.Post("/login-with-email", authHandler.LoginWithEmail)
 	auth.Post("/register-with-email", authHandler.RegisterWithEmail)
-	auth.Get("/verify-token/{token}", authHandler.VerifyToken)
+	auth.Post("/verify-email/{token}", authHandler.VerifyUserEmail)
+	auth.Post("/sign-in-with-token/{token}", authHandler.SignInWithToken)
 
 	s.Start()
 }

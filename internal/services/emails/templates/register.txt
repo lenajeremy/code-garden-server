@@ -1,2 +1,2 @@
 Verify your email
-Click "{{ .ClientHost }}/{{ .Token }}" here to sign in.
+Click "{{ .ClientHost }}/{{ .Token }}" here to verify your account.

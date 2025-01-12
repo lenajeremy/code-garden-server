@@ -2,15 +2,16 @@ package auth
 
 import (
 	"bytes"
+	"code-garden-server/config"
 	"code-garden-server/internal/database"
 	"code-garden-server/internal/database/models"
 	"code-garden-server/internal/database/queries"
-	"code-garden-server/internal/services/emails"
 	"errors"
 	"fmt"
 	"html/template"
 	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"gorm.io/gorm"
 )
 
@@ -23,6 +24,13 @@ func NewAuthService(db *database.DBClient) *Service {
 		db,
 	}
 }
+
+type VerificationOperation int
+
+const (
+	CreateJwtToken VerificationOperation = iota
+	MarkUserEmailAsVerified
+)
 
 func (as *Service) LoginEmailPassword(email, password string) {
 	fmt.Println(email, password)
@@ -74,12 +82,14 @@ func (as *Service) RegisterWithEmail(email, clientHost string) error {
 		return err
 	}
 
-	err = emails.SendMail(emails.Mail{
-		Emails:  []string{email},
-		Html:    htmlBuf.String(),
-		Text:    textBuf.String(),
-		Subject: "Verify your Email",
-	})
+	fmt.Println(textBuf.String())
+
+	// err = emails.SendMail(emails.Mail{
+	// 	Emails:  []string{email},
+	// 	Html:    htmlBuf.String(),
+	// 	Text:    textBuf.String(),
+	// 	Subject: "Verify your Email",
+	// })
 
 	return err
 }
@@ -88,7 +98,6 @@ func (as *Service) LoginWithEmail(email, clientHost string) error {
 	type input struct {
 		ClientHost string
 		Token      string
-		UserName   string
 	}
 
 	user, err := queries.GetUserFromEmail(email, as.db)
@@ -99,7 +108,7 @@ func (as *Service) LoginWithEmail(email, clientHost string) error {
 	// generate token
 	token := models.VerificationToken{
 		ExpiresAt: time.Now().Add(time.Minute * 10),
-		User:      *user,
+		UserID:    user.ID,
 	}
 
 	tx := as.db.Create(&token)
@@ -111,59 +120,80 @@ func (as *Service) LoginWithEmail(email, clientHost string) error {
 	var textBuf bytes.Buffer
 
 	// build email
-	emailTemplatePath := "./internal/services/emails/templates/login.tmpl"
+	emailTemplatePath := "./internal/services/emails/templates/login.html"
 	emailTemplateText := "./internal/services/emails/templates/login.txt"
 
 	tmplHtml := template.Must(template.ParseFiles(emailTemplatePath))
 	tmplText := template.Must(template.ParseFiles(emailTemplateText))
 
-	err = tmplHtml.Execute(&htmlBuf, input{clientHost, token.Token, user.FirstName})
+	err = tmplHtml.Execute(&htmlBuf, input{clientHost, token.Token})
 	if err != nil {
 		return err
 	}
 
-	err = tmplText.Execute(&textBuf, input{clientHost, token.Token, user.FirstName})
+	err = tmplText.Execute(&textBuf, input{clientHost, token.Token})
 	if err != nil {
 		return err
 	}
 
-	err = emails.SendMail(emails.Mail{
-		Emails:  []string{email},
-		Html:    htmlBuf.String(),
-		Text:    textBuf.String(),
-		Subject: "Sign in to Code Garden",
-	})
+	fmt.Println(textBuf.String())
+
+	// err = emails.SendMail(emails.Mail{
+	// 	Emails:  []string{email},
+	// 	Html:    htmlBuf.String(),
+	// 	Text:    textBuf.String(),
+	// 	Subject: "Sign in to Code Garden",
+	// })
 
 	return err
 }
 
-func (as *Service) VerifyToken(token string) error {
+func (as *Service) VerifyUserEmail(token string) (*models.VerificationToken, error) {
 	t, err := queries.GetTokenFromString(token, as.db)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if t.ExpiresAt.Before(time.Now()) || t.Expired {
-		return errors.New("verification token has expired")
+		return nil, errors.New("verification token has expired")
 	}
 
 	err = as.db.Transaction(func(db *gorm.DB) error {
+		tx := db.Model(models.VerificationToken{}).Where("token = ?", t.Token).Update("expired", true)
+		if tx.Error != nil {
+			return tx.Error
+		}
+
 		now := time.Now()
-		tx := db.Model(&t.User).Updates(models.User{EmailVerified: true, EmailVerifiedAt: &now})
-		if tx.Error != nil {
-			return tx.Error
-		}
-
-		tx = db.Model(models.VerificationToken{}).Where("token = ?", t.Token).Update("expired", true)
-		if tx.Error != nil {
-			return tx.Error
-		}
-
-		return nil
+		return db.Model(&t.User).Updates(models.User{EmailVerified: true, EmailVerifiedAt: &now}).Error
 	})
+
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return t, nil
+}
+
+func (as *Service) GenerateJwtFromToken(tokenStr string) (string, error) {
+	token, err := as.VerifyUserEmail(tokenStr)
+	if err != nil {
+		return "", err
+	}
+
+	jwtSecret := []byte(config.GetEnv("JWT_SECRET"))
+	claims := jwt.RegisteredClaims{
+		Issuer:    "code-garden-server",
+		IssuedAt:  jwt.NewNumericDate(time.Now()),
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24 * 30)), // tokens last a month
+		ID:        token.UserID.String(),
+	}
+
+	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	jwtTokenString, err := jwtToken.SignedString(jwtSecret)
+	if err != nil {
+		return "", err
+	}
+
+	return jwtTokenString, nil
 }
