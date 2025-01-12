@@ -2,6 +2,7 @@ package models
 
 import (
 	"code-garden-server/utils"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -10,41 +11,30 @@ import (
 
 type User struct {
 	BaseModel
-	Email     string `json:"email" gorm:"unique; not null"`
-	Password  string `json:"password" gorm:"not null"`
-	FirstName string `json:"firstName" gorm:"first_name"`
-	LastName  string `json:"lastName" gorm:"last_name"`
-}
-
-type SafeUser struct {
-	ID        string `json:"id"`
-	Email     string `json:"email"`
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
-}
-
-func (u User) Safe() SafeUser {
-	return SafeUser{
-		ID:        u.ID.String(),
-		Email:     u.Email,
-		FirstName: u.FirstName,
-		LastName:  u.LastName,
-	}
-}
-
-func (u User) BeforeCreate(*gorm.DB) error {
-	u.ID = uuid.New()
-	return nil
+	Email           string     `json:"email" gorm:"unique; not null"`
+	Password        string     `json:"-" gorm:"not null"`
+	FirstName       string     `json:"firstName" gorm:"first_name"`
+	LastName        string     `json:"lastName" gorm:"last_name"`
+	EmailVerified   bool       `json:"emailVerified" gorm:"email_verified"`
+	EmailVerifiedAt *time.Time `json:"emailVerifiedAt" gorm:"email_verified_at;nullable"`
 }
 
 type VerificationToken struct {
 	BaseModel
-	Token     string    `gorm:"token"`
+	Token     string    `gorm:"unique;not null"`
 	ExpiresAt time.Time `gorm:"expires_at"`
-	UserId    uuid.UUID
+	Expired   bool      `gorm:"is_expired"`
+	UserID    uuid.UUID
+	User      User `gorm:"foreignKey:UserID"`
 }
 
-func (vt VerificationToken) BeforeCreate(*gorm.DB) error {
+func (vt *VerificationToken) BeforeCreate(tx *gorm.DB) error {
+	fmt.Println("creating verification token", vt)
+	err := vt.BaseModel.BeforeCreate(tx)
+	if err != nil {
+		return err
+	}
+
 	randStr, err := utils.GenerateRandomString(10)
 	if err != nil {
 		return err

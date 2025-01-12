@@ -21,7 +21,7 @@ type CodeHandler struct {
 	DbClient *database.DBClient
 }
 
-type requestBody struct {
+type codeRequestBody struct {
 	Code     string `json:"code"`
 	Language string `json:"language"`
 }
@@ -42,7 +42,7 @@ func (*CodeHandler) SayHello(w http.ResponseWriter, r *http.Request) {
 }
 
 func (*CodeHandler) RunCodeUnsafe(w http.ResponseWriter, r *http.Request) {
-	var body requestBody
+	var body codeRequestBody
 
 	defer func(body io.ReadCloser) {
 		err := body.Close()
@@ -84,6 +84,9 @@ func (*CodeHandler) RunCodeUnsafe(w http.ResponseWriter, r *http.Request) {
 	} else if body.Language == "c++" {
 		filename = "main*.cpp"
 		commands = []string{"./run-cpp.sh"}
+	} else if body.Language == "ruby" {
+		filename = "main*.rb"
+		commands = []string{"ruby"}
 	} else {
 		utils.WriteRes(w, utils.Response{Status: http.StatusBadRequest, Error: fmt.Sprintf("bad request: unsupported language, %s", err)})
 		return

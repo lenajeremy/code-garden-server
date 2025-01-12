@@ -15,12 +15,17 @@ type Snippet struct {
 }
 
 // BeforeCreate hook
-func (s *Snippet) BeforeCreate(*gorm.DB) (err error) {
+func (s *Snippet) BeforeCreate(tx *gorm.DB) error {
+	err := s.BaseModel.BeforeCreate(tx)
+	if err != nil {
+		return err
+	}
+
 	randString, err := utils.GenerateRandomString(8)
 	if err != nil {
 		return err
 	}
 
 	s.PublicId = randString
-	return
+	return nil
 }

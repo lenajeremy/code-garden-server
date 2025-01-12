@@ -1,3 +1,3 @@
-Hello world
-How are you doing today
-this is the token: {{ .Token }}
+Login with email
+Hello {{ .UserName }}
+Click {{ .ClientHost + .Token }} here to sign in.
