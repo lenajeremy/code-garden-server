@@ -1,9 +1,14 @@
 package api
 
 import (
+	"code-garden-server/config"
+	"code-garden-server/utils"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type Middleware struct {
@@ -13,12 +18,17 @@ type Middleware struct {
 }
 
 func NewLoggerMiddleware() Middleware {
+	preHandler := func(w http.ResponseWriter, r *http.Request) (http.ResponseWriter, *http.Request, bool) {
+		return w, r, true
+	}
+
 	postHandler := func(w http.ResponseWriter, r *http.Request) {
 		status := w.Header().Get("Status")
 		path := r.URL.String()
 		log.Printf("%s \t %s\n", path, status)
 	}
-	m := Middleware{PostHandler: postHandler}
+
+	m := Middleware{PostHandler: postHandler, Handler: preHandler}
 	return m
 }
 
@@ -41,6 +51,39 @@ func NewCorsMiddleware(s *Server) Middleware {
 	}
 
 	return Middleware{Handler: handler, PreHandler: preHandler}
+}
+
+func NewAuthMiddleware(s *Server) Middleware {
+	handler := func(w http.ResponseWriter, r *http.Request) (http.ResponseWriter, *http.Request, bool) {
+		authHeader := r.Header.Get("Authorization")
+		if authHeader == "" {
+			utils.WriteRes(w, utils.Response{Status: 401, Message: "Unauthorized! Invalid Token", Error: "invalid token"})
+			return w, r, false
+		}
+		token := authHeader[len("Bearer "):]
+		_, err := jwt.Parse(token, func(*jwt.Token) (interface{}, error) {
+			key := config.GetEnv("JWT_SECRET")
+			return []byte(key), nil
+		})
+
+		if err != nil {
+			if errors.Is(err, jwt.ErrTokenExpired) {
+				utils.WriteRes(w, utils.Response{Status: 401, Message: "Unauthorized! Token Expired", Error: err.Error()})
+			} else if errors.Is(err, jwt.ErrTokenMalformed) {
+				utils.WriteRes(w, utils.Response{Status: 401, Message: "Unauthorized! Token Malformed", Error: err.Error()})
+			} else {
+				utils.WriteRes(w, utils.Response{Status: 401, Message: "Unauthorized!", Error: err.Error()})
+			}
+			return w, r, false
+		}
+
+		// TODO: Find a way to get the user details and store it in the request context
+		return w, r, true
+	}
+
+	return Middleware{
+		Handler: handler,
+	}
 }
 
 func setCorsHeaders(w http.ResponseWriter, isOptions bool) {

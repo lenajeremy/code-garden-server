@@ -6,6 +6,7 @@ import (
 	"code-garden-server/internal/database"
 	"code-garden-server/internal/database/models"
 	"code-garden-server/internal/database/queries"
+	"code-garden-server/internal/services/emails"
 	"errors"
 	"fmt"
 	"html/template"
@@ -82,14 +83,12 @@ func (as *Service) RegisterWithEmail(email, clientHost string) error {
 		return err
 	}
 
-	fmt.Println(textBuf.String())
-
-	// err = emails.SendMail(emails.Mail{
-	// 	Emails:  []string{email},
-	// 	Html:    htmlBuf.String(),
-	// 	Text:    textBuf.String(),
-	// 	Subject: "Verify your Email",
-	// })
+	err = emails.SendMail(emails.Mail{
+		Emails:  []string{email},
+		Html:    htmlBuf.String(),
+		Text:    textBuf.String(),
+		Subject: "Verify your Email",
+	})
 
 	return err
 }
@@ -138,12 +137,12 @@ func (as *Service) LoginWithEmail(email, clientHost string) error {
 
 	fmt.Println(textBuf.String())
 
-	// err = emails.SendMail(emails.Mail{
-	// 	Emails:  []string{email},
-	// 	Html:    htmlBuf.String(),
-	// 	Text:    textBuf.String(),
-	// 	Subject: "Sign in to Code Garden",
-	// })
+	err = emails.SendMail(emails.Mail{
+		Emails:  []string{email},
+		Html:    htmlBuf.String(),
+		Text:    textBuf.String(),
+		Subject: "Sign in to Code Garden",
+	})
 
 	return err
 }

@@ -25,27 +25,34 @@ func InitServer(p int, dc *client.Client, dbc *database.DBClient) {
 
 	corsMiddleware := NewCorsMiddleware(s)
 	loggerMiddleware := NewLoggerMiddleware()
+	authMiddleware := NewAuthMiddleware(s)
 
-	r := s.DefaultRouter()
-	r.Use(corsMiddleware)
-	r.Use(delayMiddleware)
-	r.Use(loggerMiddleware)
+	defaultRouter := s.DefaultRouter()
 
-	r.Post("/run-unsafe", codeHandler.RunCodeUnsafe)
-	r.Get("/hello", codeHandler.SayHello)
-	r.Get("/containers", dockerHandler.ListContainers)
-	r.Post("/run-safe", dockerHandler.RunCodeSafe)
+	defaultRouter.Use(corsMiddleware)
+	defaultRouter.Use(delayMiddleware)
+	defaultRouter.Use(loggerMiddleware)
 
-	// snippets sharing and retrieving
-	r.Post("/snippet/create", codeHandler.CreateCodeSnippet)
-	r.Get("/snippet/{publicId}", codeHandler.GetSnippet)
-	r.Put("/snippet/{publicId}", codeHandler.UpdateSnippet)
-
-	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+	defaultRouter.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte("OK"))
 	})
 
-	auth := r.Group("auth")
+	// main app routes
+	appRouter := defaultRouter.Group("/")
+	appRouter.Use(authMiddleware)
+
+	appRouter.Post("/run-unsafe", codeHandler.RunCodeUnsafe)
+	appRouter.Get("/hello", codeHandler.SayHello)
+	appRouter.Get("/containers", dockerHandler.ListContainers)
+	appRouter.Post("/run-safe", dockerHandler.RunCodeSafe)
+
+	// snippets sharing and retrieving
+	appRouter.Post("/snippet/create", codeHandler.CreateCodeSnippet)
+	appRouter.Get("/snippet/{publicId}", codeHandler.GetSnippet)
+	appRouter.Put("/snippet/{publicId}", codeHandler.UpdateSnippet)
+
+	// authentication router
+	auth := defaultRouter.Group("auth")
 	auth.Post("/login-with-email", authHandler.LoginWithEmail)
 	auth.Post("/register-with-email", authHandler.RegisterWithEmail)
 	auth.Post("/verify-email/{token}", authHandler.VerifyUserEmail)
