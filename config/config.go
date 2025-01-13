@@ -2,14 +2,14 @@ package config
 
 import (
 	"errors"
-	"github.com/joho/godotenv"
-	"log"
 	"os"
+
+	"github.com/joho/godotenv"
 )
 
 func init() {
-	log.Println("loading env")
-	err := godotenv.Load()
+	err := godotenv.Load(".env.local")
+
 	if err != nil {
 		panic(errors.Join(err, errors.New("failed to load env")))
 	}

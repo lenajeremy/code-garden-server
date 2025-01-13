@@ -190,7 +190,7 @@ func (c *CodeHandler) UpdateSnippet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	snippet := models.Snippet{Code: body.Code, Language: body.Language, Output: body.Output}
-	tx := c.DbClient.Model(&snippet).Where("public_id = ?", publicId).Updates(snippet)
+	tx := c.DbClient.Model(&snippet).Where("public_id = ?", publicId).Updates(&snippet)
 	if tx.Error != nil {
 		utils.WriteRes(w, utils.Response{Data: nil, Message: "Failed to update snippet", Status: http.StatusInternalServerError, Error: tx.Error.Error()})
 		return

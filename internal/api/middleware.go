@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/golang-jwt/jwt/v5"
+	// "golang.org/x/crypto/bcrypt"
 )
 
 type Middleware struct {
@@ -25,7 +26,8 @@ func NewLoggerMiddleware() Middleware {
 	postHandler := func(w http.ResponseWriter, r *http.Request) {
 		status := w.Header().Get("Status")
 		path := r.URL.String()
-		log.Printf("%s \t %s\n", path, status)
+		method := r.Method
+		log.Printf("%s %s \t %s\n", method, path, status)
 	}
 
 	m := Middleware{PostHandler: postHandler, Handler: preHandler}

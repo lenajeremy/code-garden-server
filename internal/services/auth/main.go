@@ -6,6 +6,7 @@ import (
 	"code-garden-server/internal/database"
 	"code-garden-server/internal/database/models"
 	"code-garden-server/internal/database/queries"
+	"code-garden-server/internal/services/emails"
 	"errors"
 	"fmt"
 	"html/template"
@@ -53,8 +54,10 @@ func (as *Service) RegisterWithEmail(email, clientHost string) error {
 		if tx.Error != nil {
 			return tx.Error
 		}
-
-		fmt.Println(user)
+		
+		if tx.RowsAffected == 0 {
+			return fmt.Errorf("an account with that email already exists, please login")
+		}
 
 		token := models.VerificationToken{
 			ExpiresAt: time.Now().Add(time.Minute * 10),
@@ -89,12 +92,12 @@ func (as *Service) RegisterWithEmail(email, clientHost string) error {
 
 		fmt.Println(textBuf.String())
 
-		// err = emails.SendMail(emails.Mail{
-		// 	Emails:  []string{email},
-		// 	Html:    htmlBuf.String(),
-		// 	Text:    textBuf.String(),
-		// 	Subject: "Verify your Email",
-		// })
+		err = emails.SendMail(emails.Mail{
+			Emails:  []string{email},
+			Html:    htmlBuf.String(),
+			Text:    textBuf.String(),
+			Subject: "Verify your Email",
+		})
 
 		return err
 	})
@@ -151,12 +154,12 @@ func (as *Service) LoginWithEmail(email, clientHost string) error {
 
 		fmt.Println(textBuf.String())
 
-		// err = emails.SendMail(emails.Mail{
-		// 	Emails:  []string{email},
-		// 	Html:    htmlBuf.String(),
-		// 	Text:    textBuf.String(),
-		// 	Subject: "Sign in to Code Garden",
-		// })
+		err = emails.SendMail(emails.Mail{
+			Emails:  []string{email},
+			Html:    htmlBuf.String(),
+			Text:    textBuf.String(),
+			Subject: "Sign in to Code Garden",
+		})
 
 		return err
 	})
