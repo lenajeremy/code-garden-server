@@ -55,7 +55,7 @@ func (h *AuthHandler) RegisterWithEmail(w http.ResponseWriter, r *http.Request) 
 
 	var body requestBody
 	err := json.NewDecoder(r.Body).Decode(&body)
-	if err != nil {
+	if err != nil || body.Email == "" {
 		utils.WriteRes(w, utils.Response{Status: 400, Error: err.Error(), Message: "Bad request body"})
 		return
 	}
@@ -76,7 +76,7 @@ func (h *AuthHandler) LoginWithEmail(w http.ResponseWriter, r *http.Request) {
 
 	var body requestBody
 	err := json.NewDecoder(r.Body).Decode(&body)
-	if err != nil {
+	if err != nil || body.Email == "" {
 		utils.WriteRes(w, utils.Response{Status: 400, Error: err.Error(), Message: "Bad request body"})
 		return
 	}
