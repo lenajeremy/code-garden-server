@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -41,12 +42,12 @@ func (as *Service) LoginGithub() {
 
 }
 
-func (as *Service) RegisterWithEmail(email, clientHost string) error {
+func (as *Service) RegisterWithEmail(email string) error {
+	const clientHost = "http://localhost:8080/auth/verify-email"
+
 	type input struct {
 		ClientHost, Token string
 	}
-
-	fmt.Println(email)
 
 	var user = models.User{Email: email}
 	err := as.db.Transaction(func(db *gorm.DB) error {
@@ -54,8 +55,8 @@ func (as *Service) RegisterWithEmail(email, clientHost string) error {
 		if tx.Error != nil {
 			return tx.Error
 		}
-		
-		if tx.RowsAffected == 0 {
+
+		if user.EmailVerified {
 			return fmt.Errorf("an account with that email already exists, please login")
 		}
 
@@ -117,7 +118,7 @@ func (as *Service) LoginWithEmail(email, clientHost string) error {
 	}
 
 	if !user.EmailVerified {
-		return as.RegisterWithEmail(email, "http://localhost:8080/auth/verify-email")
+		return as.RegisterWithEmail(email)
 	}
 
 	// generate token
@@ -203,7 +204,44 @@ func (as *Service) GenerateJwtFromToken(tokenStr string) (string, error) {
 		return "", err
 	}
 
+	return generateTokenForUser(token.User)
+}
+
+func (as *Service) LoginWithPassword(email, password string) (string, error) {
+	user := models.User{}
+	tx := as.db.Model(models.User{}).First(&user, "email = ?", email)
+	if tx.Error != nil {
+		return "", tx.Error
+	}
+
+	fmt.Println(password, user.Password)
+
+	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	if err != nil {
+		return "", err
+	}
+
+	// password matches
+	return generateTokenForUser(user)
+}
+
+func (as *Service) RegisterWithPassword(email, password string) error {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	err = as.db.Create(&models.User{Email: email, Password: string(hashedPassword)}).Error
+	if err != nil {
+		return err
+	}
+
+	return as.RegisterWithEmail(email)
+}
+
+func generateTokenForUser(user models.User) (string, error) {
 	jwtSecret := []byte(config.GetEnv("JWT_SECRET"))
+
 	claims := struct {
 		jwt.RegisteredClaims
 		User models.User `json:"user"`
@@ -213,7 +251,7 @@ func (as *Service) GenerateJwtFromToken(tokenStr string) (string, error) {
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24 * 30)), // tokens last a month
 		},
-		token.User,
+		user,
 	}
 
 	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

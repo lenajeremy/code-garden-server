@@ -54,7 +54,11 @@ func InitServer(p int, dc *client.Client, dbc *database.DBClient) {
 	// authentication router
 	auth := defaultRouter.Group("auth")
 	auth.Post("/login-with-email", authHandler.LoginWithEmail)
+	auth.Post("/login-with-password", authHandler.LoginWithPassword)
+
 	auth.Post("/register-with-email", authHandler.RegisterWithEmail)
+	auth.Post("/register-with-password", authHandler.RegisterWithPassword)
+
 	auth.Post("/verify-email/{token}", authHandler.VerifyUserEmail)
 	auth.Post("/sign-in-with-token/{token}", authHandler.SignInWithToken)
 

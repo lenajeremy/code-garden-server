@@ -60,13 +60,37 @@ func (h *AuthHandler) RegisterWithEmail(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	err = h.service.RegisterWithEmail(body.Email, "http://localhost:8080/auth/verify-email")
+	err = h.service.RegisterWithEmail(body.Email)
 	if err != nil {
 		utils.WriteRes(w, utils.Response{Status: 500, Error: err.Error(), Message: "Failed to create account"})
 		return
 	}
 
 	utils.WriteRes(w, utils.Response{Status: 200, Message: "Success! Please check your mail to verify your account"})
+}
+
+func (h *AuthHandler) RegisterWithPassword(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	type requestBody struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	var body requestBody
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil || body.Password == "" || body.Email == "" {
+		utils.WriteRes(w, utils.Response{Error: err.Error(), Status: 400, Message: "Bad request"})
+		return
+	}
+
+	err = h.service.RegisterWithPassword(body.Email, body.Password)
+	if err != nil {
+		utils.WriteRes(w, utils.Response{Status: 500, Error: err.Error(), Message: "Failed to sign user in"})
+		return
+	}
+
+	utils.WriteRes(w, utils.Response{Status: 200, Message: "Account created successfully!"})
 }
 
 func (h *AuthHandler) LoginWithEmail(w http.ResponseWriter, r *http.Request) {
@@ -103,6 +127,35 @@ func (h *AuthHandler) SignInWithToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jwtToken, err := h.service.GenerateJwtFromToken(token)
+	if err != nil {
+		utils.WriteRes(w, utils.Response{Status: 500, Error: err.Error(), Message: "Failed to sign user in"})
+		return
+	}
+
+	utils.WriteRes(w, utils.Response{Status: 200, Message: "Successfully signed in!", Data: map[string]string{"token": jwtToken}})
+}
+
+func (h *AuthHandler) LoginWithPassword(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	type requestBody struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	var body requestBody
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		utils.WriteRes(w, utils.Response{Error: err.Error(), Status: 400, Message: "Bad request"})
+		return
+	}
+
+	if body.Password == "" || body.Email == "" {
+		utils.WriteRes(w, utils.Response{Error: "Invalid password or email address", Status: 400, Message: "Bad request"})
+		return
+	}
+
+	jwtToken, err := h.service.LoginWithPassword(body.Email, body.Password)
 	if err != nil {
 		utils.WriteRes(w, utils.Response{Status: 500, Error: err.Error(), Message: "Failed to sign user in"})
 		return
