@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -43,8 +44,8 @@ func (as *Service) LoginGithub() {
 
 }
 
-func (as *Service) RegisterWithEmail(email string) error {
-	const clientHost = "http://localhost:8080/auth/verify-email"
+func (as *Service) RegisterWithEmail(email, clientHost string) error {
+	clientHost, _ = url.JoinPath(clientHost, "auth/verify-email")
 
 	type input struct {
 		ClientHost, Token string
@@ -119,7 +120,7 @@ func (as *Service) LoginWithEmail(email, clientHost string) error {
 	}
 
 	if !user.EmailVerified {
-		return as.RegisterWithEmail(email)
+		return as.RegisterWithEmail(email, clientHost)
 	}
 
 	// generate token
@@ -143,6 +144,8 @@ func (as *Service) LoginWithEmail(email, clientHost string) error {
 
 		tmplHtml := template.Must(template.ParseFiles(emailTemplatePath))
 		tmplText := template.Must(template.ParseFiles(emailTemplateText))
+
+		clientHost, _ = url.JoinPath(clientHost, "auth/sign-in-with-token")
 
 		err = tmplHtml.Execute(&htmlBuf, input{clientHost, token.Token})
 		if err != nil {
@@ -224,7 +227,7 @@ func (as *Service) LoginWithPassword(email, password string) (string, error) {
 	return generateTokenForUser(user)
 }
 
-func (as *Service) RegisterWithPassword(email, password string) error {
+func (as *Service) RegisterWithPassword(email, password, clientHost string) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
@@ -235,7 +238,7 @@ func (as *Service) RegisterWithPassword(email, password string) error {
 		return err
 	}
 
-	return as.RegisterWithEmail(email)
+	return as.RegisterWithEmail(email, clientHost)
 }
 
 type CustomJWTClaims struct {

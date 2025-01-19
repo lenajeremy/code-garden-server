@@ -22,7 +22,8 @@ func NewAuthHandler(db *database.DBClient) *AuthHandler {
 }
 
 type requestBody struct {
-	Email string `json:"email"`
+	Email      string `json:"email"`
+	ClientHost string `json:"clientHost"`
 }
 
 func (h *AuthHandler) VerifyUserEmail(w http.ResponseWriter, r *http.Request) {
@@ -60,7 +61,7 @@ func (h *AuthHandler) RegisterWithEmail(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	err = h.service.RegisterWithEmail(body.Email)
+	err = h.service.RegisterWithEmail(body.Email, body.ClientHost)
 	if err != nil {
 		utils.WriteRes(w, utils.Response{Status: 500, Error: err.Error(), Message: "Failed to create account"})
 		return
@@ -73,8 +74,9 @@ func (h *AuthHandler) RegisterWithPassword(w http.ResponseWriter, r *http.Reques
 	defer r.Body.Close()
 
 	type requestBody struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
+		Email      string `json:"email"`
+		Password   string `json:"password"`
+		ClientHost string `json:"clientHost"`
 	}
 
 	var body requestBody
@@ -84,7 +86,7 @@ func (h *AuthHandler) RegisterWithPassword(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	err = h.service.RegisterWithPassword(body.Email, body.Password)
+	err = h.service.RegisterWithPassword(body.Email, body.Password, body.ClientHost)
 	if err != nil {
 		utils.WriteRes(w, utils.Response{Status: 500, Error: err.Error(), Message: "Failed to sign user in"})
 		return
@@ -105,7 +107,7 @@ func (h *AuthHandler) LoginWithEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.service.LoginWithEmail(body.Email, "http://localhost:8080/auth/sign-in-with-token")
+	err = h.service.LoginWithEmail(body.Email, body.ClientHost)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			utils.WriteRes(w, utils.Response{Status: 404, Error: err.Error(), Message: "User with email not found."})
