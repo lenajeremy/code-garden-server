@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	err := godotenv.Load(".env.local")
+	err := godotenv.Load()
 
 	if err != nil {
 		panic(errors.Join(err, errors.New("failed to load env")))
