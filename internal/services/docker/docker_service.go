@@ -6,15 +6,16 @@ import (
 	"code-garden-server/internal/database"
 	"context"
 	"fmt"
-	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/client"
-	"github.com/docker/docker/pkg/stdcopy"
 	"io"
 	"log"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/client"
+	"github.com/docker/docker/pkg/stdcopy"
 )
 
 type Service struct {
@@ -24,6 +25,7 @@ type Service struct {
 
 func NewDockerService(dc *client.Client, dbClient *database.DBClient) *Service {
 	s := &Service{dc, dbClient}
+	s.SetupClient()
 	return s
 }
 
@@ -101,6 +103,7 @@ func (ds *Service) RunLanguageContainer(lang Language, codeSrc string) (string, 
 		Stdout: true,
 		Stderr: true,
 	})
+
 	if err != nil {
 		return "", fmt.Errorf("failed to attach to container: %w", err)
 	}
@@ -177,7 +180,7 @@ func (ds *Service) RunLanguageContainer(lang Language, codeSrc string) (string, 
 	}
 
 	output := outputBuf.String()
-	log.Printf("Output:\n%s", output)
+	//log.Printf("Output:\n%s", output)
 	return output, nil
 }
 

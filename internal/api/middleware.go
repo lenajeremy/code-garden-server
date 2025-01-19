@@ -2,13 +2,15 @@ package api
 
 import (
 	"code-garden-server/config"
+	"code-garden-server/internal/database/models"
+	"code-garden-server/internal/services/auth"
 	"code-garden-server/utils"
+	"context"
 	"errors"
 	"fmt"
+	"github.com/golang-jwt/jwt/v5"
 	"log"
 	"net/http"
-
-	"github.com/golang-jwt/jwt/v5"
 	// "golang.org/x/crypto/bcrypt"
 )
 
@@ -25,9 +27,10 @@ func NewLoggerMiddleware() Middleware {
 
 	postHandler := func(w http.ResponseWriter, r *http.Request) {
 		status := w.Header().Get("Status")
+		message := w.Header().Get("Message")
 		path := r.URL.String()
 		method := r.Method
-		log.Printf("%s %s \t %s\n", method, path, status)
+		log.Printf("%s %s \t %s(%s)\n", method, path, message, status)
 	}
 
 	m := Middleware{PostHandler: postHandler, Handler: preHandler}
@@ -63,7 +66,7 @@ func NewAuthMiddleware(s *Server) Middleware {
 			return w, r, false
 		}
 		token := authHeader[len("Bearer "):]
-		_, err := jwt.Parse(token, func(*jwt.Token) (interface{}, error) {
+		jwtToken, err := jwt.ParseWithClaims(token, &auth.CustomJWTClaims{}, func(*jwt.Token) (interface{}, error) {
 			key := config.GetEnv("JWT_SECRET")
 			return []byte(key), nil
 		})
@@ -77,10 +80,19 @@ func NewAuthMiddleware(s *Server) Middleware {
 				utils.WriteRes(w, utils.Response{Status: 401, Message: "Unauthorized!", Error: err.Error()})
 			}
 			return w, r, false
+		} else if claims, ok := jwtToken.Claims.(*auth.CustomJWTClaims); !ok {
+			utils.WriteRes(w, utils.Response{Status: 401, Message: "Unauthorized! Token Malformed", Error: err.Error()})
+			return w, r, false
+		} else {
+			u := models.User{BaseModel: models.BaseModel{ID: claims.User.ID}, Email: claims.User.Email}
+			if tx := s.db.First(&u, "id = ?", claims.User.ID); tx.Error != nil {
+				utils.WriteRes(w, utils.Response{Status: 401, Message: "Unauthorized! Token Malformed", Error: err.Error()})
+				return w, r, false
+			} else {
+				ctx := context.WithValue(r.Context(), "User", &u)
+				return w, r.WithContext(ctx), true
+			}
 		}
-
-		// TODO: Find a way to get the user details and store it in the request context
-		return w, r, true
 	}
 
 	return Middleware{

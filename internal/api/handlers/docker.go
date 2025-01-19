@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"code-garden-server/internal/database"
+	"code-garden-server/internal/services/auth"
 	"code-garden-server/internal/services/docker"
 	"code-garden-server/utils"
 	"encoding/json"
@@ -10,6 +11,7 @@ import (
 	"github.com/docker/docker/client"
 	"io"
 	"net/http"
+	"time"
 )
 
 type DockerHandler struct {
@@ -45,6 +47,11 @@ func (d *DockerHandler) ListContainers(w http.ResponseWriter, _ *http.Request) {
 	}
 }
 
+var userToAllowedRunCount = map[string]int{}
+var userToNextResetTime = map[string]time.Time{}
+
+const REQUESTS_ALLOWED_PER_MINUTE = 5
+
 func (d *DockerHandler) RunCodeSafe(w http.ResponseWriter, r *http.Request) {
 	type reqBody struct {
 		Code     string `json:"code"`
@@ -64,17 +71,33 @@ func (d *DockerHandler) RunCodeSafe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// bytes, err := io.ReadAll(r.Body)
-	// if err != nil {
-	// 	utils.WriteRes(w, utils.Response{Status: http.StatusBadRequest, Error: fmt.Sprintf("bad request: %s", err.Error())})
-	// 	return
-	// }
+	u := auth.AuthUser(r)
+	uid := u.ID.String()
 
-	// err = json.Unmarshal(bytes, &body)
-	// if err != nil {
-	// 	utils.WriteRes(w, utils.Response{Status: http.StatusBadRequest, Error: fmt.Sprintf("bad request: failed to parse req body, %s", err.Error())})
-	// 	return
-	// }
+	if _, okay := userToNextResetTime[uid]; !okay {
+		userToAllowedRunCount[uid] = REQUESTS_ALLOWED_PER_MINUTE
+		userToNextResetTime[uid] = time.Now().Add(time.Minute)
+	}
+
+	nextResetTime := userToNextResetTime[uid]
+	fmt.Println(userToNextResetTime, userToAllowedRunCount)
+
+	if time.Now().After(nextResetTime) {
+		userToAllowedRunCount[uid] = REQUESTS_ALLOWED_PER_MINUTE
+	}
+
+	if userToAllowedRunCount[uid] == 0 {
+		utils.WriteRes(w, utils.Response{Status: http.StatusTooManyRequests, Message: "Too many requests have been sent. Wait for a minute", Error: "Limit exceeded"})
+		return
+	}
+
+	defer func() {
+		userToAllowedRunCount[uid] -= 1
+		if time.Now().After(nextResetTime) {
+			userToNextResetTime[uid] = time.Now().Add(time.Minute)
+		}
+		fmt.Println(userToNextResetTime, userToAllowedRunCount)
+	}()
 
 	res, err := d.service.RunLanguageContainer(docker.Language(body.Language), body.Code)
 	if err != nil {

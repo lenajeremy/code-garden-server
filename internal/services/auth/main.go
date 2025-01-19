@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"net/http"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -214,8 +215,6 @@ func (as *Service) LoginWithPassword(email, password string) (string, error) {
 		return "", tx.Error
 	}
 
-	fmt.Println(password, user.Password)
-
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
 		return "", err
@@ -239,13 +238,23 @@ func (as *Service) RegisterWithPassword(email, password string) error {
 	return as.RegisterWithEmail(email)
 }
 
+type CustomJWTClaims struct {
+	jwt.RegisteredClaims
+	User models.User `json:"user"`
+}
+
+func AuthUser(r *http.Request) *models.User {
+	if user, ok := r.Context().Value("User").(*models.User); !ok {
+		panic(fmt.Errorf("attempting to get authenticated user in an unprotected route"))
+	} else {
+		return user
+	}
+}
+
 func generateTokenForUser(user models.User) (string, error) {
 	jwtSecret := []byte(config.GetEnv("JWT_SECRET"))
 
-	claims := struct {
-		jwt.RegisteredClaims
-		User models.User `json:"user"`
-	}{
+	claims := CustomJWTClaims{
 		jwt.RegisteredClaims{
 			Issuer:    "code-garden-server",
 			IssuedAt:  jwt.NewNumericDate(time.Now()),

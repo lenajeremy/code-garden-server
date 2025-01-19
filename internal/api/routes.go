@@ -3,10 +3,9 @@ package api
 import (
 	"code-garden-server/internal/api/handlers"
 	"code-garden-server/internal/database"
+	"github.com/docker/docker/client"
 	"net/http"
 	"time"
-
-	"github.com/docker/docker/client"
 )
 
 func InitServer(p int, dc *client.Client, dbc *database.DBClient) {
@@ -30,8 +29,8 @@ func InitServer(p int, dc *client.Client, dbc *database.DBClient) {
 	defaultRouter := s.DefaultRouter()
 
 	defaultRouter.Use(corsMiddleware)
-	defaultRouter.Use(delayMiddleware)
 	defaultRouter.Use(loggerMiddleware)
+	defaultRouter.Use(delayMiddleware)
 
 	defaultRouter.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte("OK"))
@@ -50,6 +49,8 @@ func InitServer(p int, dc *client.Client, dbc *database.DBClient) {
 	appRouter.Post("/snippet/create", codeHandler.CreateCodeSnippet)
 	appRouter.Get("/snippet/{publicId}", codeHandler.GetSnippet)
 	appRouter.Put("/snippet/{publicId}", codeHandler.UpdateSnippet)
+
+	appRouter.Get("/snippets/mine", codeHandler.GetUserSnippets)
 
 	// authentication router
 	auth := defaultRouter.Group("auth")

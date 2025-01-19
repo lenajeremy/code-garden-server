@@ -3,6 +3,7 @@ package handlers
 import (
 	"code-garden-server/internal/database"
 	"code-garden-server/internal/database/models"
+	"code-garden-server/internal/services/auth"
 	"code-garden-server/internal/services/docker"
 	"code-garden-server/utils"
 
@@ -134,6 +135,7 @@ func (c *CodeHandler) CreateCodeSnippet(w http.ResponseWriter, r *http.Request) 
 		Code     string `json:"code"`
 		Language string `json:"language"`
 		Output   string `json:"output"`
+		Name     string `json:"name"`
 	}
 
 	var body createCodeRequestBody
@@ -153,7 +155,9 @@ func (c *CodeHandler) CreateCodeSnippet(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	snippet := models.Snippet{Code: body.Code, Language: body.Language, Output: body.Output}
+	user := auth.AuthUser(r)
+
+	snippet := models.Snippet{Code: body.Code, Language: body.Language, Output: body.Output, Name: body.Name, OwnerId: user.ID}
 	tx := c.DbClient.Create(&snippet)
 	if tx.Error != nil {
 		utils.WriteRes(w, utils.Response{Data: nil, Message: "Failed to create snipped", Status: http.StatusInternalServerError, Error: tx.Error.Error()})
@@ -212,9 +216,11 @@ func (c *CodeHandler) GetSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	user := auth.AuthUser(r)
+
 	s := new(models.Snippet)
 
-	if tx := c.DbClient.Model(s).First(s, "public_id = ?", publicId); tx.Error != nil {
+	if tx := c.DbClient.Model(s).Preload("Owner").First(s, "public_id = ? and owner_id = ?", publicId, user.ID.String()); tx.Error != nil {
 		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
 			utils.WriteRes(w, utils.Response{
 				Error:   tx.Error.Error(),
@@ -238,5 +244,30 @@ func (c *CodeHandler) GetSnippet(w http.ResponseWriter, r *http.Request) {
 		Data:    s,
 		Status:  http.StatusOK,
 		Message: "Successfully retrieved code snippet",
+	})
+}
+
+func (c *CodeHandler) GetUserSnippets(w http.ResponseWriter, r *http.Request) {
+	user := auth.AuthUser(r)
+
+	var snippets []models.Snippet
+
+	tx := c.DbClient.Preload("Owner").Model(models.Snippet{}).Find(&snippets, "owner_id = ?", user.ID)
+	if tx.Error != nil {
+		utils.WriteRes(w, utils.Response{
+			Error:   tx.Error.Error(),
+			Status:  http.StatusInternalServerError,
+			Message: "Failed to retrieve user's snippets",
+		})
+		return
+	}
+
+	utils.WriteRes(w, utils.Response{
+		Data: map[string]interface{}{
+			"snippets": snippets,
+			"total":    len(snippets),
+		},
+		Status:  http.StatusOK,
+		Message: "User's snippets retrieved successfully",
 	})
 }

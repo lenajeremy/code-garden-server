@@ -2,16 +2,20 @@ package models
 
 import (
 	"code-garden-server/utils"
+	"github.com/google/uuid"
 
 	"gorm.io/gorm"
 )
 
 type Snippet struct {
 	BaseModel
-	Code     string `json:"code"`
-	Language string `json:"language"`
-	Output   string `json:"output"`
-	PublicId string `json:"public_id" gorm:"unique"`
+	Code     string    `json:"code"`
+	Language string    `json:"language"`
+	Output   string    `json:"output"`
+	PublicId string    `json:"publicId" gorm:"unique"`
+	Owner    User      `json:"owner"`
+	OwnerId  uuid.UUID `json:"ownerId" gorm:"not null"`
+	Name     string    `json:"name"`
 }
 
 // BeforeCreate hook
