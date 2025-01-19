@@ -101,7 +101,7 @@ func NewAuthMiddleware(s *Server) Middleware {
 }
 
 func setCorsHeaders(w http.ResponseWriter, isOptions bool) {
-	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8080")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
