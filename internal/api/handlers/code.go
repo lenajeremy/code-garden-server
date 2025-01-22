@@ -172,6 +172,7 @@ func (c *CodeHandler) UpdateSnippet(w http.ResponseWriter, r *http.Request) {
 		Code     string `json:"code"`
 		Language string `json:"language"`
 		Output   string `json:"output"`
+		Name     string `json:"name"`
 	}
 
 	publicId := r.PathValue("publicId")
@@ -193,8 +194,24 @@ func (c *CodeHandler) UpdateSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	snippet := models.Snippet{Code: body.Code, Language: body.Language, Output: body.Output}
-	tx := c.DbClient.Model(&snippet).Where("public_id = ?", publicId).Updates(&snippet)
+	updates := make(map[string]interface{})
+
+	if body.Code != "" {
+		updates["code"] = body.Code
+	}
+	if body.Language != "" {
+		updates["language"] = body.Language
+	}
+	if body.Output != "" {
+		updates["output"] = body.Output
+	}
+	if body.Name != "" {
+		updates["name"] = body.Name
+	}
+
+	var snippet models.Snippet
+	tx := c.DbClient.Model(&snippet).Where("public_id = ?", publicId).Updates(updates)
+	fmt.Printf("%#v", updates)
 	if tx.Error != nil {
 		utils.WriteRes(w, utils.Response{Data: nil, Message: "Failed to update snippet", Status: http.StatusInternalServerError, Error: tx.Error.Error()})
 		return
@@ -248,16 +265,23 @@ func (c *CodeHandler) GetSnippet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *CodeHandler) DeleteSnippet(w http.ResponseWriter, r *http.Request) {
-	snippetId := r.PathValue("snippetId")
+	publicId := r.PathValue("publicId")
 
 	snippet := models.Snippet{}
-	db := c.DbClient.DB.Delete(&snippet, "public_id = ?", snippetId)
+	db := c.DbClient.DB.Delete(&snippet, "public_id = ?", publicId)
 	if db.Error != nil {
 		if errors.Is(gorm.ErrRecordNotFound, db.Error) {
-			utils.WriteRes(w, utils.Response{Status: 404, Message: "snippet not found", Error: db.Error.Error()})
+			utils.WriteRes(w, utils.Response{Status: http.StatusNotFound, Message: "snippet not found", Error: db.Error.Error()})
 			return
 		}
-		utils.WriteRes(w, utils.Response{Status: 500, Message: "Unknown error", Error: db.Error.Error()})
+		utils.WriteRes(w, utils.Response{Status: http.StatusInternalServerError, Message: "Unknown error", Error: db.Error.Error()})
+	}
+
+	fmt.Print(db.RowsAffected)
+
+	if db.RowsAffected == 0 {
+		utils.WriteRes(w, utils.Response{Status: http.StatusNotFound, Message: "snippet not found", Error: fmt.Sprintf("snippet with public: %s id not found", publicId)})
+		return
 	}
 
 	utils.WriteRes(w, utils.Response{Status: 200, Message: "Snippet deleted successfully", Data: snippet})
