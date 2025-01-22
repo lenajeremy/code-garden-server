@@ -310,17 +310,25 @@ func (as *Service) ResetUserPassword(token, newPassword string) error {
 		return db.Error
 	}
 
+	if !t.IsValid() {
+		return errors.New("expired/used token. please request a new reset token")
+	}
+
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
 
-	db = as.db.Model(&t.User).Update("password", hashedPassword)
-	if db.Error != nil {
-		return db.Error
-	}
+	return as.db.Transaction(func(tx *gorm.DB) error {
+		db = tx.Model(&t.User).Update("password", hashedPassword)
+		if db.Error != nil {
+			return db.Error
+		}
 
-	return nil
+		fmt.Println(t.User, "error here")
+		return t.Expire(tx)
+	})
+
 }
 
 type CustomJWTClaims struct {

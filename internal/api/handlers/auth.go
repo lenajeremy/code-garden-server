@@ -211,6 +211,7 @@ func (h *AuthHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
 		utils.WriteRes(w, utils.Response{Status: http.StatusBadRequest, Error: err.Error(), Message: "Bad request"})
+		return
 	}
 
 	if body.NewPassword == "" ||
@@ -232,8 +233,8 @@ func (h *AuthHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	err = h.service.ResetUserPassword(body.ValidationToken, body.NewPassword)
 	if err != nil {
 		utils.WriteRes(w, utils.Response{Status: http.StatusInternalServerError, Message: "Failed to reset password", Error: err.Error()})
+		return
 	}
 
 	utils.WriteRes(w, utils.Response{Status: http.StatusOK, Data: "Done", Message: "Password reset successfully. Proceed to login"})
-	return
 }

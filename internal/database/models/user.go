@@ -22,7 +22,7 @@ type VerificationToken struct {
 	BaseModel
 	Token     string    `gorm:"unique;not null"`
 	ExpiresAt time.Time `gorm:"expires_at"`
-	Expired   bool      `gorm:"is_expired"`
+	Expired   bool
 	UserID    uuid.UUID
 	User      User `gorm:"foreignKey:UserID"`
 }
@@ -39,4 +39,12 @@ func (vt *VerificationToken) BeforeCreate(tx *gorm.DB) error {
 	}
 	vt.Token = randStr
 	return nil
+}
+
+func (vt *VerificationToken) IsValid() bool {
+	return vt.Expired || vt.ExpiresAt.After(time.Now())
+}
+
+func (vt *VerificationToken) Expire(db *gorm.DB) error {
+	return db.Model(VerificationToken{}).Where("token = ?", vt.Token).Update("expired", true).Error
 }
