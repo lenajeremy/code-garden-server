@@ -241,6 +241,88 @@ func (as *Service) RegisterWithPassword(email, password, clientHost string) erro
 	return as.RegisterWithEmail(email, clientHost)
 }
 
+func (as *Service) SendResetPasswordEmail(email, host string) error {
+	var user models.User
+
+	db := as.db.Model(models.User{}).First(&user, "email = ?", email)
+	if db.Error != nil {
+		if errors.Is(db.Error, gorm.ErrRecordNotFound) {
+			return nil
+		}
+		return db.Error
+	}
+
+	token := models.VerificationToken{
+		ExpiresAt: time.Now().Add(time.Minute * 10),
+		UserID:    user.ID,
+	}
+
+	return as.db.Transaction(func(db *gorm.DB) error {
+		tx := as.db.Create(&token)
+		if tx.Error != nil {
+			return tx.Error
+		}
+
+		var htmlBuf bytes.Buffer
+		var textBuf bytes.Buffer
+
+		// build email
+		emailTemplatePath := "./internal/services/emails/templates/reset-password.html"
+		emailTemplateText := "./internal/services/emails/templates/reset-password.txt"
+
+		tmplHtml := template.Must(template.ParseFiles(emailTemplatePath))
+		tmplText := template.Must(template.ParseFiles(emailTemplateText))
+
+		host, _ = url.JoinPath(host, "auth/reset-password")
+
+		type input struct {
+			ClientHost string
+			Token      string
+			Email      string
+		}
+
+		err := tmplHtml.Execute(&htmlBuf, input{host, token.Token, user.Email})
+		if err != nil {
+			return err
+		}
+
+		err = tmplText.Execute(&textBuf, input{host, token.Token, user.Email})
+		if err != nil {
+			return err
+		}
+
+		fmt.Println(textBuf.String())
+
+		err = emails.SendMail(emails.Mail{
+			Emails:  []string{email},
+			Html:    htmlBuf.String(),
+			Text:    textBuf.String(),
+			Subject: "Reset your password",
+		})
+		return err
+	})
+}
+
+func (as *Service) ResetUserPassword(token, newPassword string) error {
+	var t models.VerificationToken
+	db := as.db.Preload("User").Model(models.VerificationToken{}).First(&t, "token = ?", token)
+	if db.Error != nil {
+		return db.Error
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	db = as.db.Model(&t.User).Update("password", hashedPassword)
+	if db.Error != nil {
+		return db.Error
+	}
+
+	return nil
+}
+
 type CustomJWTClaims struct {
 	jwt.RegisteredClaims
 	User models.User `json:"user"`

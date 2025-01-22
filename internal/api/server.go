@@ -111,6 +111,20 @@ func (r *Router) Put(path string, handler http.HandlerFunc) {
 	})
 }
 
+func (r *Router) Delete(path string, handler http.HandlerFunc) {
+	resolvedPath := filepath.Join(r.path, path)
+
+	r.RunAllPreMiddlewareHandlers(resolvedPath)
+	r.mux.HandleFunc(fmt.Sprintf("%s %s", http.MethodDelete, resolvedPath), func(w http.ResponseWriter, req *http.Request) {
+		w, req, ok := r.RunAllMiddlewareHandlers(w, req, true)
+		if !ok {
+			return
+		}
+		handler(w, req)
+		r.RunAllPostMiddlewareHandlers(w, req)
+	})
+}
+
 func (r *Router) RunAllMiddlewareHandlers(w http.ResponseWriter, req *http.Request, ok bool) (http.ResponseWriter, *http.Request, bool) {
 	for _, m := range r.middlewares {
 		if m.Handler == nil {

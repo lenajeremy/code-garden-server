@@ -247,6 +247,22 @@ func (c *CodeHandler) GetSnippet(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func (c *CodeHandler) DeleteSnippet(w http.ResponseWriter, r *http.Request) {
+	snippetId := r.PathValue("snippetId")
+
+	snippet := models.Snippet{}
+	db := c.DbClient.DB.Delete(&snippet, "public_id = ?", snippetId)
+	if db.Error != nil {
+		if errors.Is(gorm.ErrRecordNotFound, db.Error) {
+			utils.WriteRes(w, utils.Response{Status: 404, Message: "snippet not found", Error: db.Error.Error()})
+			return
+		}
+		utils.WriteRes(w, utils.Response{Status: 500, Message: "Unknown error", Error: db.Error.Error()})
+	}
+
+	utils.WriteRes(w, utils.Response{Status: 200, Message: "Snippet deleted successfully", Data: snippet})
+}
+
 func (c *CodeHandler) GetUserSnippets(w http.ResponseWriter, r *http.Request) {
 	user := auth.AuthUser(r)
 

@@ -49,6 +49,7 @@ func InitServer(p int, dc *client.Client, dbc *database.DBClient) {
 	appRouter.Post("/snippet/create", codeHandler.CreateCodeSnippet)
 	appRouter.Get("/snippet/{publicId}", codeHandler.GetSnippet)
 	appRouter.Put("/snippet/{publicId}", codeHandler.UpdateSnippet)
+	appRouter.Delete("/snippet/{publicId}", codeHandler.DeleteSnippet)
 
 	appRouter.Get("/snippets/mine", codeHandler.GetUserSnippets)
 
@@ -62,6 +63,8 @@ func InitServer(p int, dc *client.Client, dbc *database.DBClient) {
 
 	auth.Post("/verify-email/{token}", authHandler.VerifyUserEmail)
 	auth.Post("/sign-in-with-token/{token}", authHandler.SignInWithToken)
+	auth.Post("/request-password-reset", authHandler.RequestPasswordReset)
+	auth.Post("/reset-password", authHandler.ResetPassword)
 
 	s.Start()
 }
