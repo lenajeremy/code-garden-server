@@ -3,9 +3,10 @@ package api
 import (
 	"code-garden-server/internal/api/handlers"
 	"code-garden-server/internal/database"
-	"github.com/docker/docker/client"
 	"net/http"
 	"time"
+
+	"github.com/docker/docker/client"
 )
 
 func InitServer(p int, dc *client.Client, dbc *database.DBClient) {
@@ -28,9 +29,9 @@ func InitServer(p int, dc *client.Client, dbc *database.DBClient) {
 
 	defaultRouter := s.DefaultRouter()
 
-	defaultRouter.Use(corsMiddleware)
-	defaultRouter.Use(loggerMiddleware)
-	defaultRouter.Use(delayMiddleware)
+	defaultRouter.Use(&corsMiddleware)
+	defaultRouter.Use(&loggerMiddleware)
+	defaultRouter.Use(&delayMiddleware)
 
 	defaultRouter.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte("OK"))
@@ -38,16 +39,18 @@ func InitServer(p int, dc *client.Client, dbc *database.DBClient) {
 
 	// main app routes
 	appRouter := defaultRouter.Group("/")
-	appRouter.Use(authMiddleware)
+	appRouter.Use(&authMiddleware)
 
-	appRouter.Post("/run-unsafe", codeHandler.RunCodeUnsafe)
+	// appRouter.Post("/run-unsafe", codeHandler.RunCodeUnsafe)
 	appRouter.Get("/hello", codeHandler.SayHello)
 	appRouter.Get("/containers", dockerHandler.ListContainers)
-	appRouter.Post("/run-safe", dockerHandler.RunCodeSafe)
+	appRouter.Post("/code-runner", dockerHandler.RunCodeSafe)
+	appRouter.Post("/code-runner/no-auth", dockerHandler.RunCodeSafeNoAuth, &authMiddleware)
 
 	// snippets sharing and retrieving
 	appRouter.Post("/snippet/create", codeHandler.CreateCodeSnippet)
 	appRouter.Get("/snippet/{publicId}", codeHandler.GetSnippet)
+	appRouter.Get("/snippet/{publicId}/no-auth", codeHandler.GetSnippetNoAuth, &authMiddleware)
 	appRouter.Put("/snippet/{publicId}", codeHandler.UpdateSnippet)
 	appRouter.Delete("/snippet/{publicId}", codeHandler.DeleteSnippet)
 

@@ -11,7 +11,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"log"
 	"net/http"
-	// "golang.org/x/crypto/bcrypt"
 )
 
 type Middleware struct {
@@ -81,12 +80,12 @@ func NewAuthMiddleware(s *Server) Middleware {
 			}
 			return w, r, false
 		} else if claims, ok := jwtToken.Claims.(*auth.CustomJWTClaims); !ok {
-			utils.WriteRes(w, utils.Response{Status: 401, Message: "Unauthorized! Token Malformed", Error: err.Error()})
+			utils.WriteRes(w, utils.Response{Status: 401, Message: "Unauthorized! Token Malformed", Error: "token malformed"})
 			return w, r, false
 		} else {
 			u := models.User{BaseModel: models.BaseModel{ID: claims.User.ID}, Email: claims.User.Email}
 			if tx := s.db.First(&u, "id = ?", claims.User.ID); tx.Error != nil {
-				utils.WriteRes(w, utils.Response{Status: 401, Message: "Unauthorized! Token Malformed", Error: err.Error()})
+				utils.WriteRes(w, utils.Response{Status: 401, Message: "Unauthorized! Token Malformed", Error: "token malformed"})
 				return w, r, false
 			} else {
 				ctx := context.WithValue(r.Context(), "User", &u)

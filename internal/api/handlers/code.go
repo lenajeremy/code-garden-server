@@ -264,13 +264,55 @@ func (c *CodeHandler) GetSnippet(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func (c *CodeHandler) GetSnippetNoAuth(w http.ResponseWriter, r *http.Request) {
+	publicId := r.PathValue("publicId")
+
+	if publicId == "" {
+		utils.WriteRes(w, utils.Response{
+			Error:   "bad request: empty public id",
+			Data:    nil,
+			Status:  http.StatusBadRequest,
+			Message: "Invalid Public ID",
+		})
+		return
+	}
+
+	s := new(models.Snippet)
+
+	if tx := c.DbClient.Model(s).Preload("Owner").First(s, "public_id = ?", publicId); tx.Error != nil {
+		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+			utils.WriteRes(w, utils.Response{
+				Error:   tx.Error.Error(),
+				Data:    nil,
+				Status:  http.StatusNotFound,
+				Message: fmt.Sprintf("Snippet with ID %s not found", publicId),
+			})
+		} else {
+			utils.WriteRes(w, utils.Response{
+				Error:   tx.Error.Error(),
+				Data:    nil,
+				Status:  http.StatusInternalServerError,
+				Message: "An error occurred",
+			})
+		}
+		return
+	}
+
+	utils.WriteRes(w, utils.Response{
+		Error:   "",
+		Data:    s,
+		Status:  http.StatusOK,
+		Message: "Successfully retrieved code snippet",
+	})
+}
+
 func (c *CodeHandler) DeleteSnippet(w http.ResponseWriter, r *http.Request) {
 	publicId := r.PathValue("publicId")
 
 	snippet := models.Snippet{}
 	db := c.DbClient.DB.Delete(&snippet, "public_id = ?", publicId)
 	if db.Error != nil {
-		if errors.Is(gorm.ErrRecordNotFound, db.Error) {
+		if errors.Is(db.Error, gorm.ErrRecordNotFound) {
 			utils.WriteRes(w, utils.Response{Status: http.StatusNotFound, Message: "snippet not found", Error: db.Error.Error()})
 			return
 		}
