@@ -38,21 +38,21 @@ func NewServer(port int, dockerClient *client.Client, db *database.DBClient) *Se
 
 // Start sets up all the routes and starts the server
 func (s *Server) Start() {
-	// var redirectToHttps = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	// 	http.Redirect(w, r, "https://"+r.Host+r.URL.String(), http.StatusMovedPermanently)
-	// })
+	var redirectToHttps = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "https://"+r.Host+r.URL.String(), http.StatusMovedPermanently)
+	})
 
-	// go func() {
-	// 	log.Fatal(http.ListenAndServe(":80", redirectToHttps))
-	// }()
+	go func() {
+		log.Fatal(http.ListenAndServe(":80", redirectToHttps))
+	}()
 
-	// log.Fatal(http.ListenAndServeTLS(fmt.Sprintf(":%d", s.Port),
-	// "/etc/letsencrypt/live/cgs.craftmycv.xyz/fullchain.pem",
-	// "/etc/letsencrypt/live/cgs.craftmycv.xyz/privkey.pem",
-	// s.mux,
-	// ))
+	log.Fatal(http.ListenAndServeTLS(fmt.Sprintf(":%d", s.Port),
+	"/etc/letsencrypt/live/cgs.craftmycv.xyz/fullchain.pem",
+	"/etc/letsencrypt/live/cgs.craftmycv.xyz/privkey.pem",
+	s.mux,
+	))
 
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", s.Port), s.mux))
+	// log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", s.Port), s.mux))
 }
 func (s *Server) DefaultRouter() *Router {
 	return newRouter(s.mux, "/")
