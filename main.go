@@ -41,7 +41,7 @@ func main() {
 		log.Fatal("failed to setup database", err)
 	}
 
-	PORT := 3000
+	PORT := 443
 	log.Printf("starting server on port %d", PORT)
 	api.InitServer(PORT, dckClient, dbClient)
 }

@@ -38,7 +38,11 @@ func NewServer(port int, dockerClient *client.Client, db *database.DBClient) *Se
 
 // Start sets up all the routes and starts the server
 func (s *Server) Start() {
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", s.Port), s.mux))
+	log.Fatal(http.ListenAndServeTLS(fmt.Sprintf(":%d", s.Port), 
+		"/etc/letsencrypt/live/cgs.craftmycv.xyz/fullchain.pem", 
+		"/etc/letsencrypt/live/cgs.craftmycv.xyz/privkey.pem", 
+		s.mux,
+	))
 }
 
 func (s *Server) DefaultRouter() *Router {

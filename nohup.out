@@ -1,0 +1,1451 @@
+Connection to database established
+
+2025/01/22 18:53:41 [32m/root/projects/code-garden-server/internal/database/db.go:28 [33mSLOW SQL >= 200ms
+[0m[31;1m[443.206ms] [33m[rows:1][35m SELECT count(*) FROM information_schema.tables WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'users' AND table_type = 'BASE TABLE'[0m
+
+2025/01/22 18:53:41 [32m/root/projects/code-garden-server/internal/database/db.go:28 [33mSLOW SQL >= 200ms
+[0m[31;1m[283.881ms] [33m[rows:1][35m SELECT CURRENT_DATABASE()[0m
+
+2025/01/22 18:53:42 [32m/root/projects/code-garden-server/internal/database/db.go:28 [33mSLOW SQL >= 200ms
+[0m[31;1m[298.156ms] [33m[rows:-][35m SELECT c.column_name, c.is_nullable = 'YES', c.udt_name, c.character_maximum_length, c.numeric_precision, c.numeric_precision_radix, c.numeric_scale, c.datetime_precision, 8 * typlen, c.column_default, pd.description, c.identity_increment FROM information_schema.columns AS c JOIN pg_type AS pgt ON c.udt_name = pgt.typname LEFT JOIN pg_catalog.pg_description as pd ON pd.objsubid = c.ordinal_position AND pd.objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = c.table_name AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = c.table_schema)) where table_catalog = 'railway' AND table_schema = CURRENT_SCHEMA() AND table_name = 'users'[0m
+
+2025/01/22 18:53:42 [32m/root/projects/code-garden-server/internal/database/db.go:28 [33mSLOW SQL >= 200ms
+[0m[31;1m[292.689ms] [33m[rows:-][35m SELECT constraint_name FROM information_schema.table_constraints tc JOIN information_schema.constraint_column_usage AS ccu USING (constraint_schema, constraint_catalog, table_name, constraint_name) JOIN information_schema.columns AS c ON c.table_schema = tc.constraint_schema AND tc.table_name = c.table_name AND ccu.column_name = c.column_name WHERE constraint_type IN ('PRIMARY KEY', 'UNIQUE') AND c.table_catalog = 'railway' AND c.table_schema = CURRENT_SCHEMA() AND c.table_name = 'users' AND constraint_type = 'UNIQUE'[0m
+
+2025/01/22 18:53:42 [32m/root/projects/code-garden-server/internal/database/db.go:28 [33mSLOW SQL >= 200ms
+[0m[31;1m[290.554ms] [33m[rows:-][35m SELECT c.column_name, constraint_name, constraint_type FROM information_schema.table_constraints tc JOIN information_schema.constraint_column_usage AS ccu USING (constraint_schema, constraint_catalog, table_name, constraint_name) JOIN information_schema.columns AS c ON c.table_schema = tc.constraint_schema AND tc.table_name = c.table_name AND ccu.column_name = c.column_name WHERE constraint_type IN ('PRIMARY KEY', 'UNIQUE') AND c.table_catalog = 'railway' AND c.table_schema = CURRENT_SCHEMA() AND c.table_name = 'users'[0m
+
+2025/01/22 18:53:43 [32m/root/projects/code-garden-server/internal/database/db.go:28 [33mSLOW SQL >= 200ms
+[0m[31;1m[286.923ms] [33m[rows:-][35m SELECT a.attname as column_name, format_type(a.atttypid, a.atttypmod) AS data_type
+		FROM pg_attribute a JOIN pg_class b ON a.attrelid = b.oid AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA())
+		WHERE a.attnum > 0 -- hide internal columns
+		AND NOT a.attisdropped -- hide deleted columns
+		AND b.relname = 'users'[0m
+
+2025/01/22 18:53:43 [32m/root/projects/code-garden-server/internal/database/db.go:28 [33mSLOW SQL >= 200ms
+[0m[31;1m[286.326ms] [33m[rows:0][35m SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'users' AND column_name = 'id') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'users' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))[0m
+
+2025/01/22 18:53:44 [32m/root/projects/code-garden-server/internal/database/db.go:28 [33mSLOW SQL >= 200ms
+[0m[31;1m[285.251ms] [33m[rows:1][35m SELECT count(*) FROM pg_indexes WHERE tablename = 'users' AND indexname = 'idx_users_deleted_at' AND schemaname = CURRENT_SCHEMA()[0m
+
+2025/01/22 18:53:47 [32m/root/projects/code-garden-server/internal/database/db.go:28 [33mSLOW SQL >= 200ms
+[0m[31;1m[284.635ms] [33m[rows:1][35m SELECT count(*) FROM INFORMATION_SCHEMA.table_constraints WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'snippets' AND constraint_name = 'fk_snippets_owner'[0m
+making migrations
+2025/01/22 18:53:50 starting server on port 3000
+2025/01/22 18:53:50 building image python
+
+----------------------------------------
+     BUILD OUTPUT FOR "python":
+----------------------------------------
+
+{"stream":"Step 1/9 : FROM python:3.8-alpine"}
+{"stream":"\n"}
+{"stream":" ---\u003e cd39247b02f9\n"}
+{"stream":"Step 2/9 : RUN adduser -D myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e c6ccdb0189df\n"}
+{"stream":"Step 3/9 : COPY run.sh /usr/local/bin/run.sh"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 851e543db0b2\n"}
+{"stream":"Step 4/9 : RUN chmod +x /usr/local/bin/run.sh \u0026\u0026 chown myuser:myuser /usr/local/bin/run.sh"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 6075e3096cd2\n"}
+{"stream":"Step 5/9 : RUN chmod 555 /usr/local/bin/run.sh"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e c7b7f1b19158\n"}
+{"stream":"Step 6/9 : WORKDIR /home/myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 8f4009f25519\n"}
+{"stream":"Step 7/9 : RUN chown myuser:myuser /home/myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 751fea1530de\n"}
+{"stream":"Step 8/9 : USER myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 5955fb7679f5\n"}
+{"stream":"Step 9/9 : ENTRYPOINT [\"/usr/local/bin/run.sh\", \"python\"]"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 1dcaf4f15c9d\n"}
+{"aux":{"ID":"sha256:1dcaf4f15c9d8e3d7713896724cfb77b13654c89a1202294235bd6a390223430"}}
+{"stream":"Successfully built 1dcaf4f15c9d\n"}
+{"stream":"Successfully tagged code-garden-python:latest\n"}
+
+2025/01/22 18:53:50 building image node
+
+----------------------------------------
+     BUILD OUTPUT FOR "node":
+----------------------------------------
+
+{"stream":"Step 1/9 : FROM node:21.7.3-alpine"}
+{"stream":"\n"}
+{"stream":" ---\u003e cad63adc9266\n"}
+{"stream":"Step 2/9 : RUN adduser -D myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 19138a15c6cf\n"}
+{"stream":"Step 3/9 : COPY run.sh /usr/local/bin/run.sh"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 4f609c18d4d6\n"}
+{"stream":"Step 4/9 : RUN chmod +x /usr/local/bin/run.sh \u0026\u0026 chown myuser:myuser /usr/local/bin/run.sh"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 42e48e180e51\n"}
+{"stream":"Step 5/9 : RUN chmod 555 /usr/local/bin/run.sh"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 602f27981468\n"}
+{"stream":"Step 6/9 : WORKDIR /home/myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 4065f6d07d29\n"}
+{"stream":"Step 7/9 : RUN chown myuser:myuser /home/myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e c2aa0ab45552\n"}
+{"stream":"Step 8/9 : USER myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e d3ff2f5deb49\n"}
+{"stream":"Step 9/9 : ENTRYPOINT [\"/usr/local/bin/run.sh\", \"node\"]"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 1c1ba75bf0bb\n"}
+{"aux":{"ID":"sha256:1c1ba75bf0bbca25ab39c8828744fd0740e3c7ae0fcbdd2299c979a1965cbf6a"}}
+{"stream":"Successfully built 1c1ba75bf0bb\n"}
+{"stream":"Successfully tagged code-garden-node:latest\n"}
+
+2025/01/22 18:53:50 building image go
+
+----------------------------------------
+     BUILD OUTPUT FOR "go":
+----------------------------------------
+
+{"stream":"Step 1/9 : FROM golang:1.23-alpine"}
+{"stream":"\n"}
+{"stream":" ---\u003e b0dd8d95a220\n"}
+{"stream":"Step 2/9 : RUN adduser -D myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 07559166ac6a\n"}
+{"stream":"Step 3/9 : COPY run.sh /usr/local/bin/run.sh"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 0da9d01221e0\n"}
+{"stream":"Step 4/9 : RUN chmod +x /usr/local/bin/run.sh \u0026\u0026 chown myuser:myuser /usr/local/bin/run.sh"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e d4d6c4c54d60\n"}
+{"stream":"Step 5/9 : RUN chmod 555 /usr/local/bin/run.sh"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 7838fd0ecafb\n"}
+{"stream":"Step 6/9 : WORKDIR /home/myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e c6faff732308\n"}
+{"stream":"Step 7/9 : RUN chown myuser:myuser /home/myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 373de1092b51\n"}
+{"stream":"Step 8/9 : USER myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 9cce8392165e\n"}
+{"stream":"Step 9/9 : ENTRYPOINT [\"/usr/local/bin/run.sh\", \"go\"]"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e f1f68fc60ad0\n"}
+{"aux":{"ID":"sha256:f1f68fc60ad07e3e412aee53e86c555121d993150e30e659fc9d21cb0d9c854c"}}
+{"stream":"Successfully built f1f68fc60ad0\n"}
+{"stream":"Successfully tagged code-garden-go:latest\n"}
+
+
+2025/01/22 18:57:23 [32m/root/projects/code-garden-server/internal/database/queries/user.go:10 [33mSLOW SQL >= 200ms
+[0m[31;1m[427.102ms] [33m[rows:1][35m SELECT * FROM "users" WHERE email = 'jeremiahlena13@gmail.com' AND "users"."deleted_at" IS NULL ORDER BY "users"."id" LIMIT 1[0m
+
+2025/01/22 18:57:24 [32m/root/projects/code-garden-server/internal/services/auth/main.go:133 [33mSLOW SQL >= 200ms
+[0m[31;1m[1339.182ms] [33m[rows:1][35m INSERT INTO "verification_tokens" ("id","created_at","updated_at","deleted_at","token","expires_at","expired","user_id") VALUES ('1b490a60-a229-4dd3-87d0-5d88b7518aa0','2025-01-22 18:57:24.025','2025-01-22 18:57:24.025',NULL,'4oTVguE10vCkBA==','2025-01-22 19:07:23.003',false,'1b7a72d5-743f-4b8e-a089-8bb97fffcac9')[0m
+Login with email
+Click "https://code-garden-five.vercel.app/auth/sign-in-with-token/4oTVguE10vCkBA==" here to sign in.
+2025/01/22 18:57:25 f160ab37-a522-449c-ae4e-778c734599f3
+2025/01/22 18:57:25 POST /auth/login-with-email 	 Email sent(200)
+
+2025/01/22 18:57:44 [32m/root/projects/code-garden-server/internal/database/queries/user.go:21 [33mSLOW SQL >= 200ms
+[0m[31;1m[283.582ms] [33m[rows:1][35m SELECT * FROM "users" WHERE "users"."id" = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' AND "users"."deleted_at" IS NULL[0m
+
+2025/01/22 18:57:44 [32m/root/projects/code-garden-server/internal/database/queries/user.go:21 [33mSLOW SQL >= 200ms
+[0m[31;1m[709.715ms] [33m[rows:1][35m SELECT * FROM "verification_tokens" WHERE token = '4oTVguE10vCkBA==' AND "verification_tokens"."deleted_at" IS NULL ORDER BY "verification_tokens"."id" LIMIT 1[0m
+
+2025/01/22 18:57:45 [32m/root/projects/code-garden-server/internal/services/auth/main.go:184 [33mSLOW SQL >= 200ms
+[0m[31;1m[292.038ms] [33m[rows:1][35m UPDATE "verification_tokens" SET "expired"=true,"updated_at"='2025-01-22 18:57:45.059' WHERE token = '4oTVguE10vCkBA==' AND "verification_tokens"."deleted_at" IS NULL[0m
+
+2025/01/22 18:57:45 [32m/root/projects/code-garden-server/internal/services/auth/main.go:190 [33mSLOW SQL >= 200ms
+[0m[31;1m[283.816ms] [33m[rows:1][35m UPDATE "users" SET "updated_at"='2025-01-22 18:57:45.351',"email_verified"=true,"email_verified_at"='2025-01-22 18:57:45.351' WHERE "users"."deleted_at" IS NULL AND "id" = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9'[0m
+2025/01/22 18:57:45 POST /auth/sign-in-with-token/4oTVguE10vCkBA%3D%3D 	 Successfully signed in!(200)
+2025/01/22 20:30:36 GET /health 	 ()
+2025/01/22 20:39:25 GET /health 	 ()
+
+2025/01/22 20:49:21 [32m/root/projects/code-garden-server/internal/services/auth/main.go:247 [33mSLOW SQL >= 200ms
+[0m[31;1m[285.452ms] [33m[rows:1][35m SELECT * FROM "users" WHERE email = 'jeremiahlena13@gmail.com' AND "users"."deleted_at" IS NULL ORDER BY "users"."id" LIMIT 1[0m
+
+2025/01/22 20:49:22 [32m/root/projects/code-garden-server/internal/services/auth/main.go:261 [33mSLOW SQL >= 200ms
+[0m[31;1m[587.089ms] [33m[rows:1][35m INSERT INTO "verification_tokens" ("id","created_at","updated_at","deleted_at","token","expires_at","expired","user_id") VALUES ('fe8bad9a-ef81-4e4c-b260-8f4b23af8e04','2025-01-22 20:49:22.142','2025-01-22 20:49:22.142',NULL,'SqLERaKuFO4Z_A==','2025-01-22 20:59:21.711',false,'1b7a72d5-743f-4b8e-a089-8bb97fffcac9')[0m
+Reset password
+Click "https://code-garden-five.vercel.app/auth/reset-password?token=SqLERaKuFO4Z_A==&email=jeremiahlena13@gmail.com" here to reset your account.
+
+You can ignore this email if you did not request a password reset.
+2025/01/22 20:49:23 087cf641-fa85-428a-aa68-c8943c90df1e
+2025/01/22 20:49:23 POST /auth/request-password-reset 	 Success! Check your mail(200)
+
+2025/01/22 20:50:11 [32m/root/projects/code-garden-server/internal/services/auth/main.go:308 [33mSLOW SQL >= 200ms
+[0m[31;1m[430.090ms] [33m[rows:1][35m SELECT * FROM "verification_tokens" WHERE token = 'SqLERaKuFO4Z_A==' AND "verification_tokens"."deleted_at" IS NULL ORDER BY "verification_tokens"."id" LIMIT 1[0m
+
+2025/01/22 20:50:11 [32m/root/projects/code-garden-server/internal/services/auth/main.go:323 [33mSLOW SQL >= 200ms
+[0m[31;1m[283.683ms] [33m[rows:1][35m UPDATE "users" SET "password"='$2a$10$dWI9b5ocKt/RpT7FrdlP9.N7J8r6QeCERAcJw3f5X198mxXbMG3lq',"updated_at"='2025-01-22 20:50:11.32' WHERE "users"."deleted_at" IS NULL AND "id" = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9'[0m
+{{1b7a72d5-743f-4b8e-a089-8bb97fffcac9 2025-01-19 09:25:50.76143 +0100 CET 2025-01-22 20:50:11.320626951 +0100 CET {0001-01-01 00:00:00 +0000 UTC false}} jeremiahlena13@gmail.com $2a$10$dWI9b5ocKt/RpT7FrdlP9.N7J8r6QeCERAcJw3f5X198mxXbMG3lq   true 2025-01-22 18:57:45.351516 +0100 CET} error here
+2025/01/22 20:50:11 POST /auth/reset-password 	 Password reset successfully. Proceed to login(200)
+
+2025/01/22 20:50:27 [32m/root/projects/code-garden-server/internal/services/auth/main.go:216 [33mSLOW SQL >= 200ms
+[0m[31;1m[283.659ms] [33m[rows:1][35m SELECT * FROM "users" WHERE email = 'jeremiahlena13@gmail.com' AND "users"."deleted_at" IS NULL ORDER BY "users"."id" LIMIT 1[0m
+2025/01/22 20:50:27 POST /auth/login-with-password 	 Successfully signed in!(200)
+
+2025/01/22 20:50:47 [32m/root/projects/code-garden-server/internal/api/middleware.go:88 [33mSLOW SQL >= 200ms
+[0m[31;1m[429.692ms] [33m[rows:1][35m SELECT * FROM "users" WHERE id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' AND "users"."deleted_at" IS NULL AND "users"."id" = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' ORDER BY "users"."id" LIMIT 1[0m
+
+2025/01/22 20:50:48 [32m/root/projects/code-garden-server/internal/api/handlers/code.go:161 [33mSLOW SQL >= 200ms
+[0m[31;1m[610.083ms] [33m[rows:1][35m INSERT INTO "snippets" ("id","created_at","updated_at","deleted_at","code","language","output","public_id","owner_id","name") VALUES ('9f7535ad-316a-44b8-be75-a59019b3bd4b','2025-01-22 20:50:47.703','2025-01-22 20:50:47.703',NULL,'','python','','p9N645E5BMw=','1b7a72d5-743f-4b8e-a089-8bb97fffcac9','unicorn')[0m
+2025/01/22 20:50:48 POST /snippet/create 	 Snippet created successfully(201)
+
+2025/01/22 20:53:14 [32m/root/projects/code-garden-server/internal/api/middleware.go:88 [33mSLOW SQL >= 200ms
+[0m[31;1m[284.065ms] [33m[rows:1][35m SELECT * FROM "users" WHERE id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' AND "users"."deleted_at" IS NULL AND "users"."id" = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' ORDER BY "users"."id" LIMIT 1[0m
+
+2025/01/22 20:53:14 [32m/root/projects/code-garden-server/internal/api/handlers/code.go:161 [33mSLOW SQL >= 200ms
+[0m[31;1m[427.333ms] [33m[rows:1][35m INSERT INTO "snippets" ("id","created_at","updated_at","deleted_at","code","language","output","public_id","owner_id","name") VALUES ('ab55f129-edec-4f96-a8ed-b5b07b2ec22e','2025-01-22 20:53:14.675','2025-01-22 20:53:14.675',NULL,'','python','','IxWcTG7Vu7w=','1b7a72d5-743f-4b8e-a089-8bb97fffcac9','Untitled Snippet')[0m
+2025/01/22 20:53:14 POST /snippet/create 	 Snippet created successfully(201)
+2025/01/22 21:04:34 GET /health 	 ()
+2025/01/22 21:31:41 GET /health 	 ()
+Connection to database established
+
+2025/01/22 21:34:09 [32m/root/projects/code-garden-server/internal/database/db.go:28 [33mSLOW SQL >= 200ms
+[0m[31;1m[440.090ms] [33m[rows:1][35m SELECT count(*) FROM information_schema.tables WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'users' AND table_type = 'BASE TABLE'[0m
+
+2025/01/22 21:34:09 [32m/root/projects/code-garden-server/internal/database/db.go:28 [33mSLOW SQL >= 200ms
+[0m[31;1m[283.785ms] [33m[rows:1][35m SELECT CURRENT_DATABASE()[0m
+
+2025/01/22 21:34:09 [32m/root/projects/code-garden-server/internal/database/db.go:28 [33mSLOW SQL >= 200ms
+[0m[31;1m[294.486ms] [33m[rows:-][35m SELECT c.column_name, c.is_nullable = 'YES', c.udt_name, c.character_maximum_length, c.numeric_precision, c.numeric_precision_radix, c.numeric_scale, c.datetime_precision, 8 * typlen, c.column_default, pd.description, c.identity_increment FROM information_schema.columns AS c JOIN pg_type AS pgt ON c.udt_name = pgt.typname LEFT JOIN pg_catalog.pg_description as pd ON pd.objsubid = c.ordinal_position AND pd.objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = c.table_name AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = c.table_schema)) where table_catalog = 'railway' AND table_schema = CURRENT_SCHEMA() AND table_name = 'users'[0m
+
+2025/01/22 21:34:10 [32m/root/projects/code-garden-server/internal/database/db.go:28 [33mSLOW SQL >= 200ms
+[0m[31;1m[292.683ms] [33m[rows:-][35m SELECT constraint_name FROM information_schema.table_constraints tc JOIN information_schema.constraint_column_usage AS ccu USING (constraint_schema, constraint_catalog, table_name, constraint_name) JOIN information_schema.columns AS c ON c.table_schema = tc.constraint_schema AND tc.table_name = c.table_name AND ccu.column_name = c.column_name WHERE constraint_type IN ('PRIMARY KEY', 'UNIQUE') AND c.table_catalog = 'railway' AND c.table_schema = CURRENT_SCHEMA() AND c.table_name = 'users' AND constraint_type = 'UNIQUE'[0m
+
+2025/01/22 21:34:10 [32m/root/projects/code-garden-server/internal/database/db.go:28 [33mSLOW SQL >= 200ms
+[0m[31;1m[295.419ms] [33m[rows:-][35m SELECT c.column_name, constraint_name, constraint_type FROM information_schema.table_constraints tc JOIN information_schema.constraint_column_usage AS ccu USING (constraint_schema, constraint_catalog, table_name, constraint_name) JOIN information_schema.columns AS c ON c.table_schema = tc.constraint_schema AND tc.table_name = c.table_name AND ccu.column_name = c.column_name WHERE constraint_type IN ('PRIMARY KEY', 'UNIQUE') AND c.table_catalog = 'railway' AND c.table_schema = CURRENT_SCHEMA() AND c.table_name = 'users'[0m
+
+2025/01/22 21:34:10 [32m/root/projects/code-garden-server/internal/database/db.go:28 [33mSLOW SQL >= 200ms
+[0m[31;1m[284.740ms] [33m[rows:-][35m SELECT a.attname as column_name, format_type(a.atttypid, a.atttypmod) AS data_type
+		FROM pg_attribute a JOIN pg_class b ON a.attrelid = b.oid AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA())
+		WHERE a.attnum > 0 -- hide internal columns
+		AND NOT a.attisdropped -- hide deleted columns
+		AND b.relname = 'users'[0m
+
+2025/01/22 21:34:10 [32m/root/projects/code-garden-server/internal/database/db.go:28 [33mSLOW SQL >= 200ms
+[0m[31;1m[286.601ms] [33m[rows:0][35m SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'users' AND column_name = 'id') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'users' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))[0m
+
+2025/01/22 21:34:12 [32m/root/projects/code-garden-server/internal/database/db.go:28 [33mSLOW SQL >= 200ms
+[0m[31;1m[285.275ms] [33m[rows:1][35m SELECT count(*) FROM pg_indexes WHERE tablename = 'users' AND indexname = 'idx_users_deleted_at' AND schemaname = CURRENT_SCHEMA()[0m
+
+2025/01/22 21:34:15 [32m/root/projects/code-garden-server/internal/database/db.go:28 [33mSLOW SQL >= 200ms
+[0m[31;1m[288.209ms] [33m[rows:1][35m SELECT count(*) FROM INFORMATION_SCHEMA.table_constraints WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'snippets' AND constraint_name = 'fk_snippets_owner'[0m
+making migrations
+2025/01/22 21:34:17 starting server on port 443
+2025/01/22 21:34:17 building image python
+
+----------------------------------------
+     BUILD OUTPUT FOR "python":
+----------------------------------------
+
+{"stream":"Step 1/9 : FROM python:3.8-alpine"}
+{"stream":"\n"}
+{"stream":" ---\u003e cd39247b02f9\n"}
+{"stream":"Step 2/9 : RUN adduser -D myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e c6ccdb0189df\n"}
+{"stream":"Step 3/9 : COPY run.sh /usr/local/bin/run.sh"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 851e543db0b2\n"}
+{"stream":"Step 4/9 : RUN chmod +x /usr/local/bin/run.sh \u0026\u0026 chown myuser:myuser /usr/local/bin/run.sh"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 6075e3096cd2\n"}
+{"stream":"Step 5/9 : RUN chmod 555 /usr/local/bin/run.sh"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e c7b7f1b19158\n"}
+{"stream":"Step 6/9 : WORKDIR /home/myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 8f4009f25519\n"}
+{"stream":"Step 7/9 : RUN chown myuser:myuser /home/myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 751fea1530de\n"}
+{"stream":"Step 8/9 : USER myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 5955fb7679f5\n"}
+{"stream":"Step 9/9 : ENTRYPOINT [\"/usr/local/bin/run.sh\", \"python\"]"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 1dcaf4f15c9d\n"}
+{"aux":{"ID":"sha256:1dcaf4f15c9d8e3d7713896724cfb77b13654c89a1202294235bd6a390223430"}}
+{"stream":"Successfully built 1dcaf4f15c9d\n"}
+{"stream":"Successfully tagged code-garden-python:latest\n"}
+
+2025/01/22 21:34:17 building image node
+
+----------------------------------------
+     BUILD OUTPUT FOR "node":
+----------------------------------------
+
+{"stream":"Step 1/9 : FROM node:21.7.3-alpine"}
+{"stream":"\n"}
+{"stream":" ---\u003e cad63adc9266\n"}
+{"stream":"Step 2/9 : RUN adduser -D myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 19138a15c6cf\n"}
+{"stream":"Step 3/9 : COPY run.sh /usr/local/bin/run.sh"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 4f609c18d4d6\n"}
+{"stream":"Step 4/9 : RUN chmod +x /usr/local/bin/run.sh \u0026\u0026 chown myuser:myuser /usr/local/bin/run.sh"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 42e48e180e51\n"}
+{"stream":"Step 5/9 : RUN chmod 555 /usr/local/bin/run.sh"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 602f27981468\n"}
+{"stream":"Step 6/9 : WORKDIR /home/myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 4065f6d07d29\n"}
+{"stream":"Step 7/9 : RUN chown myuser:myuser /home/myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e c2aa0ab45552\n"}
+{"stream":"Step 8/9 : USER myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e d3ff2f5deb49\n"}
+{"stream":"Step 9/9 : ENTRYPOINT [\"/usr/local/bin/run.sh\", \"node\"]"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 1c1ba75bf0bb\n"}
+{"aux":{"ID":"sha256:1c1ba75bf0bbca25ab39c8828744fd0740e3c7ae0fcbdd2299c979a1965cbf6a"}}
+{"stream":"Successfully built 1c1ba75bf0bb\n"}
+{"stream":"Successfully tagged code-garden-node:latest\n"}
+
+2025/01/22 21:34:17 building image go
+
+----------------------------------------
+     BUILD OUTPUT FOR "go":
+----------------------------------------
+
+{"stream":"Step 1/9 : FROM golang:1.23-alpine"}
+{"stream":"\n"}
+{"stream":" ---\u003e b0dd8d95a220\n"}
+{"stream":"Step 2/9 : RUN adduser -D myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 07559166ac6a\n"}
+{"stream":"Step 3/9 : COPY run.sh /usr/local/bin/run.sh"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 0da9d01221e0\n"}
+{"stream":"Step 4/9 : RUN chmod +x /usr/local/bin/run.sh \u0026\u0026 chown myuser:myuser /usr/local/bin/run.sh"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e d4d6c4c54d60\n"}
+{"stream":"Step 5/9 : RUN chmod 555 /usr/local/bin/run.sh"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 7838fd0ecafb\n"}
+{"stream":"Step 6/9 : WORKDIR /home/myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e c6faff732308\n"}
+{"stream":"Step 7/9 : RUN chown myuser:myuser /home/myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 373de1092b51\n"}
+{"stream":"Step 8/9 : USER myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 9cce8392165e\n"}
+{"stream":"Step 9/9 : ENTRYPOINT [\"/usr/local/bin/run.sh\", \"go\"]"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e f1f68fc60ad0\n"}
+{"aux":{"ID":"sha256:f1f68fc60ad07e3e412aee53e86c555121d993150e30e659fc9d21cb0d9c854c"}}
+{"stream":"Successfully built f1f68fc60ad0\n"}
+{"stream":"Successfully tagged code-garden-go:latest\n"}
+
+2025/01/22 21:34:51 GET /health 	 ()
+2025/01/22 21:36:04 GET /health 	 ()
+Connection to database established
+
+2025/01/22 21:49:06 [32m/root/projects/code-garden-server/internal/database/db.go:28 [33mSLOW SQL >= 200ms
+[0m[31;1m[429.204ms] [33m[rows:1][35m SELECT count(*) FROM information_schema.tables WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'users' AND table_type = 'BASE TABLE'[0m
+
+2025/01/22 21:49:07 [32m/root/projects/code-garden-server/internal/database/db.go:28 [33mSLOW SQL >= 200ms
+[0m[31;1m[283.908ms] [33m[rows:1][35m SELECT CURRENT_DATABASE()[0m
+
+2025/01/22 21:49:07 [32m/root/projects/code-garden-server/internal/database/db.go:28 [33mSLOW SQL >= 200ms
+[0m[31;1m[304.204ms] [33m[rows:-][35m SELECT c.column_name, c.is_nullable = 'YES', c.udt_name, c.character_maximum_length, c.numeric_precision, c.numeric_precision_radix, c.numeric_scale, c.datetime_precision, 8 * typlen, c.column_default, pd.description, c.identity_increment FROM information_schema.columns AS c JOIN pg_type AS pgt ON c.udt_name = pgt.typname LEFT JOIN pg_catalog.pg_description as pd ON pd.objsubid = c.ordinal_position AND pd.objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = c.table_name AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = c.table_schema)) where table_catalog = 'railway' AND table_schema = CURRENT_SCHEMA() AND table_name = 'users'[0m
+
+2025/01/22 21:49:07 [32m/root/projects/code-garden-server/internal/database/db.go:28 [33mSLOW SQL >= 200ms
+[0m[31;1m[293.919ms] [33m[rows:-][35m SELECT constraint_name FROM information_schema.table_constraints tc JOIN information_schema.constraint_column_usage AS ccu USING (constraint_schema, constraint_catalog, table_name, constraint_name) JOIN information_schema.columns AS c ON c.table_schema = tc.constraint_schema AND tc.table_name = c.table_name AND ccu.column_name = c.column_name WHERE constraint_type IN ('PRIMARY KEY', 'UNIQUE') AND c.table_catalog = 'railway' AND c.table_schema = CURRENT_SCHEMA() AND c.table_name = 'users' AND constraint_type = 'UNIQUE'[0m
+
+2025/01/22 21:49:08 [32m/root/projects/code-garden-server/internal/database/db.go:28 [33mSLOW SQL >= 200ms
+[0m[31;1m[291.059ms] [33m[rows:-][35m SELECT c.column_name, constraint_name, constraint_type FROM information_schema.table_constraints tc JOIN information_schema.constraint_column_usage AS ccu USING (constraint_schema, constraint_catalog, table_name, constraint_name) JOIN information_schema.columns AS c ON c.table_schema = tc.constraint_schema AND tc.table_name = c.table_name AND ccu.column_name = c.column_name WHERE constraint_type IN ('PRIMARY KEY', 'UNIQUE') AND c.table_catalog = 'railway' AND c.table_schema = CURRENT_SCHEMA() AND c.table_name = 'users'[0m
+
+2025/01/22 21:49:08 [32m/root/projects/code-garden-server/internal/database/db.go:28 [33mSLOW SQL >= 200ms
+[0m[31;1m[289.005ms] [33m[rows:-][35m SELECT a.attname as column_name, format_type(a.atttypid, a.atttypmod) AS data_type
+		FROM pg_attribute a JOIN pg_class b ON a.attrelid = b.oid AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA())
+		WHERE a.attnum > 0 -- hide internal columns
+		AND NOT a.attisdropped -- hide deleted columns
+		AND b.relname = 'users'[0m
+
+2025/01/22 21:49:08 [32m/root/projects/code-garden-server/internal/database/db.go:28 [33mSLOW SQL >= 200ms
+[0m[31;1m[286.692ms] [33m[rows:0][35m SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'users' AND column_name = 'id') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'users' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))[0m
+
+2025/01/22 21:49:10 [32m/root/projects/code-garden-server/internal/database/db.go:28 [33mSLOW SQL >= 200ms
+[0m[31;1m[294.537ms] [33m[rows:1][35m SELECT count(*) FROM pg_indexes WHERE tablename = 'users' AND indexname = 'idx_users_deleted_at' AND schemaname = CURRENT_SCHEMA()[0m
+
+2025/01/22 21:49:12 [32m/root/projects/code-garden-server/internal/database/db.go:28 [33mSLOW SQL >= 200ms
+[0m[31;1m[285.180ms] [33m[rows:1][35m SELECT count(*) FROM INFORMATION_SCHEMA.table_constraints WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'snippets' AND constraint_name = 'fk_snippets_owner'[0m
+making migrations
+2025/01/22 21:49:15 starting server on port 443
+2025/01/22 21:49:15 building image python
+
+----------------------------------------
+     BUILD OUTPUT FOR "python":
+----------------------------------------
+
+{"stream":"Step 1/9 : FROM python:3.8-alpine"}
+{"stream":"\n"}
+{"stream":" ---\u003e cd39247b02f9\n"}
+{"stream":"Step 2/9 : RUN adduser -D myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e c6ccdb0189df\n"}
+{"stream":"Step 3/9 : COPY run.sh /usr/local/bin/run.sh"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 851e543db0b2\n"}
+{"stream":"Step 4/9 : RUN chmod +x /usr/local/bin/run.sh \u0026\u0026 chown myuser:myuser /usr/local/bin/run.sh"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 6075e3096cd2\n"}
+{"stream":"Step 5/9 : RUN chmod 555 /usr/local/bin/run.sh"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e c7b7f1b19158\n"}
+{"stream":"Step 6/9 : WORKDIR /home/myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 8f4009f25519\n"}
+{"stream":"Step 7/9 : RUN chown myuser:myuser /home/myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 751fea1530de\n"}
+{"stream":"Step 8/9 : USER myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 5955fb7679f5\n"}
+{"stream":"Step 9/9 : ENTRYPOINT [\"/usr/local/bin/run.sh\", \"python\"]"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 1dcaf4f15c9d\n"}
+{"aux":{"ID":"sha256:1dcaf4f15c9d8e3d7713896724cfb77b13654c89a1202294235bd6a390223430"}}
+{"stream":"Successfully built 1dcaf4f15c9d\n"}
+{"stream":"Successfully tagged code-garden-python:latest\n"}
+
+2025/01/22 21:49:15 building image node
+
+----------------------------------------
+     BUILD OUTPUT FOR "node":
+----------------------------------------
+
+{"stream":"Step 1/9 : FROM node:21.7.3-alpine"}
+{"stream":"\n"}
+{"stream":" ---\u003e cad63adc9266\n"}
+{"stream":"Step 2/9 : RUN adduser -D myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 19138a15c6cf\n"}
+{"stream":"Step 3/9 : COPY run.sh /usr/local/bin/run.sh"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 4f609c18d4d6\n"}
+{"stream":"Step 4/9 : RUN chmod +x /usr/local/bin/run.sh \u0026\u0026 chown myuser:myuser /usr/local/bin/run.sh"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 42e48e180e51\n"}
+{"stream":"Step 5/9 : RUN chmod 555 /usr/local/bin/run.sh"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 602f27981468\n"}
+{"stream":"Step 6/9 : WORKDIR /home/myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 4065f6d07d29\n"}
+{"stream":"Step 7/9 : RUN chown myuser:myuser /home/myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e c2aa0ab45552\n"}
+{"stream":"Step 8/9 : USER myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e d3ff2f5deb49\n"}
+{"stream":"Step 9/9 : ENTRYPOINT [\"/usr/local/bin/run.sh\", \"node\"]"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 1c1ba75bf0bb\n"}
+{"aux":{"ID":"sha256:1c1ba75bf0bbca25ab39c8828744fd0740e3c7ae0fcbdd2299c979a1965cbf6a"}}
+{"stream":"Successfully built 1c1ba75bf0bb\n"}
+{"stream":"Successfully tagged code-garden-node:latest\n"}
+
+2025/01/22 21:49:15 building image go
+
+----------------------------------------
+     BUILD OUTPUT FOR "go":
+----------------------------------------
+
+{"stream":"Step 1/9 : FROM golang:1.23-alpine"}
+{"stream":"\n"}
+{"stream":" ---\u003e b0dd8d95a220\n"}
+{"stream":"Step 2/9 : RUN adduser -D myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 07559166ac6a\n"}
+{"stream":"Step 3/9 : COPY run.sh /usr/local/bin/run.sh"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 0da9d01221e0\n"}
+{"stream":"Step 4/9 : RUN chmod +x /usr/local/bin/run.sh \u0026\u0026 chown myuser:myuser /usr/local/bin/run.sh"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e d4d6c4c54d60\n"}
+{"stream":"Step 5/9 : RUN chmod 555 /usr/local/bin/run.sh"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 7838fd0ecafb\n"}
+{"stream":"Step 6/9 : WORKDIR /home/myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e c6faff732308\n"}
+{"stream":"Step 7/9 : RUN chown myuser:myuser /home/myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 373de1092b51\n"}
+{"stream":"Step 8/9 : USER myuser"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e 9cce8392165e\n"}
+{"stream":"Step 9/9 : ENTRYPOINT [\"/usr/local/bin/run.sh\", \"go\"]"}
+{"stream":"\n"}
+{"stream":" ---\u003e Using cache\n"}
+{"stream":" ---\u003e f1f68fc60ad0\n"}
+{"aux":{"ID":"sha256:f1f68fc60ad07e3e412aee53e86c555121d993150e30e659fc9d21cb0d9c854c"}}
+{"stream":"Successfully built f1f68fc60ad0\n"}
+{"stream":"Successfully tagged code-garden-go:latest\n"}
+
+2025/01/22 21:50:01 GET /health 	 ()
+2025/01/22 21:50:51 http: TLS handshake error from 104.164.173.7:55052: EOF
+2025/01/22 21:50:51 http: TLS handshake error from 104.164.173.45:10042: EOF
+2025/01/22 21:51:06 http: TLS handshake error from 104.164.173.124:20184: EOF
+2025/01/22 21:53:15 GET /health 	 ()
+2025/01/22 21:56:35 http: TLS handshake error from 102.88.36.201:18175: remote error: tls: unknown certificate
+2025/01/22 21:56:35 http: TLS handshake error from 102.88.36.201:4986: remote error: tls: unknown certificate
+2025/01/22 21:56:37 http: TLS handshake error from 102.88.36.201:1288: remote error: tls: unknown certificate
+2025/01/22 21:56:37 http: TLS handshake error from 102.88.36.201:240: remote error: tls: unknown certificate
+2025/01/22 21:56:53 http: TLS handshake error from 102.88.36.201:4410: remote error: tls: unknown certificate
+2025/01/22 21:56:53 http: TLS handshake error from 102.88.36.201:4250: remote error: tls: unknown certificate
+2025/01/22 21:59:17 http: TLS handshake error from 172.168.40.190:58114: tls: first record does not look like a TLS handshake
+2025/01/22 21:59:30 GET /health 	 ()
+2025/01/22 22:11:40 http: TLS handshake error from 70.39.75.142:48326: client sent an HTTP request to an HTTPS server
+2025/01/22 22:12:54 http: TLS handshake error from 102.88.36.201:6539: remote error: tls: unknown certificate
+2025/01/22 22:16:48 GET /health? 	 ()
+2025/01/22 22:17:08 GET /health? 	 ()
+2025/01/22 22:22:01 http: TLS handshake error from 97.107.129.122:16368: EOF
+
+2025/01/22 22:48:20 [32m/root/projects/code-garden-server/internal/services/auth/main.go:216 [33mSLOW SQL >= 200ms
+[0m[31;1m[434.606ms] [33m[rows:1][35m SELECT * FROM "users" WHERE email = 'jeremiahlena13@gmail.com' AND "users"."deleted_at" IS NULL ORDER BY "users"."id" LIMIT 1[0m
+2025/01/22 22:48:20 POST /auth/login-with-password 	 crypto/bcrypt: hashedPassword is not the hash of the given password(500)
+
+2025/01/22 22:48:39 [32m/root/projects/code-garden-server/internal/services/auth/main.go:216 [33mSLOW SQL >= 200ms
+[0m[31;1m[291.264ms] [33m[rows:1][35m SELECT * FROM "users" WHERE email = 'jeremiahlena13@gmail.com' AND "users"."deleted_at" IS NULL ORDER BY "users"."id" LIMIT 1[0m
+2025/01/22 22:48:39 POST /auth/login-with-password 	 crypto/bcrypt: hashedPassword is not the hash of the given password(500)
+
+2025/01/22 22:48:47 [32m/root/projects/code-garden-server/internal/services/auth/main.go:247 [33mSLOW SQL >= 200ms
+[0m[31;1m[286.773ms] [33m[rows:1][35m SELECT * FROM "users" WHERE email = 'jeremiahlena13@gmail.com' AND "users"."deleted_at" IS NULL ORDER BY "users"."id" LIMIT 1[0m
+
+2025/01/22 22:48:54 [32m/root/projects/code-garden-server/internal/services/auth/main.go:261 [33mSLOW SQL >= 200ms
+[0m[31;1m[6285.129ms] [33m[rows:1][35m INSERT INTO "verification_tokens" ("id","created_at","updated_at","deleted_at","token","expires_at","expired","user_id") VALUES ('48379815-1ad9-4930-84a8-39c7f2463a7d','2025-01-22 22:48:53.837','2025-01-22 22:48:53.837',NULL,'n8B3zicnaHDuZg==','2025-01-22 22:58:47.852',false,'1b7a72d5-743f-4b8e-a089-8bb97fffcac9')[0m
+Reset password
+Click "http://localhost:8080/auth/reset-password?token=n8B3zicnaHDuZg==&email=jeremiahlena13@gmail.com" here to reset your account.
+
+You can ignore this email if you did not request a password reset.
+2025/01/22 22:48:54 485bbdbd-efcb-4df3-b11b-e94e66172dbe
+2025/01/22 22:48:55 POST /auth/request-password-reset 	 Success! Check your mail(200)
+
+2025/01/22 22:50:02 [32m/root/projects/code-garden-server/internal/services/auth/main.go:308 [33mSLOW SQL >= 200ms
+[0m[31;1m[288.986ms] [33m[rows:1][35m SELECT * FROM "users" WHERE "users"."id" = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' AND "users"."deleted_at" IS NULL[0m
+
+2025/01/22 22:50:02 [32m/root/projects/code-garden-server/internal/services/auth/main.go:308 [33mSLOW SQL >= 200ms
+[0m[31;1m[720.874ms] [33m[rows:1][35m SELECT * FROM "verification_tokens" WHERE token = 'n8B3zicnaHDuZg==' AND "verification_tokens"."deleted_at" IS NULL ORDER BY "verification_tokens"."id" LIMIT 1[0m
+
+2025/01/22 22:50:03 [32m/root/projects/code-garden-server/internal/services/auth/main.go:323 [33mSLOW SQL >= 200ms
+[0m[31;1m[382.548ms] [33m[rows:1][35m UPDATE "users" SET "password"='$2a$10$0M/v68YY/FNaD/yd.Eo.Ju/9kfEZlFPe6f0sE1KLpMguQM8E2sbjG',"updated_at"='2025-01-22 22:50:02.83' WHERE "users"."deleted_at" IS NULL AND "id" = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9'[0m
+{{1b7a72d5-743f-4b8e-a089-8bb97fffcac9 2025-01-19 09:25:50.76143 +0100 CET 2025-01-22 22:50:02.830588046 +0100 CET {0001-01-01 00:00:00 +0000 UTC false}} jeremiahlena13@gmail.com $2a$10$0M/v68YY/FNaD/yd.Eo.Ju/9kfEZlFPe6f0sE1KLpMguQM8E2sbjG   true 2025-01-22 18:57:45.351516 +0100 CET} error here
+
+2025/01/22 22:50:03 [32m/root/projects/code-garden-server/internal/database/models/user.go:49 [33mSLOW SQL >= 200ms
+[0m[31;1m[385.803ms] [33m[rows:1][35m UPDATE "verification_tokens" SET "expired"=true,"updated_at"='2025-01-22 22:50:03.213' WHERE token = 'n8B3zicnaHDuZg==' AND "verification_tokens"."deleted_at" IS NULL[0m
+2025/01/22 22:50:03 POST /auth/reset-password 	 Password reset successfully. Proceed to login(200)
+
+2025/01/22 22:50:08 [32m/root/projects/code-garden-server/internal/services/auth/main.go:216 [33mSLOW SQL >= 200ms
+[0m[31;1m[293.936ms] [33m[rows:1][35m SELECT * FROM "users" WHERE email = 'jeremiahlena13@gmail.com' AND "users"."deleted_at" IS NULL ORDER BY "users"."id" LIMIT 1[0m
+2025/01/22 22:50:08 POST /auth/login-with-password 	 Successfully signed in!(200)
+
+2025/01/22 22:50:10 [32m/root/projects/code-garden-server/internal/api/middleware.go:88 [33mSLOW SQL >= 200ms
+[0m[31;1m[425.392ms] [33m[rows:1][35m SELECT * FROM "users" WHERE id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' AND "users"."deleted_at" IS NULL AND "users"."id" = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' ORDER BY "users"."id" LIMIT 1[0m
+
+2025/01/22 22:50:11 [32m/root/projects/code-garden-server/internal/api/handlers/code.go:295 [33mSLOW SQL >= 200ms
+[0m[31;1m[454.591ms] [33m[rows:4][35m SELECT * FROM "snippets" WHERE owner_id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' AND "snippets"."deleted_at" IS NULL[0m
+2025/01/22 22:50:11 GET /snippets/mine 	 User's snippets retrieved successfully(200)
+
+2025/01/22 22:50:17 [32m/root/projects/code-garden-server/internal/api/middleware.go:88 [33mSLOW SQL >= 200ms
+[0m[31;1m[291.861ms] [33m[rows:1][35m SELECT * FROM "users" WHERE id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' AND "users"."deleted_at" IS NULL AND "users"."id" = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' ORDER BY "users"."id" LIMIT 1[0m
+
+2025/01/22 22:50:18 [32m/root/projects/code-garden-server/internal/api/handlers/code.go:240 [33mSLOW SQL >= 200ms
+[0m[31;1m[444.884ms] [33m[rows:1][35m SELECT * FROM "snippets" WHERE (public_id = 'V25GPLsl3mA=' and owner_id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9') AND "snippets"."deleted_at" IS NULL ORDER BY "snippets"."id" LIMIT 1[0m
+2025/01/22 22:50:18 GET /snippet/V25GPLsl3mA%3D 	 Successfully retrieved code snippet(200)
+
+2025/01/22 22:50:22 [32m/root/projects/code-garden-server/internal/api/middleware.go:88 [33mSLOW SQL >= 200ms
+[0m[31;1m[287.445ms] [33m[rows:1][35m SELECT * FROM "users" WHERE id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' AND "users"."deleted_at" IS NULL AND "users"."id" = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' ORDER BY "users"."id" LIMIT 1[0m
+
+2025/01/22 22:50:23 [32m/root/projects/code-garden-server/internal/api/handlers/code.go:240 [33mSLOW SQL >= 200ms
+[0m[31;1m[286.515ms] [33m[rows:1][35m SELECT * FROM "snippets" WHERE (public_id = 'kxfz6otpyF0=' and owner_id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9') AND "snippets"."deleted_at" IS NULL ORDER BY "snippets"."id" LIMIT 1[0m
+2025/01/22 22:50:23 GET /snippet/kxfz6otpyF0%3D 	 Successfully retrieved code snippet(200)
+
+2025/01/22 22:50:27 [32m/root/projects/code-garden-server/internal/api/middleware.go:88 [33mSLOW SQL >= 200ms
+[0m[31;1m[296.337ms] [33m[rows:1][35m SELECT * FROM "users" WHERE id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' AND "users"."deleted_at" IS NULL AND "users"."id" = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' ORDER BY "users"."id" LIMIT 1[0m
+
+2025/01/22 22:50:27 [32m/root/projects/code-garden-server/internal/api/handlers/code.go:240 [33mSLOW SQL >= 200ms
+[0m[31;1m[283.969ms] [33m[rows:1][35m SELECT * FROM "snippets" WHERE (public_id = 'p9N645E5BMw=' and owner_id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9') AND "snippets"."deleted_at" IS NULL ORDER BY "snippets"."id" LIMIT 1[0m
+2025/01/22 22:50:27 GET /snippet/p9N645E5BMw%3D 	 Successfully retrieved code snippet(200)
+
+2025/01/22 22:50:32 [32m/root/projects/code-garden-server/internal/api/middleware.go:88 [33mSLOW SQL >= 200ms
+[0m[31;1m[284.332ms] [33m[rows:1][35m SELECT * FROM "users" WHERE id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' AND "users"."deleted_at" IS NULL AND "users"."id" = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' ORDER BY "users"."id" LIMIT 1[0m
+
+2025/01/22 22:50:33 [32m/root/projects/code-garden-server/internal/api/handlers/code.go:271 [33mSLOW SQL >= 200ms
+[0m[31;1m[572.669ms] [33m[rows:1][35m UPDATE "snippets" SET "deleted_at"='2025-01-22 22:50:32.93' WHERE public_id = 'p9N645E5BMw=' AND "snippets"."deleted_at" IS NULL[0m
+12025/01/22 22:50:33 DELETE /snippet/p9N645E5BMw= 	 Snippet deleted successfully(200)
+
+2025/01/22 22:50:44 [32m/root/projects/code-garden-server/internal/api/middleware.go:88 [33mSLOW SQL >= 200ms
+[0m[31;1m[290.420ms] [33m[rows:1][35m SELECT * FROM "users" WHERE id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' AND "users"."deleted_at" IS NULL AND "users"."id" = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' ORDER BY "users"."id" LIMIT 1[0m
+
+2025/01/22 22:50:44 [32m/root/projects/code-garden-server/internal/api/handlers/code.go:295 [33mSLOW SQL >= 200ms
+[0m[31;1m[284.112ms] [33m[rows:3][35m SELECT * FROM "snippets" WHERE owner_id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' AND "snippets"."deleted_at" IS NULL[0m
+2025/01/22 22:50:44 GET /snippets/mine 	 User's snippets retrieved successfully(200)
+
+2025/01/22 22:50:47 [32m/root/projects/code-garden-server/internal/api/middleware.go:88 [33mSLOW SQL >= 200ms
+[0m[31;1m[283.513ms] [33m[rows:1][35m SELECT * FROM "users" WHERE id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' AND "users"."deleted_at" IS NULL AND "users"."id" = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' ORDER BY "users"."id" LIMIT 1[0m
+
+2025/01/22 22:50:48 [32m/root/projects/code-garden-server/internal/api/handlers/code.go:240 [33mSLOW SQL >= 200ms
+[0m[31;1m[283.941ms] [33m[rows:1][35m SELECT * FROM "snippets" WHERE (public_id = 'IxWcTG7Vu7w=' and owner_id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9') AND "snippets"."deleted_at" IS NULL ORDER BY "snippets"."id" LIMIT 1[0m
+2025/01/22 22:50:48 GET /snippet/IxWcTG7Vu7w%3D 	 Successfully retrieved code snippet(200)
+
+2025/01/22 22:50:52 [32m/root/projects/code-garden-server/internal/api/middleware.go:88 [33mSLOW SQL >= 200ms
+[0m[31;1m[283.439ms] [33m[rows:1][35m SELECT * FROM "users" WHERE id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' AND "users"."deleted_at" IS NULL AND "users"."id" = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' ORDER BY "users"."id" LIMIT 1[0m
+
+2025/01/22 22:50:52 [32m/root/projects/code-garden-server/internal/api/handlers/code.go:240 [33mSLOW SQL >= 200ms
+[0m[31;1m[284.183ms] [33m[rows:1][35m SELECT * FROM "snippets" WHERE (public_id = 'kxfz6otpyF0=' and owner_id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9') AND "snippets"."deleted_at" IS NULL ORDER BY "snippets"."id" LIMIT 1[0m
+2025/01/22 22:50:52 GET /snippet/kxfz6otpyF0%3D 	 Successfully retrieved code snippet(200)
+
+2025/01/22 22:50:57 [32m/root/projects/code-garden-server/internal/api/middleware.go:88 [33mSLOW SQL >= 200ms
+[0m[31;1m[283.546ms] [33m[rows:1][35m SELECT * FROM "users" WHERE id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' AND "users"."deleted_at" IS NULL AND "users"."id" = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' ORDER BY "users"."id" LIMIT 1[0m
+
+2025/01/22 22:50:57 [32m/root/projects/code-garden-server/internal/api/handlers/code.go:240 [33mSLOW SQL >= 200ms
+[0m[31;1m[291.826ms] [33m[rows:1][35m SELECT * FROM "snippets" WHERE (public_id = 'V25GPLsl3mA=' and owner_id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9') AND "snippets"."deleted_at" IS NULL ORDER BY "snippets"."id" LIMIT 1[0m
+2025/01/22 22:50:57 GET /snippet/V25GPLsl3mA%3D 	 Successfully retrieved code snippet(200)
+
+2025/01/22 22:51:03 [32m/root/projects/code-garden-server/internal/api/middleware.go:88 [33mSLOW SQL >= 200ms
+[0m[31;1m[292.170ms] [33m[rows:1][35m SELECT * FROM "users" WHERE id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' AND "users"."deleted_at" IS NULL AND "users"."id" = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' ORDER BY "users"."id" LIMIT 1[0m
+
+2025/01/22 22:51:03 [32m/root/projects/code-garden-server/internal/api/handlers/code.go:271 [33mSLOW SQL >= 200ms
+[0m[31;1m[426.626ms] [33m[rows:1][35m UPDATE "snippets" SET "deleted_at"='2025-01-22 22:51:03.399' WHERE public_id = 'kxfz6otpyF0=' AND "snippets"."deleted_at" IS NULL[0m
+12025/01/22 22:51:03 DELETE /snippet/kxfz6otpyF0= 	 Snippet deleted successfully(200)
+
+2025/01/22 22:51:04 [32m/root/projects/code-garden-server/internal/api/handlers/code.go:271 [33mSLOW SQL >= 200ms
+[0m[31;1m[426.215ms] [33m[rows:1][35m UPDATE "snippets" SET "deleted_at"='2025-01-22 22:51:04.337' WHERE public_id = 'IxWcTG7Vu7w=' AND "snippets"."deleted_at" IS NULL[0m
+12025/01/22 22:51:04 DELETE /snippet/IxWcTG7Vu7w= 	 Snippet deleted successfully(200)
+
+2025/01/22 22:52:16 [32m/root/projects/code-garden-server/internal/api/middleware.go:88 [33mSLOW SQL >= 200ms
+[0m[31;1m[284.807ms] [33m[rows:1][35m SELECT * FROM "users" WHERE id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' AND "users"."deleted_at" IS NULL AND "users"."id" = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' ORDER BY "users"."id" LIMIT 1[0m
+
+2025/01/22 22:52:16 [32m/root/projects/code-garden-server/internal/api/handlers/code.go:295 [33mSLOW SQL >= 200ms
+[0m[31;1m[283.850ms] [33m[rows:1][35m SELECT * FROM "snippets" WHERE owner_id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' AND "snippets"."deleted_at" IS NULL[0m
+2025/01/22 22:52:16 GET /snippets/mine 	 User's snippets retrieved successfully(200)
+2025/01/22 22:52:18 http: TLS handshake error from 199.45.155.84:43220: EOF
+
+2025/01/22 22:52:19 [32m/root/projects/code-garden-server/internal/api/middleware.go:88 [33mSLOW SQL >= 200ms
+[0m[31;1m[283.621ms] [33m[rows:1][35m SELECT * FROM "users" WHERE id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' AND "users"."deleted_at" IS NULL AND "users"."id" = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' ORDER BY "users"."id" LIMIT 1[0m
+
+2025/01/22 22:52:20 [32m/root/projects/code-garden-server/internal/api/handlers/code.go:240 [33mSLOW SQL >= 200ms
+[0m[31;1m[295.082ms] [33m[rows:1][35m SELECT * FROM "snippets" WHERE (public_id = 'V25GPLsl3mA=' and owner_id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9') AND "snippets"."deleted_at" IS NULL ORDER BY "snippets"."id" LIMIT 1[0m
+2025/01/22 22:52:20 GET /snippet/V25GPLsl3mA%3D 	 Successfully retrieved code snippet(200)
+
+2025/01/22 22:52:32 [32m/root/projects/code-garden-server/internal/api/middleware.go:88 [33mSLOW SQL >= 200ms
+[0m[31;1m[283.892ms] [33m[rows:1][35m SELECT * FROM "users" WHERE id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' AND "users"."deleted_at" IS NULL AND "users"."id" = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' ORDER BY "users"."id" LIMIT 1[0m
+
+2025/01/22 22:52:33 [32m/root/projects/code-garden-server/internal/api/handlers/code.go:161 [33mSLOW SQL >= 200ms
+[0m[31;1m[578.605ms] [33m[rows:1][35m INSERT INTO "snippets" ("id","created_at","updated_at","deleted_at","code","language","output","public_id","owner_id","name") VALUES ('17a1739f-b84a-4acb-b50f-c5651d1ecc0b','2025-01-22 22:52:32.603','2025-01-22 22:52:32.603',NULL,'','go','','9_Ay2sxuwEY=','1b7a72d5-743f-4b8e-a089-8bb97fffcac9','channels')[0m
+2025/01/22 22:52:33 POST /snippet/create 	 Snippet created successfully(201)
+
+2025/01/22 22:52:37 [32m/root/projects/code-garden-server/internal/api/middleware.go:88 [33mSLOW SQL >= 200ms
+[0m[31;1m[283.775ms] [33m[rows:1][35m SELECT * FROM "users" WHERE id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' AND "users"."deleted_at" IS NULL AND "users"."id" = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' ORDER BY "users"."id" LIMIT 1[0m
+
+2025/01/22 22:52:38 [32m/root/projects/code-garden-server/internal/api/handlers/code.go:240 [33mSLOW SQL >= 200ms
+[0m[31;1m[284.400ms] [33m[rows:1][35m SELECT * FROM "snippets" WHERE (public_id = '9_Ay2sxuwEY=' and owner_id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9') AND "snippets"."deleted_at" IS NULL ORDER BY "snippets"."id" LIMIT 1[0m
+2025/01/22 22:52:38 GET /snippet/9_Ay2sxuwEY%3D 	 Successfully retrieved code snippet(200)
+2025/01/22 22:52:38 http: TLS handshake error from 199.45.155.84:53236: tls: client offered only unsupported versions: [302 301]
+2025/01/22 22:52:40 http: TLS handshake error from 199.45.155.84:40382: tls: client offered only unsupported versions: [301]
+2025/01/22 22:52:43 http: TLS handshake error from 199.45.155.84:40450: tls: client offered only unsupported versions: []
+
+2025/01/22 22:52:46 [32m/root/projects/code-garden-server/internal/api/middleware.go:88 [33mSLOW SQL >= 200ms
+[0m[31;1m[283.882ms] [33m[rows:1][35m SELECT * FROM "users" WHERE id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' AND "users"."deleted_at" IS NULL AND "users"."id" = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' ORDER BY "users"."id" LIMIT 1[0m
+
+2025/01/22 22:52:46 [32m/root/projects/code-garden-server/internal/api/handlers/code.go:240 [33mSLOW SQL >= 200ms
+[0m[31;1m[283.711ms] [33m[rows:1][35m SELECT * FROM "snippets" WHERE (public_id = 'V25GPLsl3mA=' and owner_id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9') AND "snippets"."deleted_at" IS NULL ORDER BY "snippets"."id" LIMIT 1[0m
+2025/01/22 22:52:46 GET /snippet/V25GPLsl3mA%3D 	 Successfully retrieved code snippet(200)
+2025/01/22 22:52:52 http: TLS handshake error from 199.45.155.84:37432: client sent an HTTP request to an HTTPS server
+
+2025/01/22 22:52:58 [32m/root/projects/code-garden-server/internal/api/middleware.go:88 [33mSLOW SQL >= 200ms
+[0m[31;1m[283.853ms] [33m[rows:1][35m SELECT * FROM "users" WHERE id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' AND "users"."deleted_at" IS NULL AND "users"."id" = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' ORDER BY "users"."id" LIMIT 1[0m
+map[1b7a72d5-743f-4b8e-a089-8bb97fffcac9:2025-01-22 22:53:58.904750995 +0100 CET m=+3898.513571873] map[1b7a72d5-743f-4b8e-a089-8bb97fffcac9:5]
+2025/01/22 22:52:59 Container 09d00381ef69265d9f3110465f6225fb955c699f8acf6e55108cbc4b8bb69474 started in 694.690545ms
+2025/01/22 22:52:59 Container 09d00381ef69265d9f3110465f6225fb955c699f8acf6e55108cbc4b8bb69474 completed execution in 1.003604072s
+2025/01/22 22:52:59 container 09d00381ef69265d9f3110465f6225fb955c699f8acf6e55108cbc4b8bb69474 removed
+map[1b7a72d5-743f-4b8e-a089-8bb97fffcac9:2025-01-22 22:53:58.904750995 +0100 CET m=+3898.513571873] map[1b7a72d5-743f-4b8e-a089-8bb97fffcac9:4]
+2025/01/22 22:52:59 POST /run-safe 	 Success(200)
+
+2025/01/22 22:53:06 [32m/root/projects/code-garden-server/internal/api/middleware.go:88 [33mSLOW SQL >= 200ms
+[0m[31;1m[298.926ms] [33m[rows:1][35m SELECT * FROM "users" WHERE id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' AND "users"."deleted_at" IS NULL AND "users"."id" = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' ORDER BY "users"."id" LIMIT 1[0m
+
+2025/01/22 22:53:06 [32m/root/projects/code-garden-server/internal/api/handlers/code.go:213 [33mSLOW SQL >= 200ms
+[0m[31;1m[568.222ms] [33m[rows:1][35m UPDATE "snippets" SET "code"='print("Hello World")
+
+print("ogoodofjkdlfj")',"language"='python',"output"='Hello World
+ogoodofjkdlfj
+',"updated_at"='2025-01-22 22:53:06.561' WHERE public_id = 'V25GPLsl3mA=' AND "snippets"."deleted_at" IS NULL[0m
+map[string]interface {}{"code":"print(\"Hello World\")\n\nprint(\"ogoodofjkdlfj\")", "language":"python", "output":"Hello World\nogoodofjkdlfj\n"}2025/01/22 22:53:06 PUT /snippet/V25GPLsl3mA= 	 Snippet updated successfully(200)
+
+2025/01/22 22:53:08 [32m/root/projects/code-garden-server/internal/api/middleware.go:88 [33mSLOW SQL >= 200ms
+[0m[31;1m[283.690ms] [33m[rows:1][35m SELECT * FROM "users" WHERE id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' AND "users"."deleted_at" IS NULL AND "users"."id" = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' ORDER BY "users"."id" LIMIT 1[0m
+
+2025/01/22 22:53:09 [32m/root/projects/code-garden-server/internal/api/handlers/code.go:240 [33mSLOW SQL >= 200ms
+[0m[31;1m[284.018ms] [33m[rows:1][35m SELECT * FROM "snippets" WHERE (public_id = '9_Ay2sxuwEY=' and owner_id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9') AND "snippets"."deleted_at" IS NULL ORDER BY "snippets"."id" LIMIT 1[0m
+2025/01/22 22:53:09 GET /snippet/9_Ay2sxuwEY%3D 	 Successfully retrieved code snippet(200)
+
+2025/01/22 22:53:30 [32m/root/projects/code-garden-server/internal/api/middleware.go:88 [33mSLOW SQL >= 200ms
+[0m[31;1m[283.498ms] [33m[rows:1][35m SELECT * FROM "users" WHERE id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' AND "users"."deleted_at" IS NULL AND "users"."id" = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' ORDER BY "users"."id" LIMIT 1[0m
+map[1b7a72d5-743f-4b8e-a089-8bb97fffcac9:2025-01-22 22:53:58.904750995 +0100 CET m=+3898.513571873] map[1b7a72d5-743f-4b8e-a089-8bb97fffcac9:4]
+2025/01/22 22:53:31 Container 796f4226cefd70b03c74f60313e0b6022d8d78ae8c5413d8ae9ab02720158fcd started in 425.73478ms
+2025/01/22 22:53:35 Container 796f4226cefd70b03c74f60313e0b6022d8d78ae8c5413d8ae9ab02720158fcd completed execution in 4.269753653s
+2025/01/22 22:53:35 container 796f4226cefd70b03c74f60313e0b6022d8d78ae8c5413d8ae9ab02720158fcd removed
+map[1b7a72d5-743f-4b8e-a089-8bb97fffcac9:2025-01-22 22:53:58.904750995 +0100 CET m=+3898.513571873] map[1b7a72d5-743f-4b8e-a089-8bb97fffcac9:3]
+2025/01/22 22:53:35 POST /run-safe 	 Success(200)
+
+2025/01/22 22:53:40 [32m/root/projects/code-garden-server/internal/api/middleware.go:88 [33mSLOW SQL >= 200ms
+[0m[31;1m[284.191ms] [33m[rows:1][35m SELECT * FROM "users" WHERE id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' AND "users"."deleted_at" IS NULL AND "users"."id" = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' ORDER BY "users"."id" LIMIT 1[0m
+
+2025/01/22 22:53:41 [32m/root/projects/code-garden-server/internal/api/handlers/code.go:213 [33mSLOW SQL >= 200ms
+[0m[31;1m[438.293ms] [33m[rows:1][35m UPDATE "snippets" SET "code"='package main
+
+func main() {
+    print("hello world")
+}',"language"='go',"output"='hello world',"updated_at"='2025-01-22 22:53:40.923' WHERE public_id = '9_Ay2sxuwEY=' AND "snippets"."deleted_at" IS NULL[0m
+map[string]interface {}{"code":"package main\n\nfunc main() {\n    print(\"hello world\")\n}", "language":"go", "output":"hello world"}2025/01/22 22:53:41 PUT /snippet/9_Ay2sxuwEY%3D 	 Snippet updated successfully(200)
+
+2025/01/22 22:53:55 [32m/root/projects/code-garden-server/internal/api/middleware.go:88 [33mSLOW SQL >= 200ms
+[0m[31;1m[284.482ms] [33m[rows:1][35m SELECT * FROM "users" WHERE id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' AND "users"."deleted_at" IS NULL AND "users"."id" = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' ORDER BY "users"."id" LIMIT 1[0m
+
+2025/01/22 22:53:55 [32m/root/projects/code-garden-server/internal/api/handlers/code.go:240 [33mSLOW SQL >= 200ms
+[0m[31;1m[283.932ms] [33m[rows:1][35m SELECT * FROM "snippets" WHERE (public_id = 'V25GPLsl3mA=' and owner_id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9') AND "snippets"."deleted_at" IS NULL ORDER BY "snippets"."id" LIMIT 1[0m
+2025/01/22 22:53:55 GET /snippet/V25GPLsl3mA%3D 	 Successfully retrieved code snippet(200)
+
+2025/01/22 22:53:58 [32m/root/projects/code-garden-server/internal/api/middleware.go:88 [33mSLOW SQL >= 200ms
+[0m[31;1m[284.124ms] [33m[rows:1][35m SELECT * FROM "users" WHERE id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' AND "users"."deleted_at" IS NULL AND "users"."id" = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' ORDER BY "users"."id" LIMIT 1[0m
+
+2025/01/22 22:53:59 [32m/root/projects/code-garden-server/internal/api/handlers/code.go:240 [33mSLOW SQL >= 200ms
+[0m[31;1m[284.619ms] [33m[rows:1][35m SELECT * FROM "snippets" WHERE (public_id = '9_Ay2sxuwEY=' and owner_id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9') AND "snippets"."deleted_at" IS NULL ORDER BY "snippets"."id" LIMIT 1[0m
+2025/01/22 22:53:59 GET /snippet/9_Ay2sxuwEY%3D 	 Successfully retrieved code snippet(200)
+2025/01/22 23:12:21 http: TLS handshake error from 4.246.247.214:38006: tls: first record does not look like a TLS handshake
+2025/01/22 23:31:11 http: TLS handshake error from 54.198.232.29:6373: tls: client offered only unsupported versions: [302]
+2025/01/22 23:31:11 http: TLS handshake error from 54.198.232.29:21272: tls: unsupported SSLv2 handshake received
+2025/01/22 23:31:11 http: TLS handshake error from 54.198.232.29:62918: tls: client offered only unsupported versions: []
+2025/01/22 23:31:11 http: TLS handshake error from 54.198.232.29:19433: tls: no cipher suite supported by both client and server
+2025/01/22 23:31:11 http: TLS handshake error from 54.198.232.29:3815: tls: client offered only unsupported versions: [301]
+2025/01/22 23:32:20 http: TLS handshake error from 167.94.145.100:42302: read tcp 38.242.205.193:443->167.94.145.100:42302: read: connection reset by peer
+2025/01/22 23:32:35 http: TLS handshake error from 167.94.145.100:38186: tls: client offered only unsupported versions: [302 301]
+2025/01/22 23:32:37 http: TLS handshake error from 167.94.145.100:38210: tls: client offered only unsupported versions: [301]
+2025/01/22 23:32:38 http: TLS handshake error from 167.94.145.100:38258: tls: client offered only unsupported versions: []
+2025/01/22 23:32:45 http: TLS handshake error from 167.94.145.100:44922: client sent an HTTP request to an HTTPS server
+2025/01/22 23:48:07 http: TLS handshake error from 199.45.154.118:44970: read tcp 38.242.205.193:443->199.45.154.118:44970: read: connection reset by peer
+2025/01/22 23:48:07 http: TLS handshake error from 199.45.154.118:45004: read tcp 38.242.205.193:443->199.45.154.118:45004: read: connection reset by peer
+2025/01/22 23:48:08 http: TLS handshake error from 199.45.154.118:45026: read tcp 38.242.205.193:443->199.45.154.118:45026: read: connection reset by peer
+2025/01/22 23:48:08 http: TLS handshake error from 199.45.154.118:45034: tls: client requested unsupported application protocols ([http/0.9 http/1.0 spdy/1 spdy/2 spdy/3 h2c hq])
+2025/01/22 23:48:09 http: TLS handshake error from 199.45.154.118:45046: tls: client requested unsupported application protocols ([hq h2c spdy/3 spdy/2 spdy/1 http/1.0 http/0.9])
+2025/01/22 23:48:09 http: TLS handshake error from 199.45.154.118:45076: tls: client offered only unsupported versions: [302 301]
+2025/01/22 23:48:11 http: TLS handshake error from 199.45.154.118:45102: read tcp 38.242.205.193:443->199.45.154.118:45102: read: connection reset by peer
+2025/01/22 23:48:12 http: TLS handshake error from 199.45.154.118:45114: read tcp 38.242.205.193:443->199.45.154.118:45114: read: connection reset by peer
+2025/01/22 23:48:13 http: TLS handshake error from 199.45.154.118:45124: read tcp 38.242.205.193:443->199.45.154.118:45124: read: connection reset by peer
+2025/01/22 23:48:13 http: TLS handshake error from 199.45.154.118:45128: read tcp 38.242.205.193:443->199.45.154.118:45128: read: connection reset by peer
+2025/01/23 02:16:24 http: TLS handshake error from 66.240.205.34:56750: tls: first record does not look like a TLS handshake
+2025/01/23 03:32:40 http: TLS handshake error from 172.169.5.249:57006: read tcp 38.242.205.193:443->172.169.5.249:57006: read: connection reset by peer
+2025/01/23 03:32:40 http: TLS handshake error from 172.169.5.249:57014: read tcp 38.242.205.193:443->172.169.5.249:57014: read: connection reset by peer
+2025/01/23 03:32:40 http: TLS handshake error from 172.169.5.249:57030: read tcp 38.242.205.193:443->172.169.5.249:57030: read: connection reset by peer
+2025/01/23 03:32:40 http: TLS handshake error from 172.169.5.249:57036: tls: client requested unsupported application protocols ([http/0.9 http/1.0 spdy/1 spdy/2 spdy/3 h2c hq])
+2025/01/23 03:32:41 http: TLS handshake error from 172.169.5.249:57050: tls: client requested unsupported application protocols ([hq h2c spdy/3 spdy/2 spdy/1 http/1.0 http/0.9])
+2025/01/23 03:32:41 http: TLS handshake error from 172.169.5.249:57066: tls: client offered only unsupported versions: [302 301]
+2025/01/23 03:32:41 http: TLS handshake error from 172.169.5.249:57080: read tcp 38.242.205.193:443->172.169.5.249:57080: read: connection reset by peer
+2025/01/23 03:32:42 http: TLS handshake error from 172.169.5.249:57086: read tcp 38.242.205.193:443->172.169.5.249:57086: read: connection reset by peer
+2025/01/23 03:32:42 http: TLS handshake error from 172.169.5.249:57102: read tcp 38.242.205.193:443->172.169.5.249:57102: read: connection reset by peer
+2025/01/23 03:32:42 http: TLS handshake error from 172.169.5.249:57116: read tcp 38.242.205.193:443->172.169.5.249:57116: read: connection reset by peer
+2025/01/23 03:33:41 http: TLS handshake error from 34.13.167.233:54240: read tcp 38.242.205.193:443->34.13.167.233:54240: read: connection reset by peer
+2025/01/23 03:33:41 http: TLS handshake error from 34.13.167.233:54254: read tcp 38.242.205.193:443->34.13.167.233:54254: read: connection reset by peer
+2025/01/23 03:33:41 http: TLS handshake error from 34.13.167.233:54258: read tcp 38.242.205.193:443->34.13.167.233:54258: read: connection reset by peer
+2025/01/23 03:33:41 http: TLS handshake error from 34.13.167.233:54260: tls: client requested unsupported application protocols ([http/0.9 http/1.0 spdy/1 spdy/2 spdy/3 h2c hq])
+2025/01/23 03:33:41 http: TLS handshake error from 34.13.167.233:54268: tls: client requested unsupported application protocols ([hq h2c spdy/3 spdy/2 spdy/1 http/1.0 http/0.9])
+2025/01/23 03:33:41 http: TLS handshake error from 34.13.167.233:54276: tls: client offered only unsupported versions: [302 301]
+2025/01/23 03:33:41 http: TLS handshake error from 34.13.167.233:54292: read tcp 38.242.205.193:443->34.13.167.233:54292: read: connection reset by peer
+2025/01/23 03:33:41 http: TLS handshake error from 34.13.167.233:54302: read tcp 38.242.205.193:443->34.13.167.233:54302: read: connection reset by peer
+2025/01/23 03:33:41 http: TLS handshake error from 34.13.167.233:54308: read tcp 38.242.205.193:443->34.13.167.233:54308: read: connection reset by peer
+2025/01/23 03:33:42 http: TLS handshake error from 34.13.167.233:54312: read tcp 38.242.205.193:443->34.13.167.233:54312: read: connection reset by peer
+2025/01/23 03:44:19 http: TLS handshake error from 157.245.77.56:60932: EOF
+2025/01/23 03:44:25 http: TLS handshake error from 157.245.77.56:44286: client sent an HTTP request to an HTTPS server
+2025/01/23 03:45:08 http: TLS handshake error from 157.245.77.56:44516: tls: client offered only unsupported versions: [302 301]
+2025/01/23 03:45:08 http: TLS handshake error from 157.245.77.56:44488: tls: client requested unsupported application protocols ([http/0.9 http/1.0 spdy/1 spdy/2 spdy/3 h2c hq])
+2025/01/23 03:45:08 http: TLS handshake error from 157.245.77.56:44500: tls: client requested unsupported application protocols ([hq h2c spdy/3 spdy/2 spdy/1 http/1.0 http/0.9])
+2025/01/23 03:45:09 http: TLS handshake error from 157.245.77.56:44470: EOF
+2025/01/23 03:45:09 http: TLS handshake error from 157.245.77.56:44518: EOF
+2025/01/23 03:45:09 http: TLS handshake error from 157.245.77.56:44528: EOF
+2025/01/23 03:45:09 http: TLS handshake error from 157.245.77.56:44456: EOF
+2025/01/23 03:45:09 http: TLS handshake error from 157.245.77.56:44480: EOF
+2025/01/23 03:45:12 http: TLS handshake error from 157.245.77.56:36600: EOF
+2025/01/23 03:45:12 http: TLS handshake error from 157.245.77.56:36588: EOF
+2025/01/23 04:39:00 http: TLS handshake error from 167.99.69.124:51090: client sent an HTTP request to an HTTPS server
+2025/01/23 05:08:18 http: TLS handshake error from 169.150.196.225:44433: remote error: tls: unknown certificate
+2025/01/23 05:08:19 http: TLS handshake error from 169.150.196.239:29159: remote error: tls: unknown certificate
+
+2025/01/23 05:09:26 [32m/root/projects/code-garden-server/internal/api/middleware.go:88 [33mSLOW SQL >= 200ms
+[0m[31;1m[284.168ms] [33m[rows:1][35m SELECT * FROM "users" WHERE id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' AND "users"."deleted_at" IS NULL AND "users"."id" = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' ORDER BY "users"."id" LIMIT 1[0m
+
+2025/01/23 05:09:27 [32m/root/projects/code-garden-server/internal/api/handlers/code.go:295 [33mSLOW SQL >= 200ms
+[0m[31;1m[294.540ms] [33m[rows:2][35m SELECT * FROM "snippets" WHERE owner_id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' AND "snippets"."deleted_at" IS NULL[0m
+2025/01/23 05:09:27 GET /snippets/mine 	 User's snippets retrieved successfully(200)
+
+2025/01/23 05:09:33 [32m/root/projects/code-garden-server/internal/api/middleware.go:88 [33mSLOW SQL >= 200ms
+[0m[31;1m[288.516ms] [33m[rows:1][35m SELECT * FROM "users" WHERE id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' AND "users"."deleted_at" IS NULL AND "users"."id" = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' ORDER BY "users"."id" LIMIT 1[0m
+
+2025/01/23 05:09:33 [32m/root/projects/code-garden-server/internal/api/handlers/code.go:240 [33mSLOW SQL >= 200ms
+[0m[31;1m[293.897ms] [33m[rows:1][35m SELECT * FROM "snippets" WHERE (public_id = '9_Ay2sxuwEY=' and owner_id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9') AND "snippets"."deleted_at" IS NULL ORDER BY "snippets"."id" LIMIT 1[0m
+2025/01/23 05:09:33 GET /snippet/9_Ay2sxuwEY%3D 	 Successfully retrieved code snippet(200)
+
+2025/01/23 05:09:41 [32m/root/projects/code-garden-server/internal/api/middleware.go:88 [33mSLOW SQL >= 200ms
+[0m[31;1m[295.269ms] [33m[rows:1][35m SELECT * FROM "users" WHERE id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' AND "users"."deleted_at" IS NULL AND "users"."id" = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' ORDER BY "users"."id" LIMIT 1[0m
+map[1b7a72d5-743f-4b8e-a089-8bb97fffcac9:2025-01-22 22:53:58.904750995 +0100 CET m=+3898.513571873] map[1b7a72d5-743f-4b8e-a089-8bb97fffcac9:3]
+2025/01/23 05:09:42 Container 4295299aebce882a5748893844c919c4b97b2405f1b8ed858fb1dfb93b2f4646 started in 443.523657ms
+2025/01/23 05:09:45 Container 4295299aebce882a5748893844c919c4b97b2405f1b8ed858fb1dfb93b2f4646 completed execution in 3.712775832s
+2025/01/23 05:09:45 container 4295299aebce882a5748893844c919c4b97b2405f1b8ed858fb1dfb93b2f4646 removed
+map[1b7a72d5-743f-4b8e-a089-8bb97fffcac9:2025-01-23 05:10:45.575388482 +0100 CET m=+26505.184209360] map[1b7a72d5-743f-4b8e-a089-8bb97fffcac9:4]
+2025/01/23 05:09:45 POST /run-safe 	 Success(200)
+
+2025/01/23 05:11:56 [32m/root/projects/code-garden-server/internal/api/middleware.go:88 [33mSLOW SQL >= 200ms
+[0m[31;1m[283.602ms] [33m[rows:1][35m SELECT * FROM "users" WHERE id = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' AND "users"."deleted_at" IS NULL AND "users"."id" = '1b7a72d5-743f-4b8e-a089-8bb97fffcac9' ORDER BY "users"."id" LIMIT 1[0m
+map[1b7a72d5-743f-4b8e-a089-8bb97fffcac9:2025-01-23 05:10:45.575388482 +0100 CET m=+26505.184209360] map[1b7a72d5-743f-4b8e-a089-8bb97fffcac9:4]
+2025/01/23 05:11:57 Container 2e3a13eb7620491d7a6eaa875f931b533515cadd20d5be214d606c537c23e3a3 started in 282.597349ms
+2025/01/23 05:12:00 Container 2e3a13eb7620491d7a6eaa875f931b533515cadd20d5be214d606c537c23e3a3 completed execution in 3.315022472s
+2025/01/23 05:12:00 container 2e3a13eb7620491d7a6eaa875f931b533515cadd20d5be214d606c537c23e3a3 removed
+map[1b7a72d5-743f-4b8e-a089-8bb97fffcac9:2025-01-23 05:13:00.238028854 +0100 CET m=+26639.846849732] map[1b7a72d5-743f-4b8e-a089-8bb97fffcac9:4]
+2025/01/23 05:12:00 POST /run-safe 	 Success(200)
+
+2025/01/23 05:12:51 [31;1m/root/projects/code-garden-server/internal/api/middleware.go:88 [35;1mrecord not found
+[0m[33m[283.334ms] [34;1m[rows:0][0m SELECT * FROM "users" WHERE id = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' AND "users"."deleted_at" IS NULL AND "users"."id" = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' ORDER BY "users"."id" LIMIT 1
+2025/01/23 05:12:51 http2: panic serving 169.150.196.245:34181: runtime error: invalid memory address or nil pointer dereference
+goroutine 1011 [running]:
+net/http.(*http2serverConn).runHandler.func1()
+	/usr/local/go/src/net/http/h2_bundle.go:6242 +0x145
+panic({0xbbb160?, 0x130c2f0?})
+	/usr/local/go/src/runtime/panic.go:785 +0x132
+code-garden-server/internal/api.InitServer.NewAuthMiddleware.func7({0xdd4b88, 0xc000002128}, 0xc0001d2280)
+	/root/projects/code-garden-server/internal/api/middleware.go:89 +0x255
+code-garden-server/internal/api.(*Router).RunAllMiddlewareHandlers(0x596a85?, {0xdd4b88?, 0xc000002128?}, 0xc0000d5600?, 0xdc?)
+	/root/projects/code-garden-server/internal/api/server.go:137 +0x67
+code-garden-server/internal/api.(*Router).Get.func1({0xdd4b88?, 0xc000002128?}, 0x750d72?)
+	/root/projects/code-garden-server/internal/api/server.go:78 +0x45
+net/http.HandlerFunc.ServeHTTP(0xc0003b00e0?, {0xdd4b88?, 0xc000002128?}, 0x0?)
+	/usr/local/go/src/net/http/server.go:2220 +0x29
+net/http.(*ServeMux).ServeHTTP(0xc000492d28?, {0xdd4b88, 0xc000002128}, 0xc0001d2280)
+	/usr/local/go/src/net/http/server.go:2747 +0x1ca
+net/http.serverHandler.ServeHTTP({0xc000040d20?}, {0xdd4b88?, 0xc000002128?}, 0x7b2945?)
+	/usr/local/go/src/net/http/server.go:3210 +0x8e
+net/http.initALPNRequest.ServeHTTP({{0xdd67d8?, 0xc000353c50?}, 0xc00030f188?, {0xc0005dc0f0?}}, {0xdd4b88, 0xc000002128}, 0xc0001d2280)
+	/usr/local/go/src/net/http/server.go:3819 +0x231
+net/http.(*http2serverConn).runHandler(0x134fe60?, 0x0?, 0x0?, 0xc0002921c0?)
+	/usr/local/go/src/net/http/h2_bundle.go:6249 +0xf5
+created by net/http.(*http2serverConn).scheduleHandler in goroutine 997
+	/usr/local/go/src/net/http/h2_bundle.go:6183 +0x21d
+
+2025/01/23 05:12:51 [31;1m/root/projects/code-garden-server/internal/api/middleware.go:88 [35;1mrecord not found
+[0m[33m[425.689ms] [34;1m[rows:0][0m SELECT * FROM "users" WHERE id = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' AND "users"."deleted_at" IS NULL AND "users"."id" = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' ORDER BY "users"."id" LIMIT 1
+2025/01/23 05:12:51 http2: panic serving 169.150.196.245:34181: runtime error: invalid memory address or nil pointer dereference
+goroutine 1012 [running]:
+net/http.(*http2serverConn).runHandler.func1()
+	/usr/local/go/src/net/http/h2_bundle.go:6242 +0x145
+panic({0xbbb160?, 0x130c2f0?})
+	/usr/local/go/src/runtime/panic.go:785 +0x132
+code-garden-server/internal/api.InitServer.NewAuthMiddleware.func7({0xdd4b88, 0xc000002190}, 0xc0001d2640)
+	/root/projects/code-garden-server/internal/api/middleware.go:89 +0x255
+code-garden-server/internal/api.(*Router).RunAllMiddlewareHandlers(0xc00013ddb8?, {0xdd4b88?, 0xc000002190?}, 0xc00013de00?, 0x60?)
+	/root/projects/code-garden-server/internal/api/server.go:137 +0x67
+code-garden-server/internal/api.(*Router).Get.func1({0xdd4b88?, 0xc000002190?}, 0xc000236060?)
+	/root/projects/code-garden-server/internal/api/server.go:78 +0x45
+net/http.HandlerFunc.ServeHTTP(0xc0003b00e0?, {0xdd4b88?, 0xc000002190?}, 0x0?)
+	/usr/local/go/src/net/http/server.go:2220 +0x29
+net/http.(*ServeMux).ServeHTTP(0xc000492d28?, {0xdd4b88, 0xc000002190}, 0xc0001d2640)
+	/usr/local/go/src/net/http/server.go:2747 +0x1ca
+net/http.serverHandler.ServeHTTP({0xc000040d20?}, {0xdd4b88?, 0xc000002190?}, 0x7b2945?)
+	/usr/local/go/src/net/http/server.go:3210 +0x8e
+net/http.initALPNRequest.ServeHTTP({{0xdd67d8?, 0xc000353c50?}, 0xc00030f188?, {0xc0005dc0f0?}}, {0xdd4b88, 0xc000002190}, 0xc0001d2640)
+	/usr/local/go/src/net/http/server.go:3819 +0x231
+net/http.(*http2serverConn).runHandler(0x134fe60?, 0x0?, 0x0?, 0xc0002921c0?)
+	/usr/local/go/src/net/http/h2_bundle.go:6249 +0xf5
+created by net/http.(*http2serverConn).scheduleHandler in goroutine 997
+	/usr/local/go/src/net/http/h2_bundle.go:6183 +0x21d
+
+2025/01/23 05:12:52 [31;1m/root/projects/code-garden-server/internal/api/middleware.go:88 [35;1mrecord not found
+[0m[33m[949.583ms] [34;1m[rows:0][0m SELECT * FROM "users" WHERE id = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' AND "users"."deleted_at" IS NULL AND "users"."id" = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' ORDER BY "users"."id" LIMIT 1
+2025/01/23 05:12:52 http2: panic serving 169.150.196.245:34181: runtime error: invalid memory address or nil pointer dereference
+goroutine 1013 [running]:
+net/http.(*http2serverConn).runHandler.func1()
+	/usr/local/go/src/net/http/h2_bundle.go:6242 +0x145
+panic({0xbbb160?, 0x130c2f0?})
+	/usr/local/go/src/runtime/panic.go:785 +0x132
+code-garden-server/internal/api.InitServer.NewAuthMiddleware.func7({0xdd4b88, 0xc0000021a0}, 0xc0001d2dc0)
+	/root/projects/code-garden-server/internal/api/middleware.go:89 +0x255
+code-garden-server/internal/api.(*Router).RunAllMiddlewareHandlers(0x0?, {0xdd4b88?, 0xc0000021a0?}, 0x0?, 0x0?)
+	/root/projects/code-garden-server/internal/api/server.go:137 +0x67
+code-garden-server/internal/api.(*Router).Get.func1({0xdd4b88?, 0xc0000021a0?}, 0x0?)
+	/root/projects/code-garden-server/internal/api/server.go:78 +0x45
+net/http.HandlerFunc.ServeHTTP(0xc0003b00e0?, {0xdd4b88?, 0xc0000021a0?}, 0x0?)
+	/usr/local/go/src/net/http/server.go:2220 +0x29
+net/http.(*ServeMux).ServeHTTP(0xc000492d28?, {0xdd4b88, 0xc0000021a0}, 0xc0001d2dc0)
+	/usr/local/go/src/net/http/server.go:2747 +0x1ca
+net/http.serverHandler.ServeHTTP({0xc000040d20?}, {0xdd4b88?, 0xc0000021a0?}, 0x7b2945?)
+	/usr/local/go/src/net/http/server.go:3210 +0x8e
+net/http.initALPNRequest.ServeHTTP({{0xdd67d8?, 0xc000353c50?}, 0xc00030f188?, {0xc0005dc0f0?}}, {0xdd4b88, 0xc0000021a0}, 0xc0001d2dc0)
+	/usr/local/go/src/net/http/server.go:3819 +0x231
+net/http.(*http2serverConn).runHandler(0x134fe60?, 0x0?, 0x0?, 0xc0002921c0?)
+	/usr/local/go/src/net/http/h2_bundle.go:6249 +0xf5
+created by net/http.(*http2serverConn).scheduleHandler in goroutine 997
+	/usr/local/go/src/net/http/h2_bundle.go:6183 +0x21d
+
+2025/01/23 05:12:53 [31;1m/root/projects/code-garden-server/internal/api/middleware.go:88 [35;1mrecord not found
+[0m[33m[284.363ms] [34;1m[rows:0][0m SELECT * FROM "users" WHERE id = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' AND "users"."deleted_at" IS NULL AND "users"."id" = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' ORDER BY "users"."id" LIMIT 1
+2025/01/23 05:12:53 http2: panic serving 169.150.196.245:34181: runtime error: invalid memory address or nil pointer dereference
+goroutine 1017 [running]:
+net/http.(*http2serverConn).runHandler.func1()
+	/usr/local/go/src/net/http/h2_bundle.go:6242 +0x145
+panic({0xbbb160?, 0x130c2f0?})
+	/usr/local/go/src/runtime/panic.go:785 +0x132
+code-garden-server/internal/api.InitServer.NewAuthMiddleware.func7({0xdd4b88, 0xc000002200}, 0xc0001d3180)
+	/root/projects/code-garden-server/internal/api/middleware.go:89 +0x255
+code-garden-server/internal/api.(*Router).RunAllMiddlewareHandlers(0x596a85?, {0xdd4b88?, 0xc000002200?}, 0x577fa5?, 0xdc?)
+	/root/projects/code-garden-server/internal/api/server.go:137 +0x67
+code-garden-server/internal/api.(*Router).Get.func1({0xdd4b88?, 0xc000002200?}, 0x750d72?)
+	/root/projects/code-garden-server/internal/api/server.go:78 +0x45
+net/http.HandlerFunc.ServeHTTP(0xc0003b00e0?, {0xdd4b88?, 0xc000002200?}, 0x0?)
+	/usr/local/go/src/net/http/server.go:2220 +0x29
+net/http.(*ServeMux).ServeHTTP(0xc0002de000?, {0xdd4b88, 0xc000002200}, 0xc0001d3180)
+	/usr/local/go/src/net/http/server.go:2747 +0x1ca
+net/http.serverHandler.ServeHTTP({0xc00030e660?}, {0xdd4b88?, 0xc000002200?}, 0xc000065d50?)
+	/usr/local/go/src/net/http/server.go:3210 +0x8e
+net/http.initALPNRequest.ServeHTTP({{0xdd67d8?, 0xc000353c50?}, 0xc00030f188?, {0xc0005dc0f0?}}, {0xdd4b88, 0xc000002200}, 0xc0001d3180)
+	/usr/local/go/src/net/http/server.go:3819 +0x231
+net/http.(*http2serverConn).runHandler(0x134fe60?, 0x0?, 0x0?, 0xc000322c60?)
+	/usr/local/go/src/net/http/h2_bundle.go:6249 +0xf5
+created by net/http.(*http2serverConn).scheduleHandler in goroutine 997
+	/usr/local/go/src/net/http/h2_bundle.go:6183 +0x21d
+
+2025/01/23 05:12:53 [31;1m/root/projects/code-garden-server/internal/api/middleware.go:88 [35;1mrecord not found
+[0m[33m[283.756ms] [34;1m[rows:0][0m SELECT * FROM "users" WHERE id = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' AND "users"."deleted_at" IS NULL AND "users"."id" = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' ORDER BY "users"."id" LIMIT 1
+2025/01/23 05:12:53 http2: panic serving 169.150.196.245:34181: runtime error: invalid memory address or nil pointer dereference
+goroutine 1018 [running]:
+net/http.(*http2serverConn).runHandler.func1()
+	/usr/local/go/src/net/http/h2_bundle.go:6242 +0x145
+panic({0xbbb160?, 0x130c2f0?})
+	/usr/local/go/src/runtime/panic.go:785 +0x132
+code-garden-server/internal/api.InitServer.NewAuthMiddleware.func7({0xdd4b88, 0xc000002210}, 0xc0001d3540)
+	/root/projects/code-garden-server/internal/api/middleware.go:89 +0x255
+code-garden-server/internal/api.(*Router).RunAllMiddlewareHandlers(0xc00013ddb8?, {0xdd4b88?, 0xc000002210?}, 0xc00013de00?, 0x60?)
+	/root/projects/code-garden-server/internal/api/server.go:137 +0x67
+code-garden-server/internal/api.(*Router).Get.func1({0xdd4b88?, 0xc000002210?}, 0xc000236060?)
+	/root/projects/code-garden-server/internal/api/server.go:78 +0x45
+net/http.HandlerFunc.ServeHTTP(0xc0003b00e0?, {0xdd4b88?, 0xc000002210?}, 0x0?)
+	/usr/local/go/src/net/http/server.go:2220 +0x29
+net/http.(*ServeMux).ServeHTTP(0xc0002de000?, {0xdd4b88, 0xc000002210}, 0xc0001d3540)
+	/usr/local/go/src/net/http/server.go:2747 +0x1ca
+net/http.serverHandler.ServeHTTP({0xc00030e660?}, {0xdd4b88?, 0xc000002210?}, 0xc000065d50?)
+	/usr/local/go/src/net/http/server.go:3210 +0x8e
+net/http.initALPNRequest.ServeHTTP({{0xdd67d8?, 0xc000353c50?}, 0xc00030f188?, {0xc0005dc0f0?}}, {0xdd4b88, 0xc000002210}, 0xc0001d3540)
+	/usr/local/go/src/net/http/server.go:3819 +0x231
+net/http.(*http2serverConn).runHandler(0x134fe60?, 0x0?, 0x0?, 0xc000322c60?)
+	/usr/local/go/src/net/http/h2_bundle.go:6249 +0xf5
+created by net/http.(*http2serverConn).scheduleHandler in goroutine 997
+	/usr/local/go/src/net/http/h2_bundle.go:6183 +0x21d
+
+2025/01/23 05:12:53 [31;1m/root/projects/code-garden-server/internal/api/middleware.go:88 [35;1mrecord not found
+[0m[33m[141.851ms] [34;1m[rows:0][0m SELECT * FROM "users" WHERE id = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' AND "users"."deleted_at" IS NULL AND "users"."id" = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' ORDER BY "users"."id" LIMIT 1
+2025/01/23 05:12:53 http2: panic serving 169.150.196.245:34181: runtime error: invalid memory address or nil pointer dereference
+goroutine 974 [running]:
+net/http.(*http2serverConn).runHandler.func1()
+	/usr/local/go/src/net/http/h2_bundle.go:6242 +0x145
+panic({0xbbb160?, 0x130c2f0?})
+	/usr/local/go/src/runtime/panic.go:785 +0x132
+code-garden-server/internal/api.InitServer.NewAuthMiddleware.func7({0xdd4b88, 0xc00012c440}, 0xc0001aca00)
+	/root/projects/code-garden-server/internal/api/middleware.go:89 +0x255
+code-garden-server/internal/api.(*Router).RunAllMiddlewareHandlers(0x596a85?, {0xdd4b88?, 0xc00012c440?}, 0x8?, 0xdc?)
+	/root/projects/code-garden-server/internal/api/server.go:137 +0x67
+code-garden-server/internal/api.(*Router).Get.func1({0xdd4b88?, 0xc00012c440?}, 0x750d72?)
+	/root/projects/code-garden-server/internal/api/server.go:78 +0x45
+net/http.HandlerFunc.ServeHTTP(0xc0003b00e0?, {0xdd4b88?, 0xc00012c440?}, 0x0?)
+	/usr/local/go/src/net/http/server.go:2220 +0x29
+net/http.(*ServeMux).ServeHTTP(0xc0002de000?, {0xdd4b88, 0xc00012c440}, 0xc0001aca00)
+	/usr/local/go/src/net/http/server.go:2747 +0x1ca
+net/http.serverHandler.ServeHTTP({0xc00030e660?}, {0xdd4b88?, 0xc00012c440?}, 0xc000065d50?)
+	/usr/local/go/src/net/http/server.go:3210 +0x8e
+net/http.initALPNRequest.ServeHTTP({{0xdd67d8?, 0xc000353c50?}, 0xc00030f188?, {0xc0005dc0f0?}}, {0xdd4b88, 0xc00012c440}, 0xc0001aca00)
+	/usr/local/go/src/net/http/server.go:3819 +0x231
+net/http.(*http2serverConn).runHandler(0x4432bb?, 0x0?, 0xc000524d90?, 0x0?)
+	/usr/local/go/src/net/http/h2_bundle.go:6249 +0xf5
+created by net/http.(*http2serverConn).scheduleHandler in goroutine 997
+	/usr/local/go/src/net/http/h2_bundle.go:6183 +0x21d
+
+2025/01/23 05:12:54 [31;1m/root/projects/code-garden-server/internal/api/middleware.go:88 [35;1mrecord not found
+[0m[33m[141.744ms] [34;1m[rows:0][0m SELECT * FROM "users" WHERE id = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' AND "users"."deleted_at" IS NULL AND "users"."id" = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' ORDER BY "users"."id" LIMIT 1
+2025/01/23 05:12:54 http2: panic serving 169.150.196.245:34181: runtime error: invalid memory address or nil pointer dereference
+goroutine 879 [running]:
+net/http.(*http2serverConn).runHandler.func1()
+	/usr/local/go/src/net/http/h2_bundle.go:6242 +0x145
+panic({0xbbb160?, 0x130c2f0?})
+	/usr/local/go/src/runtime/panic.go:785 +0x132
+code-garden-server/internal/api.InitServer.NewAuthMiddleware.func7({0xdd4b88, 0xc0003d80a0}, 0xc0001e6640)
+	/root/projects/code-garden-server/internal/api/middleware.go:89 +0x255
+code-garden-server/internal/api.(*Router).RunAllMiddlewareHandlers(0x596a85?, {0xdd4b88?, 0xc0003d80a0?}, 0x46d11f?, 0xdc?)
+	/root/projects/code-garden-server/internal/api/server.go:137 +0x67
+code-garden-server/internal/api.(*Router).Get.func1({0xdd4b88?, 0xc0003d80a0?}, 0x750d72?)
+	/root/projects/code-garden-server/internal/api/server.go:78 +0x45
+net/http.HandlerFunc.ServeHTTP(0xc0003b00e0?, {0xdd4b88?, 0xc0003d80a0?}, 0x0?)
+	/usr/local/go/src/net/http/server.go:2220 +0x29
+net/http.(*ServeMux).ServeHTTP(0xc000492d28?, {0xdd4b88, 0xc0003d80a0}, 0xc0001e6640)
+	/usr/local/go/src/net/http/server.go:2747 +0x1ca
+net/http.serverHandler.ServeHTTP({0xc000040d20?}, {0xdd4b88?, 0xc0003d80a0?}, 0x7b2945?)
+	/usr/local/go/src/net/http/server.go:3210 +0x8e
+net/http.initALPNRequest.ServeHTTP({{0xdd67d8?, 0xc000353c50?}, 0xc00030f188?, {0xc0005dc0f0?}}, {0xdd4b88, 0xc0003d80a0}, 0xc0001e6640)
+	/usr/local/go/src/net/http/server.go:3819 +0x231
+net/http.(*http2serverConn).runHandler(0x134fe60?, 0x0?, 0x0?, 0xc0002921c0?)
+	/usr/local/go/src/net/http/h2_bundle.go:6249 +0xf5
+created by net/http.(*http2serverConn).scheduleHandler in goroutine 997
+	/usr/local/go/src/net/http/h2_bundle.go:6183 +0x21d
+
+2025/01/23 05:12:54 [31;1m/root/projects/code-garden-server/internal/api/middleware.go:88 [35;1mrecord not found
+[0m[33m[283.509ms] [34;1m[rows:0][0m SELECT * FROM "users" WHERE id = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' AND "users"."deleted_at" IS NULL AND "users"."id" = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' ORDER BY "users"."id" LIMIT 1
+2025/01/23 05:12:54 http2: panic serving 169.150.196.245:34181: runtime error: invalid memory address or nil pointer dereference
+goroutine 1021 [running]:
+net/http.(*http2serverConn).runHandler.func1()
+	/usr/local/go/src/net/http/h2_bundle.go:6242 +0x145
+panic({0xbbb160?, 0x130c2f0?})
+	/usr/local/go/src/runtime/panic.go:785 +0x132
+code-garden-server/internal/api.InitServer.NewAuthMiddleware.func7({0xdd4b88, 0xc000002240}, 0xc0001d3900)
+	/root/projects/code-garden-server/internal/api/middleware.go:89 +0x255
+code-garden-server/internal/api.(*Router).RunAllMiddlewareHandlers(0x0?, {0xdd4b88?, 0xc000002240?}, 0x0?, 0x0?)
+	/root/projects/code-garden-server/internal/api/server.go:137 +0x67
+code-garden-server/internal/api.(*Router).Get.func1({0xdd4b88?, 0xc000002240?}, 0x0?)
+	/root/projects/code-garden-server/internal/api/server.go:78 +0x45
+net/http.HandlerFunc.ServeHTTP(0xc0003b00e0?, {0xdd4b88?, 0xc000002240?}, 0x0?)
+	/usr/local/go/src/net/http/server.go:2220 +0x29
+net/http.(*ServeMux).ServeHTTP(0xc000492d28?, {0xdd4b88, 0xc000002240}, 0xc0001d3900)
+	/usr/local/go/src/net/http/server.go:2747 +0x1ca
+net/http.serverHandler.ServeHTTP({0xc000040d20?}, {0xdd4b88?, 0xc000002240?}, 0x7b2945?)
+	/usr/local/go/src/net/http/server.go:3210 +0x8e
+net/http.initALPNRequest.ServeHTTP({{0xdd67d8?, 0xc000353c50?}, 0xc00030f188?, {0xc0005dc0f0?}}, {0xdd4b88, 0xc000002240}, 0xc0001d3900)
+	/usr/local/go/src/net/http/server.go:3819 +0x231
+net/http.(*http2serverConn).runHandler(0x134fe60?, 0x0?, 0x0?, 0xc0002921c0?)
+	/usr/local/go/src/net/http/h2_bundle.go:6249 +0xf5
+created by net/http.(*http2serverConn).scheduleHandler in goroutine 997
+	/usr/local/go/src/net/http/h2_bundle.go:6183 +0x21d
+
+2025/01/23 05:12:55 [31;1m/root/projects/code-garden-server/internal/api/middleware.go:88 [35;1mrecord not found
+[0m[33m[142.021ms] [34;1m[rows:0][0m SELECT * FROM "users" WHERE id = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' AND "users"."deleted_at" IS NULL AND "users"."id" = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' ORDER BY "users"."id" LIMIT 1
+2025/01/23 05:12:55 http2: panic serving 169.150.196.245:34181: runtime error: invalid memory address or nil pointer dereference
+goroutine 975 [running]:
+net/http.(*http2serverConn).runHandler.func1()
+	/usr/local/go/src/net/http/h2_bundle.go:6242 +0x145
+panic({0xbbb160?, 0x130c2f0?})
+	/usr/local/go/src/runtime/panic.go:785 +0x132
+code-garden-server/internal/api.InitServer.NewAuthMiddleware.func7({0xdd4b88, 0xc00012c468}, 0xc0001acdc0)
+	/root/projects/code-garden-server/internal/api/middleware.go:89 +0x255
+code-garden-server/internal/api.(*Router).RunAllMiddlewareHandlers(0xc00013ddb8?, {0xdd4b88?, 0xc00012c468?}, 0xc00013de00?, 0x60?)
+	/root/projects/code-garden-server/internal/api/server.go:137 +0x67
+code-garden-server/internal/api.(*Router).Get.func1({0xdd4b88?, 0xc00012c468?}, 0xc000236060?)
+	/root/projects/code-garden-server/internal/api/server.go:78 +0x45
+net/http.HandlerFunc.ServeHTTP(0xc0003b00e0?, {0xdd4b88?, 0xc00012c468?}, 0x0?)
+	/usr/local/go/src/net/http/server.go:2220 +0x29
+net/http.(*ServeMux).ServeHTTP(0xc0002de000?, {0xdd4b88, 0xc00012c468}, 0xc0001acdc0)
+	/usr/local/go/src/net/http/server.go:2747 +0x1ca
+net/http.serverHandler.ServeHTTP({0xc00030e660?}, {0xdd4b88?, 0xc00012c468?}, 0xc000065d50?)
+	/usr/local/go/src/net/http/server.go:3210 +0x8e
+net/http.initALPNRequest.ServeHTTP({{0xdd67d8?, 0xc000353c50?}, 0xc00030f188?, {0xc0005dc0f0?}}, {0xdd4b88, 0xc00012c468}, 0xc0001acdc0)
+	/usr/local/go/src/net/http/server.go:3819 +0x231
+net/http.(*http2serverConn).runHandler(0x4432bb?, 0x0?, 0xc000524d90?, 0x0?)
+	/usr/local/go/src/net/http/h2_bundle.go:6249 +0xf5
+created by net/http.(*http2serverConn).scheduleHandler in goroutine 997
+	/usr/local/go/src/net/http/h2_bundle.go:6183 +0x21d
+
+2025/01/23 05:12:55 [31;1m/root/projects/code-garden-server/internal/api/middleware.go:88 [35;1mrecord not found
+[0m[33m[142.062ms] [34;1m[rows:0][0m SELECT * FROM "users" WHERE id = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' AND "users"."deleted_at" IS NULL AND "users"."id" = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' ORDER BY "users"."id" LIMIT 1
+2025/01/23 05:12:55 http2: panic serving 169.150.196.245:34181: runtime error: invalid memory address or nil pointer dereference
+goroutine 999 [running]:
+net/http.(*http2serverConn).runHandler.func1()
+	/usr/local/go/src/net/http/h2_bundle.go:6242 +0x145
+panic({0xbbb160?, 0x130c2f0?})
+	/usr/local/go/src/runtime/panic.go:785 +0x132
+code-garden-server/internal/api.InitServer.NewAuthMiddleware.func7({0xdd4b88, 0xc00012c038}, 0xc0001ac280)
+	/root/projects/code-garden-server/internal/api/middleware.go:89 +0x255
+code-garden-server/internal/api.(*Router).RunAllMiddlewareHandlers(0xc000062430?, {0xdd4b88?, 0xc00012c038?}, 0xc000231e00?, 0x38?)
+	/root/projects/code-garden-server/internal/api/server.go:137 +0x67
+code-garden-server/internal/api.(*Router).Get.func1({0xdd4b88?, 0xc00012c038?}, 0x0?)
+	/root/projects/code-garden-server/internal/api/server.go:78 +0x45
+net/http.HandlerFunc.ServeHTTP(0xc0003b00e0?, {0xdd4b88?, 0xc00012c038?}, 0x0?)
+	/usr/local/go/src/net/http/server.go:2220 +0x29
+net/http.(*ServeMux).ServeHTTP(0xc000492d28?, {0xdd4b88, 0xc00012c038}, 0xc0001ac280)
+	/usr/local/go/src/net/http/server.go:2747 +0x1ca
+net/http.serverHandler.ServeHTTP({0xc000040d20?}, {0xdd4b88?, 0xc00012c038?}, 0x7b2945?)
+	/usr/local/go/src/net/http/server.go:3210 +0x8e
+net/http.initALPNRequest.ServeHTTP({{0xdd67d8?, 0xc000353c50?}, 0xc00030f188?, {0xc0005dc0f0?}}, {0xdd4b88, 0xc00012c038}, 0xc0001ac280)
+	/usr/local/go/src/net/http/server.go:3819 +0x231
+net/http.(*http2serverConn).runHandler(0x134fe60?, 0x0?, 0x0?, 0xc0002921c0?)
+	/usr/local/go/src/net/http/h2_bundle.go:6249 +0xf5
+created by net/http.(*http2serverConn).scheduleHandler in goroutine 997
+	/usr/local/go/src/net/http/h2_bundle.go:6183 +0x21d
+
+2025/01/23 05:12:56 [31;1m/root/projects/code-garden-server/internal/api/middleware.go:88 [35;1mrecord not found
+[0m[33m[287.551ms] [34;1m[rows:0][0m SELECT * FROM "users" WHERE id = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' AND "users"."deleted_at" IS NULL AND "users"."id" = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' ORDER BY "users"."id" LIMIT 1
+2025/01/23 05:12:56 http2: panic serving 169.150.196.245:34181: runtime error: invalid memory address or nil pointer dereference
+goroutine 1026 [running]:
+net/http.(*http2serverConn).runHandler.func1()
+	/usr/local/go/src/net/http/h2_bundle.go:6242 +0x145
+panic({0xbbb160?, 0x130c2f0?})
+	/usr/local/go/src/runtime/panic.go:785 +0x132
+code-garden-server/internal/api.InitServer.NewAuthMiddleware.func7({0xdd4b88, 0xc000002000}, 0xc0001d2280)
+	/root/projects/code-garden-server/internal/api/middleware.go:89 +0x255
+code-garden-server/internal/api.(*Router).RunAllMiddlewareHandlers(0x596a85?, {0xdd4b88?, 0xc000002000?}, 0x46d11f?, 0xdc?)
+	/root/projects/code-garden-server/internal/api/server.go:137 +0x67
+code-garden-server/internal/api.(*Router).Get.func1({0xdd4b88?, 0xc000002000?}, 0x750d72?)
+	/root/projects/code-garden-server/internal/api/server.go:78 +0x45
+net/http.HandlerFunc.ServeHTTP(0xc0003b00e0?, {0xdd4b88?, 0xc000002000?}, 0x0?)
+	/usr/local/go/src/net/http/server.go:2220 +0x29
+net/http.(*ServeMux).ServeHTTP(0xc000061528?, {0xdd4b88, 0xc000002000}, 0xc0001d2280)
+	/usr/local/go/src/net/http/server.go:2747 +0x1ca
+net/http.serverHandler.ServeHTTP({0xc00043c080?}, {0xdd4b88?, 0xc000002000?}, 0xc0000f44a0?)
+	/usr/local/go/src/net/http/server.go:3210 +0x8e
+net/http.initALPNRequest.ServeHTTP({{0xdd67d8?, 0xc000353c50?}, 0xc00030f188?, {0xc0005dc0f0?}}, {0xdd4b88, 0xc000002000}, 0xc0001d2280)
+	/usr/local/go/src/net/http/server.go:3819 +0x231
+net/http.(*http2serverConn).runHandler(0x134fe60?, 0x0?, 0x0?, 0x0?)
+	/usr/local/go/src/net/http/h2_bundle.go:6249 +0xf5
+created by net/http.(*http2serverConn).scheduleHandler in goroutine 997
+	/usr/local/go/src/net/http/h2_bundle.go:6183 +0x21d
+
+2025/01/23 05:12:56 [31;1m/root/projects/code-garden-server/internal/api/middleware.go:88 [35;1mrecord not found
+[0m[33m[141.683ms] [34;1m[rows:0][0m SELECT * FROM "users" WHERE id = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' AND "users"."deleted_at" IS NULL AND "users"."id" = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' ORDER BY "users"."id" LIMIT 1
+2025/01/23 05:12:56 http2: panic serving 169.150.196.245:34181: runtime error: invalid memory address or nil pointer dereference
+goroutine 1023 [running]:
+net/http.(*http2serverConn).runHandler.func1()
+	/usr/local/go/src/net/http/h2_bundle.go:6242 +0x145
+panic({0xbbb160?, 0x130c2f0?})
+	/usr/local/go/src/runtime/panic.go:785 +0x132
+code-garden-server/internal/api.InitServer.NewAuthMiddleware.func7({0xdd4b88, 0xc000396008}, 0xc000276280)
+	/root/projects/code-garden-server/internal/api/middleware.go:89 +0x255
+code-garden-server/internal/api.(*Router).RunAllMiddlewareHandlers(0x596a85?, {0xdd4b88?, 0xc000396008?}, 0xc0000d5600?, 0xdc?)
+	/root/projects/code-garden-server/internal/api/server.go:137 +0x67
+code-garden-server/internal/api.(*Router).Get.func1({0xdd4b88?, 0xc000396008?}, 0x750d72?)
+	/root/projects/code-garden-server/internal/api/server.go:78 +0x45
+net/http.HandlerFunc.ServeHTTP(0xc0003b00e0?, {0xdd4b88?, 0xc000396008?}, 0x0?)
+	/usr/local/go/src/net/http/server.go:2220 +0x29
+net/http.(*ServeMux).ServeHTTP(0x0?, {0xdd4b88, 0xc000396008}, 0xc000276280)
+	/usr/local/go/src/net/http/server.go:2747 +0x1ca
+net/http.serverHandler.ServeHTTP({0x0?}, {0xdd4b88?, 0xc000396008?}, 0x0?)
+	/usr/local/go/src/net/http/server.go:3210 +0x8e
+net/http.initALPNRequest.ServeHTTP({{0xdd67d8?, 0xc000353c50?}, 0xc00030f188?, {0xc0005dc0f0?}}, {0xdd4b88, 0xc000396008}, 0xc000276280)
+	/usr/local/go/src/net/http/server.go:3819 +0x231
+net/http.(*http2serverConn).runHandler(0x0?, 0x0?, 0x0?, 0x0?)
+	/usr/local/go/src/net/http/h2_bundle.go:6249 +0xf5
+created by net/http.(*http2serverConn).scheduleHandler in goroutine 997
+	/usr/local/go/src/net/http/h2_bundle.go:6183 +0x21d
+
+2025/01/23 05:13:02 [31;1m/root/projects/code-garden-server/internal/api/middleware.go:88 [35;1mrecord not found
+[0m[33m[296.254ms] [34;1m[rows:0][0m SELECT * FROM "users" WHERE id = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' AND "users"."deleted_at" IS NULL AND "users"."id" = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' ORDER BY "users"."id" LIMIT 1
+2025/01/23 05:13:02 http2: panic serving 169.150.196.245:34181: runtime error: invalid memory address or nil pointer dereference
+goroutine 1002 [running]:
+net/http.(*http2serverConn).runHandler.func1()
+	/usr/local/go/src/net/http/h2_bundle.go:6242 +0x145
+panic({0xbbb160?, 0x130c2f0?})
+	/usr/local/go/src/runtime/panic.go:785 +0x132
+code-garden-server/internal/api.InitServer.NewAuthMiddleware.func7({0xdd4b88, 0xc00012c448}, 0xc0001aca00)
+	/root/projects/code-garden-server/internal/api/middleware.go:89 +0x255
+code-garden-server/internal/api.(*Router).RunAllMiddlewareHandlers(0x596a85?, {0xdd4b88?, 0xc00012c448?}, 0xc0000d5600?, 0xdc?)
+	/root/projects/code-garden-server/internal/api/server.go:137 +0x67
+code-garden-server/internal/api.(*Router).Get.func1({0xdd4b88?, 0xc00012c448?}, 0x750d72?)
+	/root/projects/code-garden-server/internal/api/server.go:78 +0x45
+net/http.HandlerFunc.ServeHTTP(0xc0003b00e0?, {0xdd4b88?, 0xc00012c448?}, 0x0?)
+	/usr/local/go/src/net/http/server.go:2220 +0x29
+net/http.(*ServeMux).ServeHTTP(0x4b3cff?, {0xdd4b88, 0xc00012c448}, 0xc0001aca00)
+	/usr/local/go/src/net/http/server.go:2747 +0x1ca
+net/http.serverHandler.ServeHTTP({0xc000060598?}, {0xdd4b88?, 0xc00012c448?}, 0xc0000d8000?)
+	/usr/local/go/src/net/http/server.go:3210 +0x8e
+net/http.initALPNRequest.ServeHTTP({{0xdd67d8?, 0xc000353c50?}, 0xc00030f188?, {0xc0005dc0f0?}}, {0xdd4b88, 0xc00012c448}, 0xc0001aca00)
+	/usr/local/go/src/net/http/server.go:3819 +0x231
+net/http.(*http2serverConn).runHandler(0x134fe60?, 0x0?, 0x0?, 0x0?)
+	/usr/local/go/src/net/http/h2_bundle.go:6249 +0xf5
+created by net/http.(*http2serverConn).scheduleHandler in goroutine 997
+	/usr/local/go/src/net/http/h2_bundle.go:6183 +0x21d
+
+2025/01/23 05:13:03 [31;1m/root/projects/code-garden-server/internal/api/middleware.go:88 [35;1mrecord not found
+[0m[33m[283.225ms] [34;1m[rows:0][0m SELECT * FROM "users" WHERE id = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' AND "users"."deleted_at" IS NULL AND "users"."id" = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' ORDER BY "users"."id" LIMIT 1
+2025/01/23 05:13:03 http2: panic serving 169.150.196.245:34181: runtime error: invalid memory address or nil pointer dereference
+goroutine 1043 [running]:
+net/http.(*http2serverConn).runHandler.func1()
+	/usr/local/go/src/net/http/h2_bundle.go:6242 +0x145
+panic({0xbbb160?, 0x130c2f0?})
+	/usr/local/go/src/runtime/panic.go:785 +0x132
+code-garden-server/internal/api.InitServer.NewAuthMiddleware.func7({0xdd4b88, 0xc000396048}, 0xc000276b40)
+	/root/projects/code-garden-server/internal/api/middleware.go:89 +0x255
+code-garden-server/internal/api.(*Router).RunAllMiddlewareHandlers(0x596a85?, {0xdd4b88?, 0xc000396048?}, 0x46d11f?, 0xdc?)
+	/root/projects/code-garden-server/internal/api/server.go:137 +0x67
+code-garden-server/internal/api.(*Router).Get.func1({0xdd4b88?, 0xc000396048?}, 0x750d72?)
+	/root/projects/code-garden-server/internal/api/server.go:78 +0x45
+net/http.HandlerFunc.ServeHTTP(0xc0003b00e0?, {0xdd4b88?, 0xc000396048?}, 0x0?)
+	/usr/local/go/src/net/http/server.go:2220 +0x29
+net/http.(*ServeMux).ServeHTTP(0x4?, {0xdd4b88, 0xc000396048}, 0xc000276b40)
+	/usr/local/go/src/net/http/server.go:2747 +0x1ca
+net/http.serverHandler.ServeHTTP({0xc00057e1a0?}, {0xdd4b88?, 0xc000396048?}, 0xc00057e1a0?)
+	/usr/local/go/src/net/http/server.go:3210 +0x8e
+net/http.initALPNRequest.ServeHTTP({{0xdd67d8?, 0xc000353c50?}, 0xc00030f188?, {0xc0005dc0f0?}}, {0xdd4b88, 0xc000396048}, 0xc000276b40)
+	/usr/local/go/src/net/http/server.go:3819 +0x231
+net/http.(*http2serverConn).runHandler(0x134fe60?, 0x0?, 0x0?, 0x0?)
+	/usr/local/go/src/net/http/h2_bundle.go:6249 +0xf5
+created by net/http.(*http2serverConn).scheduleHandler in goroutine 997
+	/usr/local/go/src/net/http/h2_bundle.go:6183 +0x21d
+
+2025/01/23 05:13:05 [31;1m/root/projects/code-garden-server/internal/api/middleware.go:88 [35;1mrecord not found
+[0m[33m[298.906ms] [34;1m[rows:0][0m SELECT * FROM "users" WHERE id = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' AND "users"."deleted_at" IS NULL AND "users"."id" = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' ORDER BY "users"."id" LIMIT 1
+2025/01/23 05:13:05 http2: panic serving 169.150.196.245:34181: runtime error: invalid memory address or nil pointer dereference
+goroutine 1044 [running]:
+net/http.(*http2serverConn).runHandler.func1()
+	/usr/local/go/src/net/http/h2_bundle.go:6242 +0x145
+panic({0xbbb160?, 0x130c2f0?})
+	/usr/local/go/src/runtime/panic.go:785 +0x132
+code-garden-server/internal/api.InitServer.NewAuthMiddleware.func7({0xdd4b88, 0xc000396058}, 0xc000277180)
+	/root/projects/code-garden-server/internal/api/middleware.go:89 +0x255
+code-garden-server/internal/api.(*Router).RunAllMiddlewareHandlers(0x0?, {0xdd4b88?, 0xc000396058?}, 0x27a00030316?, 0x76?)
+	/root/projects/code-garden-server/internal/api/server.go:137 +0x67
+code-garden-server/internal/api.(*Router).Get.func1({0xdd4b88?, 0xc000396058?}, 0x79a2c38831ccec78?)
+	/root/projects/code-garden-server/internal/api/server.go:78 +0x45
+net/http.HandlerFunc.ServeHTTP(0xc0003b00e0?, {0xdd4b88?, 0xc000396058?}, 0x0?)
+	/usr/local/go/src/net/http/server.go:2220 +0x29
+net/http.(*ServeMux).ServeHTTP(0x4?, {0xdd4b88, 0xc000396058}, 0xc000277180)
+	/usr/local/go/src/net/http/server.go:2747 +0x1ca
+net/http.serverHandler.ServeHTTP({0xc00057e1a0?}, {0xdd4b88?, 0xc000396058?}, 0xc00057e1a0?)
+	/usr/local/go/src/net/http/server.go:3210 +0x8e
+net/http.initALPNRequest.ServeHTTP({{0xdd67d8?, 0xc000353c50?}, 0xc00030f188?, {0xc0005dc0f0?}}, {0xdd4b88, 0xc000396058}, 0xc000277180)
+	/usr/local/go/src/net/http/server.go:3819 +0x231
+net/http.(*http2serverConn).runHandler(0x134fe60?, 0x0?, 0x0?, 0x0?)
+	/usr/local/go/src/net/http/h2_bundle.go:6249 +0xf5
+created by net/http.(*http2serverConn).scheduleHandler in goroutine 997
+	/usr/local/go/src/net/http/h2_bundle.go:6183 +0x21d
+
+2025/01/23 05:13:06 [31;1m/root/projects/code-garden-server/internal/api/middleware.go:88 [35;1mrecord not found
+[0m[33m[283.031ms] [34;1m[rows:0][0m SELECT * FROM "users" WHERE id = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' AND "users"."deleted_at" IS NULL AND "users"."id" = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' ORDER BY "users"."id" LIMIT 1
+2025/01/23 05:13:06 http2: panic serving 169.150.196.245:34181: runtime error: invalid memory address or nil pointer dereference
+goroutine 1003 [running]:
+net/http.(*http2serverConn).runHandler.func1()
+	/usr/local/go/src/net/http/h2_bundle.go:6242 +0x145
+panic({0xbbb160?, 0x130c2f0?})
+	/usr/local/go/src/runtime/panic.go:785 +0x132
+code-garden-server/internal/api.InitServer.NewAuthMiddleware.func7({0xdd4b88, 0xc00012c470}, 0xc0001acf00)
+	/root/projects/code-garden-server/internal/api/middleware.go:89 +0x255
+code-garden-server/internal/api.(*Router).RunAllMiddlewareHandlers(0x596a85?, {0xdd4b88?, 0xc00012c470?}, 0xc0000d5600?, 0xdc?)
+	/root/projects/code-garden-server/internal/api/server.go:137 +0x67
+code-garden-server/internal/api.(*Router).Get.func1({0xdd4b88?, 0xc00012c470?}, 0x750d72?)
+	/root/projects/code-garden-server/internal/api/server.go:78 +0x45
+net/http.HandlerFunc.ServeHTTP(0xc0003b00e0?, {0xdd4b88?, 0xc00012c470?}, 0x0?)
+	/usr/local/go/src/net/http/server.go:2220 +0x29
+net/http.(*ServeMux).ServeHTTP(0x4b3cff?, {0xdd4b88, 0xc00012c470}, 0xc0001acf00)
+	/usr/local/go/src/net/http/server.go:2747 +0x1ca
+net/http.serverHandler.ServeHTTP({0xc000060598?}, {0xdd4b88?, 0xc00012c470?}, 0xc0000d8000?)
+	/usr/local/go/src/net/http/server.go:3210 +0x8e
+net/http.initALPNRequest.ServeHTTP({{0xdd67d8?, 0xc000353c50?}, 0xc00030f188?, {0xc0005dc0f0?}}, {0xdd4b88, 0xc00012c470}, 0xc0001acf00)
+	/usr/local/go/src/net/http/server.go:3819 +0x231
+net/http.(*http2serverConn).runHandler(0x134fe60?, 0x0?, 0x0?, 0x0?)
+	/usr/local/go/src/net/http/h2_bundle.go:6249 +0xf5
+created by net/http.(*http2serverConn).scheduleHandler in goroutine 997
+	/usr/local/go/src/net/http/h2_bundle.go:6183 +0x21d
+
+2025/01/23 05:13:23 [31;1m/root/projects/code-garden-server/internal/api/middleware.go:88 [35;1mrecord not found
+[0m[33m[285.123ms] [34;1m[rows:0][0m SELECT * FROM "users" WHERE id = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' AND "users"."deleted_at" IS NULL AND "users"."id" = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' ORDER BY "users"."id" LIMIT 1
+2025/01/23 05:13:23 http2: panic serving 169.150.196.245:34181: runtime error: invalid memory address or nil pointer dereference
+goroutine 1033 [running]:
+net/http.(*http2serverConn).runHandler.func1()
+	/usr/local/go/src/net/http/h2_bundle.go:6242 +0x145
+panic({0xbbb160?, 0x130c2f0?})
+	/usr/local/go/src/runtime/panic.go:785 +0x132
+code-garden-server/internal/api.InitServer.NewAuthMiddleware.func7({0xdd4b88, 0xc000002020}, 0xc0001d2640)
+	/root/projects/code-garden-server/internal/api/middleware.go:89 +0x255
+code-garden-server/internal/api.(*Router).RunAllMiddlewareHandlers(0x596a85?, {0xdd4b88?, 0xc000002020?}, 0x46d11f?, 0xdc?)
+	/root/projects/code-garden-server/internal/api/server.go:137 +0x67
+code-garden-server/internal/api.(*Router).Get.func1({0xdd4b88?, 0xc000002020?}, 0x750d72?)
+	/root/projects/code-garden-server/internal/api/server.go:78 +0x45
+net/http.HandlerFunc.ServeHTTP(0xc0003b00e0?, {0xdd4b88?, 0xc000002020?}, 0x0?)
+	/usr/local/go/src/net/http/server.go:2220 +0x29
+net/http.(*ServeMux).ServeHTTP(0xc000061528?, {0xdd4b88, 0xc000002020}, 0xc0001d2640)
+	/usr/local/go/src/net/http/server.go:2747 +0x1ca
+net/http.serverHandler.ServeHTTP({0xc00043c080?}, {0xdd4b88?, 0xc000002020?}, 0xc0000f44a0?)
+	/usr/local/go/src/net/http/server.go:3210 +0x8e
+net/http.initALPNRequest.ServeHTTP({{0xdd67d8?, 0xc000353c50?}, 0xc00030f188?, {0xc0005dc0f0?}}, {0xdd4b88, 0xc000002020}, 0xc0001d2640)
+	/usr/local/go/src/net/http/server.go:3819 +0x231
+net/http.(*http2serverConn).runHandler(0x134fe60?, 0x0?, 0x0?, 0x0?)
+	/usr/local/go/src/net/http/h2_bundle.go:6249 +0xf5
+created by net/http.(*http2serverConn).scheduleHandler in goroutine 997
+	/usr/local/go/src/net/http/h2_bundle.go:6183 +0x21d
+
+2025/01/23 05:13:24 [31;1m/root/projects/code-garden-server/internal/api/middleware.go:88 [35;1mrecord not found
+[0m[33m[283.342ms] [34;1m[rows:0][0m SELECT * FROM "users" WHERE id = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' AND "users"."deleted_at" IS NULL AND "users"."id" = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' ORDER BY "users"."id" LIMIT 1
+2025/01/23 05:13:24 http2: panic serving 169.150.196.245:34181: runtime error: invalid memory address or nil pointer dereference
+goroutine 1045 [running]:
+net/http.(*http2serverConn).runHandler.func1()
+	/usr/local/go/src/net/http/h2_bundle.go:6242 +0x145
+panic({0xbbb160?, 0x130c2f0?})
+	/usr/local/go/src/runtime/panic.go:785 +0x132
+code-garden-server/internal/api.InitServer.NewAuthMiddleware.func7({0xdd4b88, 0xc000396088}, 0xc000277540)
+	/root/projects/code-garden-server/internal/api/middleware.go:89 +0x255
+code-garden-server/internal/api.(*Router).RunAllMiddlewareHandlers(0x596a85?, {0xdd4b88?, 0xc000396088?}, 0x46d11f?, 0xdc?)
+	/root/projects/code-garden-server/internal/api/server.go:137 +0x67
+code-garden-server/internal/api.(*Router).Get.func1({0xdd4b88?, 0xc000396088?}, 0x750d72?)
+	/root/projects/code-garden-server/internal/api/server.go:78 +0x45
+net/http.HandlerFunc.ServeHTTP(0xc0003b00e0?, {0xdd4b88?, 0xc000396088?}, 0x0?)
+	/usr/local/go/src/net/http/server.go:2220 +0x29
+net/http.(*ServeMux).ServeHTTP(0x4?, {0xdd4b88, 0xc000396088}, 0xc000277540)
+	/usr/local/go/src/net/http/server.go:2747 +0x1ca
+net/http.serverHandler.ServeHTTP({0xc00057e1a0?}, {0xdd4b88?, 0xc000396088?}, 0xc00057e1a0?)
+	/usr/local/go/src/net/http/server.go:3210 +0x8e
+net/http.initALPNRequest.ServeHTTP({{0xdd67d8?, 0xc000353c50?}, 0xc00030f188?, {0xc0005dc0f0?}}, {0xdd4b88, 0xc000396088}, 0xc000277540)
+	/usr/local/go/src/net/http/server.go:3819 +0x231
+net/http.(*http2serverConn).runHandler(0x134fe60?, 0x0?, 0x0?, 0x0?)
+	/usr/local/go/src/net/http/h2_bundle.go:6249 +0xf5
+created by net/http.(*http2serverConn).scheduleHandler in goroutine 997
+	/usr/local/go/src/net/http/h2_bundle.go:6183 +0x21d
+
+2025/01/23 05:13:26 [31;1m/root/projects/code-garden-server/internal/api/middleware.go:88 [35;1mrecord not found
+[0m[33m[286.639ms] [34;1m[rows:0][0m SELECT * FROM "users" WHERE id = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' AND "users"."deleted_at" IS NULL AND "users"."id" = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' ORDER BY "users"."id" LIMIT 1
+2025/01/23 05:13:26 http2: panic serving 169.150.196.245:34181: runtime error: invalid memory address or nil pointer dereference
+goroutine 1008 [running]:
+net/http.(*http2serverConn).runHandler.func1()
+	/usr/local/go/src/net/http/h2_bundle.go:6242 +0x145
+panic({0xbbb160?, 0x130c2f0?})
+	/usr/local/go/src/runtime/panic.go:785 +0x132
+code-garden-server/internal/api.InitServer.NewAuthMiddleware.func7({0xdd4b88, 0xc00012c498}, 0xc0001ad680)
+	/root/projects/code-garden-server/internal/api/middleware.go:89 +0x255
+code-garden-server/internal/api.(*Router).RunAllMiddlewareHandlers(0x596a85?, {0xdd4b88?, 0xc00012c498?}, 0x46d11f?, 0xdc?)
+	/root/projects/code-garden-server/internal/api/server.go:137 +0x67
+code-garden-server/internal/api.(*Router).Get.func1({0xdd4b88?, 0xc00012c498?}, 0x750d72?)
+	/root/projects/code-garden-server/internal/api/server.go:78 +0x45
+net/http.HandlerFunc.ServeHTTP(0xc0003b00e0?, {0xdd4b88?, 0xc00012c498?}, 0x0?)
+	/usr/local/go/src/net/http/server.go:2220 +0x29
+net/http.(*ServeMux).ServeHTTP(0x4?, {0xdd4b88, 0xc00012c498}, 0xc0001ad680)
+	/usr/local/go/src/net/http/server.go:2747 +0x1ca
+net/http.serverHandler.ServeHTTP({0xc00057e1a0?}, {0xdd4b88?, 0xc00012c498?}, 0xc00057e1a0?)
+	/usr/local/go/src/net/http/server.go:3210 +0x8e
+net/http.initALPNRequest.ServeHTTP({{0xdd67d8?, 0xc000353c50?}, 0xc00030f188?, {0xc0005dc0f0?}}, {0xdd4b88, 0xc00012c498}, 0xc0001ad680)
+	/usr/local/go/src/net/http/server.go:3819 +0x231
+net/http.(*http2serverConn).runHandler(0x134fe60?, 0x0?, 0x0?, 0x0?)
+	/usr/local/go/src/net/http/h2_bundle.go:6249 +0xf5
+created by net/http.(*http2serverConn).scheduleHandler in goroutine 997
+	/usr/local/go/src/net/http/h2_bundle.go:6183 +0x21d
+
+2025/01/23 05:13:27 [31;1m/root/projects/code-garden-server/internal/api/middleware.go:88 [35;1mrecord not found
+[0m[33m[283.288ms] [34;1m[rows:0][0m SELECT * FROM "users" WHERE id = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' AND "users"."deleted_at" IS NULL AND "users"."id" = '1e27c7b8-483d-4ce7-9464-24b2a2138c93' ORDER BY "users"."id" LIMIT 1
+2025/01/23 05:13:27 http2: panic serving 169.150.196.245:34181: runtime error: invalid memory address or nil pointer dereference
+goroutine 1046 [running]:
+net/http.(*http2serverConn).runHandler.func1()
+	/usr/local/go/src/net/http/h2_bundle.go:6242 +0x145
+panic({0xbbb160?, 0x130c2f0?})
+	/usr/local/go/src/runtime/panic.go:785 +0x132
+code-garden-server/internal/api.InitServer.NewAuthMiddleware.func7({0xdd4b88, 0xc000396090}, 0xc000277b80)
+	/root/projects/code-garden-server/internal/api/middleware.go:89 +0x255
+code-garden-server/internal/api.(*Router).RunAllMiddlewareHandlers(0x596a85?, {0xdd4b88?, 0xc000396090?}, 0x46d11f?, 0xdc?)
+	/root/projects/code-garden-server/internal/api/server.go:137 +0x67
+code-garden-server/internal/api.(*Router).Get.func1({0xdd4b88?, 0xc000396090?}, 0x750d72?)
+	/root/projects/code-garden-server/internal/api/server.go:78 +0x45
+net/http.HandlerFunc.ServeHTTP(0xc0003b00e0?, {0xdd4b88?, 0xc000396090?}, 0x0?)
+	/usr/local/go/src/net/http/server.go:2220 +0x29
+net/http.(*ServeMux).ServeHTTP(0x0?, {0xdd4b88, 0xc000396090}, 0xc000277b80)
+	/usr/local/go/src/net/http/server.go:2747 +0x1ca
+net/http.serverHandler.ServeHTTP({0x0?}, {0xdd4b88?, 0xc000396090?}, 0x0?)
+	/usr/local/go/src/net/http/server.go:3210 +0x8e
+net/http.initALPNRequest.ServeHTTP({{0xdd67d8?, 0xc000353c50?}, 0xc00030f188?, {0xc0005dc0f0?}}, {0xdd4b88, 0xc000396090}, 0xc000277b80)
+	/usr/local/go/src/net/http/server.go:3819 +0x231
+net/http.(*http2serverConn).runHandler(0x0?, 0x0?, 0x0?, 0x0?)
+	/usr/local/go/src/net/http/h2_bundle.go:6249 +0xf5
+created by net/http.(*http2serverConn).scheduleHandler in goroutine 997
+	/usr/local/go/src/net/http/h2_bundle.go:6183 +0x21d
+
+2025/01/23 05:14:57 [31;1m/root/projects/code-garden-server/internal/services/auth/main.go:216 [35;1mrecord not found
+[0m[33m[283.536ms] [34;1m[rows:0][0m SELECT * FROM "users" WHERE email = 'jlena@evonmedics.org' AND "users"."deleted_at" IS NULL ORDER BY "users"."id" LIMIT 1
+2025/01/23 05:14:57 POST /auth/login-with-password 	 record not found(500)
+
+2025/01/23 05:15:15 [32m/root/projects/code-garden-server/internal/services/auth/main.go:56 [33mSLOW SQL >= 200ms
+[0m[31;1m[450.835ms] [33m[rows:0][35m SELECT * FROM "users" WHERE email = 'jeremiahlena800@gmail.com' AND "users"."deleted_at" IS NULL ORDER BY "users"."id" LIMIT 1[0m
+
+2025/01/23 05:15:16 [32m/root/projects/code-garden-server/internal/services/auth/main.go:56 [33mSLOW SQL >= 200ms
+[0m[31;1m[576.359ms] [33m[rows:1][35m INSERT INTO "users" ("id","created_at","updated_at","deleted_at","email","password","first_name","last_name","email_verified","email_verified_at") VALUES ('ac674d16-c4b6-4210-b685-b0e56310aa17','2025-01-23 05:15:15.855','2025-01-23 05:15:15.855',NULL,'jeremiahlena800@gmail.com','','','',false,NULL)[0m
+
+2025/01/23 05:15:16 [32m/root/projects/code-garden-server/internal/services/auth/main.go:70 [33mSLOW SQL >= 200ms
+[0m[31;1m[426.546ms] [33m[rows:1][35m INSERT INTO "verification_tokens" ("id","created_at","updated_at","deleted_at","token","expires_at","expired","user_id") VALUES ('e91791f6-2d4a-423c-9167-559c265120e2','2025-01-23 05:15:16.431','2025-01-23 05:15:16.431',NULL,'icHTv-yM8A-ruQ==','2025-01-23 05:25:16.29',false,'ac674d16-c4b6-4210-b685-b0e56310aa17')[0m
+Verify your email
+Click "http://localhost:8080/auth/verify-email/icHTv-yM8A-ruQ==" here to verify your account.
+2025/01/23 05:15:17 617f3d6f-34cb-4591-a096-4de93050d2de
+2025/01/23 05:15:18 POST /auth/register-with-email 	 Success! Please check your mail to verify your account(200)
