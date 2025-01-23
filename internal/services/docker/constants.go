@@ -3,21 +3,20 @@ package docker
 type Language string
 
 var SupportedLanguages = []Language{
-	"python", "node", "go",
+	"python", "typescript", "go", "javascript",
 }
 
 var LanguageToImageMap = map[Language]string{
-	"python": "code-garden-python",
-	"node":   "code-garden-node",
-	"go":     "code-garden-go",
-	"java":   "openjdk:11",
-	"ruby":   "ruby:2.7",
-	"swift": "swiftlang-6.0.0",
+	"python":     "code-garden-python",
+	"javascript": "code-garden-node",
+	"typescript": "code-garden-node",
+	"go":         "code-garden-go",
 }
 
 var LanguageToDockerFileMap = map[Language]string{
 	"python": "Dockerfile_python",
-	"node":   "Dockerfile_node",
+	"javascript":   "Dockerfile_node",
+	"typescript":   "Dockerfile_node",
 	"go":     "Dockerfile_go",
 	//"java":   "Dockerfile.java",
 	//"ruby":   "Dockerfile.ruby",

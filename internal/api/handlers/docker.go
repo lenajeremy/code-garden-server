@@ -82,7 +82,6 @@ func (d *DockerHandler) RunCodeSafe(w http.ResponseWriter, r *http.Request) {
 	}
 
 	nextResetTime := userToNextResetTime[uid]
-	fmt.Println(userToNextResetTime, userToAllowedRunCount)
 
 	if time.Now().After(nextResetTime) {
 		userToAllowedRunCount[uid] = REQUESTS_ALLOWED_PER_MINUTE
@@ -152,7 +151,6 @@ func (d *DockerHandler) RunCodeSafeNoAuth(w http.ResponseWriter, r *http.Request
 		if time.Now().After(nextResetTime) {
 			userToNextResetTime[uid] = time.Now().Add(time.Minute)
 		}
-		fmt.Println(userToNextResetTime, userToAllowedRunCount)
 	}()
 
 	res, err := d.service.RunLanguageContainer(docker.Language(body.Language), body.Code)

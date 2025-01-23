@@ -150,7 +150,7 @@ func (c *CodeHandler) CreateCodeSnippet(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if _, ok := docker.LanguageToImageMap[docker.Language(body.Language)]; !ok {
+	if _, ok := docker.LanguageToDockerFileMap[docker.Language(body.Language)]; !ok {
 		utils.WriteRes(w, utils.Response{Data: nil, Message: "Unsupported Language", Status: http.StatusBadRequest, Error: "unsupported language"})
 		return
 	}
@@ -189,7 +189,7 @@ func (c *CodeHandler) UpdateSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, ok := docker.LanguageToImageMap[docker.Language(body.Language)]; !ok {
+	if _, ok := docker.LanguageToDockerFileMap[docker.Language(body.Language)]; !ok {
 		utils.WriteRes(w, utils.Response{Data: nil, Message: "Unsupported Language", Status: http.StatusBadRequest, Error: "unsupported language"})
 		return
 	}
