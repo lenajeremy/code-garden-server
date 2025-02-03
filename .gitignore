@@ -1,6 +1,2 @@
-main.py
-main.js
-Dockerfile_python
-run.go
 tmp
 .env*

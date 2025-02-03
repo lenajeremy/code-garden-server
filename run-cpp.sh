@@ -1,7 +1,9 @@
 #!/bin/sh
 
-g++ "$1"
-./a.out
+touch main.cpp
+cat > main.cpp
 
+clang++ main.cpp -o main
+./main
 
-# this is me writing some code
+rm main main.cpp

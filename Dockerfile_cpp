@@ -1,0 +1,15 @@
+FROM silkeh/clang
+
+RUN useradd -m myuser
+
+COPY run.sh /usr/local/bin/run-cpp.sh
+RUN chmod +x /usr/local/bin/run-cpp.sh && chown myuser:myuser /usr/local/bin/run-cpp.sh
+
+RUN chmod 555 /usr/local/bin/run-cpp.sh
+
+WORKDIR /home/myuser
+RUN chown myuser:myuser /home/myuser
+
+USER myuser
+
+ENTRYPOINT ["/usr/local/bin/run-cpp.sh"]

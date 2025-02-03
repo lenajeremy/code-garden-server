@@ -19,6 +19,18 @@ case "$LANGUAGE" in
         FILE="file.py"
         RUN_CMD="python3 $FILE"
         ;;
+    rust)
+        FILE="file.rs"
+        RUN_CMD="rustc $FILE"
+        ;;
+    swift)
+        FILE="file.swift"
+        RUN_CMD="swift $FILE"
+        ;;
+    ruby)
+        FILE="file.rb"
+        RUN_CMD="ruby $FILE"
+        ;;
     node)
         FILE="file.js"
         RUN_CMD="node $FILE"
