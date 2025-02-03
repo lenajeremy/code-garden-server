@@ -8,6 +8,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
 
@@ -15,8 +16,8 @@ type AuthHandler struct {
 	service *auth.Service
 }
 
-func NewAuthHandler(db *database.DBClient) *AuthHandler {
-	s := auth.NewAuthService(db)
+func NewAuthHandler(db *database.DBClient, rds *redis.Client) *AuthHandler {
+	s := auth.NewAuthService(db, rds)
 	h := &AuthHandler{s}
 	return h
 }
@@ -130,7 +131,8 @@ func (h *AuthHandler) SignInWithToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jwtToken, err := h.service.GenerateJwtFromToken(token)
+	jwtToken, err := h.service.GenerateJwtTokenFromVerificationToken(token)
+
 	if err != nil {
 		utils.WriteRes(w, utils.Response{Status: 500, Error: err.Error(), Message: "Failed to sign user in"})
 		return

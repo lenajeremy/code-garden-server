@@ -3,6 +3,7 @@ package main
 import (
 	"code-garden-server/internal/api"
 	"code-garden-server/internal/database"
+	"code-garden-server/internal/database/redis"
 	"code-garden-server/internal/services/docker"
 	"log"
 )
@@ -28,6 +29,8 @@ func main() {
 		log.Fatal("failed to get database connection", err)
 	}
 
+	redisClient := redis.New()
+
 	defer func() {
 		log.Println("closing database connection")
 		_ = conn.Close()
@@ -41,7 +44,7 @@ func main() {
 		log.Fatal("failed to setup database", err)
 	}
 
-	PORT := 443
+	PORT := 3000
 	log.Printf("starting server on port %d", PORT)
-	api.InitServer(PORT, dckClient, dbClient)
+	api.InitServer(PORT, dckClient, dbClient, redisClient)
 }

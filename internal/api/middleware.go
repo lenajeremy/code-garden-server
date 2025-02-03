@@ -3,14 +3,17 @@ package api
 import (
 	"code-garden-server/config"
 	"code-garden-server/internal/database/models"
+	"code-garden-server/internal/database/redis"
 	"code-garden-server/internal/services/auth"
 	"code-garden-server/utils"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/golang-jwt/jwt/v5"
 	"log"
 	"net/http"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type Middleware struct {
@@ -83,12 +86,31 @@ func NewAuthMiddleware(s *Server) Middleware {
 			utils.WriteRes(w, utils.Response{Status: 401, Message: "Unauthorized! Token Malformed", Error: "token malformed"})
 			return w, r, false
 		} else {
-			u := models.User{BaseModel: models.BaseModel{ID: claims.User.ID}, Email: claims.User.Email}
-			if tx := s.db.First(&u, "id = ?", claims.User.ID); tx.Error != nil {
+			q := redis.CacheKey{Entity: redis.UserEntity, Identifier: claims.User.ID.String()}
+
+			var user models.User
+
+			res, err := s.rdc.Get(context.Background(), q.String()).Result()
+			if err != nil {
+				log.Println("error getting user from cache")
+			}
+
+			err = json.Unmarshal([]byte(res), &user)
+			if err != nil {
+				log.Println("Failed to unmarshal user from redis cache", res)
+			} else {
+				log.Println("Got User from redis cache")
+				ctx := context.WithValue(r.Context(), "User", &user)
+				return w, r.WithContext(ctx), true
+			}
+
+			// fetch the user from the database
+			user = models.User{BaseModel: models.BaseModel{ID: claims.User.ID}, Email: claims.User.Email}
+			if tx := s.db.First(&user, "id = ?", claims.User.ID); tx.Error != nil {
 				utils.WriteRes(w, utils.Response{Status: 401, Message: "Unauthorized! Token Malformed", Error: "token malformed"})
 				return w, r, false
 			} else {
-				ctx := context.WithValue(r.Context(), "User", &u)
+				ctx := context.WithValue(r.Context(), "User", &user)
 				return w, r.WithContext(ctx), true
 			}
 		}

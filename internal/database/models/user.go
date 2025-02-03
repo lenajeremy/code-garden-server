@@ -10,12 +10,12 @@ import (
 
 type User struct {
 	BaseModel
-	Email           string     `json:"email" gorm:"unique; not null"`
-	Password        string     `json:"-" gorm:"not null"`
-	FirstName       string     `json:"firstName" gorm:"first_name"`
-	LastName        string     `json:"lastName" gorm:"last_name"`
-	EmailVerified   bool       `json:"emailVerified" gorm:"email_verified"`
-	EmailVerifiedAt *time.Time `json:"emailVerifiedAt" gorm:"email_verified_at;nullable"`
+	Email           string     `json:"email" gorm:"unique; not null" redis:"email"`
+	Password        string     `json:"-" gorm:"not null" redis:"-"`
+	FirstName       string     `json:"firstName" gorm:"first_name" redis:"firstName"`
+	LastName        string     `json:"lastName" gorm:"last_name" redis:"lastName"`
+	EmailVerified   bool       `json:"emailVerified" gorm:"email_verified" redis:"emailVerified"`
+	EmailVerifiedAt *time.Time `json:"emailVerifiedAt" gorm:"email_verified_at;nullable" redis:"emailVerifiedAt"`
 }
 
 type VerificationToken struct {

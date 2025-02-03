@@ -7,14 +7,15 @@ import (
 	"time"
 
 	"github.com/docker/docker/client"
+	"github.com/redis/go-redis/v9"
 )
 
-func InitServer(p int, dc *client.Client, dbc *database.DBClient) {
-	s := NewServer(p, dc, dbc)
+func InitServer(p int, dc *client.Client, dbc *database.DBClient, rds *redis.Client) {
+	s := NewServer(p, dc, dbc, rds)
 
-	codeHandler := handlers.NewCodeHandler(dbc)
+	codeHandler := handlers.NewCodeHandler(dbc, rds)
 	dockerHandler := handlers.NewDockerHandler(dc, dbc)
-	authHandler := handlers.NewAuthHandler(dbc)
+	authHandler := handlers.NewAuthHandler(dbc, rds)
 
 	delayMiddleware := Middleware{
 		Handler: func(w http.ResponseWriter, r *http.Request) (http.ResponseWriter, *http.Request, bool) {

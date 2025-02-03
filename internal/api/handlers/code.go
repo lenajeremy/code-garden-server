@@ -15,11 +15,13 @@ import (
 	"os"
 	"os/exec"
 
+	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
 
 type CodeHandler struct {
-	DbClient *database.DBClient
+	DbClient  *database.DBClient
+	RdsClient *redis.Client
 }
 
 type codeRequestBody struct {
@@ -27,9 +29,10 @@ type codeRequestBody struct {
 	Language string `json:"language"`
 }
 
-func NewCodeHandler(dbClient *database.DBClient) *CodeHandler {
+func NewCodeHandler(dbClient *database.DBClient, rdsClient *redis.Client) *CodeHandler {
 	return &CodeHandler{
 		dbClient,
+		rdsClient,
 	}
 }
 

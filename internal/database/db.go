@@ -25,8 +25,12 @@ func NewDBClient() (*DBClient, error) {
 }
 
 func (db *DBClient) Setup() error {
-	err := db.AutoMigrate(models.Snippet{}, models.User{}, models.VerificationToken{}, models.ShareConstraint{})
-	fmt.Println("making migrations")
+	err := db.AutoMigrate(
+		models.Snippet{},
+		models.User{},
+		models.VerificationToken{},
+		models.ShareConstraint{},
+	)
 	if err != nil {
 		return err
 	}

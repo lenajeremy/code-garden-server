@@ -7,6 +7,8 @@ import (
 	"code-garden-server/internal/database/models"
 	"code-garden-server/internal/database/queries"
 	"code-garden-server/internal/services/emails"
+	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"html/template"
@@ -14,18 +16,23 @@ import (
 	"net/url"
 	"time"
 
+	r "code-garden-server/internal/database/redis"
+
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/redis/go-redis/v9"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
 type Service struct {
-	db *database.DBClient
+	db  *database.DBClient
+	rds *redis.Client
 }
 
-func NewAuthService(db *database.DBClient) *Service {
+func NewAuthService(db *database.DBClient, rds *redis.Client) *Service {
 	return &Service{
 		db,
+		rds,
 	}
 }
 
@@ -202,13 +209,22 @@ func (as *Service) VerifyUserEmail(token string) (*models.VerificationToken, err
 	return t, nil
 }
 
-func (as *Service) GenerateJwtFromToken(tokenStr string) (string, error) {
+func (as *Service) GenerateJwtTokenFromVerificationToken(tokenStr string) (string, error) {
 	token, err := as.VerifyUserEmail(tokenStr)
 	if err != nil {
 		return "", err
 	}
 
-	return generateTokenForUser(token.User)
+	jwtToken, err := generateTokenForUser(token.User)
+	if err != nil {
+		return "", err
+	}
+
+	if err = as.saveUserToCache(token.User); err != nil {
+		return "", err
+	}
+
+	return jwtToken, nil
 }
 
 func (as *Service) LoginWithPassword(email, password string) (string, error) {
@@ -224,7 +240,14 @@ func (as *Service) LoginWithPassword(email, password string) (string, error) {
 	}
 
 	// password matches
-	return generateTokenForUser(user)
+	token, err := generateTokenForUser(user)
+	if err != nil {
+		return "", err
+	}
+	if err = as.saveUserToCache(user); err != nil {
+		return "", err
+	}
+	return token, nil
 }
 
 func (as *Service) RegisterWithPassword(email, password, clientHost string) error {
@@ -363,4 +386,17 @@ func generateTokenForUser(user models.User) (string, error) {
 	}
 
 	return jwtTokenString, nil
+}
+
+func (s *Service) saveUserToCache(user models.User) error {
+	userCacheKey := r.CacheKey{Entity: r.UserEntity, Identifier: user.ID.String()}
+
+	jsonString, err := json.Marshal(user)
+	if err != nil {
+		return err
+	}
+
+	command := s.rds.Set(context.Background(), userCacheKey.String(), string(jsonString), 0)
+	fmt.Printf("%v\n%v\n", command, user)
+	return command.Err()
 }
