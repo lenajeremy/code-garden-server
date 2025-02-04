@@ -52,6 +52,8 @@ func (ds *Service) RunLanguageContainer(lang Language, codeSrc string) (string, 
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
+	println("running", lang, codeSrc)
+
 	image, ok := LanguageToImageMap[lang]
 	if !ok {
 		return "", fmt.Errorf("unsupported language: %s", lang)
@@ -170,8 +172,11 @@ func (ds *Service) RunLanguageContainer(lang Language, codeSrc string) (string, 
 					status.StatusCode, err)
 			}
 
-			// return 10kb of error output
-			return string(errorOutput.Bytes()[0 : 1024*10]), fmt.Errorf("container failed with status %d",
+			errorOutputBytes := errorOutput.Bytes()
+			if len(errorOutputBytes) > 10240 {
+				errorOutputBytes = errorOutputBytes[:10*1024]
+			}
+			return string(errorOutputBytes), fmt.Errorf("container failed with status %d",
 				status.StatusCode)
 		}
 
@@ -188,7 +193,7 @@ func (ds *Service) BuildLanguageImage(language Language) error {
 	log.Println("building image", language)
 	dockerfile := LanguageToDockerFileMap[language]
 
-	buildContext, err := createBuildContext(dockerfile, "run.sh")
+	buildContext, err := createBuildContext(dockerfile, "run.sh", "run-cpp.sh", "run-rust.sh")
 	if err != nil {
 		return err
 	}

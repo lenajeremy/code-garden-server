@@ -21,7 +21,11 @@ case "$LANGUAGE" in
         ;;
     rust)
         FILE="file.rs"
-        RUN_CMD="rustc $FILE"
+        RUN_CMD="rustc $FILE && ./file"
+        ;;
+    cpp)
+        FILE="file.cpp"
+        RUN_CMD="g++ $FILE"
         ;;
     swift)
         FILE="file.swift"
@@ -45,7 +49,7 @@ esac
 cat > "$FILE"
 
 # Run the code using the specified command
-$RUN_CMD
+eval $RUN_CMD
 
 # Delete the source code file after execution
 rm "$FILE"
