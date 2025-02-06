@@ -38,6 +38,7 @@ The Code Garden Server is a backend application designed to manage and serve dat
 - creating new snippets
 - sharing and saving code snippets
 - retrieving code snippets when signed up
+- dockerize repository
 - execution/file change history
 - collaboration
 - ai in editor
@@ -45,3 +46,4 @@ The Code Garden Server is a backend application designed to manage and serve dat
     - allowing user to publish code snippets for others to see and copy
     - search and categorization for easy discovery of code snippets
     - basic user profile
+

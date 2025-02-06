@@ -30,6 +30,7 @@ func main() {
 	}
 
 	redisClient := redis.New()
+	//var redisClient *redis.Client = nil
 
 	defer func() {
 		log.Println("closing database connection")

@@ -158,7 +158,7 @@ func (c *CodeHandler) CreateCodeSnippet(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	user := auth.AuthUser(r)
+	user := auth.GetUser(r)
 
 	snippet := models.Snippet{Code: body.Code, Language: body.Language, Output: body.Output, Name: body.Name, OwnerId: user.ID}
 	tx := c.DbClient.Create(&snippet)
@@ -172,10 +172,11 @@ func (c *CodeHandler) CreateCodeSnippet(w http.ResponseWriter, r *http.Request) 
 
 func (c *CodeHandler) UpdateSnippet(w http.ResponseWriter, r *http.Request) {
 	type updateCodeRequestBody struct {
-		Code     string `json:"code"`
-		Language string `json:"language"`
-		Output   string `json:"output"`
-		Name     string `json:"name"`
+		Code       string `json:"code"`
+		Language   string `json:"language"`
+		Output     string `json:"output"`
+		Name       string `json:"name"`
+		Visibility string `json:"visibility"`
 	}
 
 	publicId := r.PathValue("publicId")
@@ -211,10 +212,13 @@ func (c *CodeHandler) UpdateSnippet(w http.ResponseWriter, r *http.Request) {
 	if body.Name != "" {
 		updates["name"] = body.Name
 	}
+	if body.Visibility != "" {
+		updates["visibility"] = body.Visibility
+	}
 
 	var snippet models.Snippet
-	tx := c.DbClient.Model(&snippet).Where("public_id = ?", publicId).Updates(updates)
-	fmt.Printf("%#v", updates)
+	var user = auth.GetUser(r)
+	tx := c.DbClient.Model(&snippet).Where("public_id = ? and owner_id = ?", publicId, user.ID).Updates(updates)
 	if tx.Error != nil {
 		utils.WriteRes(w, utils.Response{Data: nil, Message: "Failed to update snippet", Status: http.StatusInternalServerError, Error: tx.Error.Error()})
 		return
@@ -236,11 +240,11 @@ func (c *CodeHandler) GetSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := auth.AuthUser(r)
+	user := auth.GetUser(r)
 
 	s := new(models.Snippet)
 
-	if tx := c.DbClient.Model(s).Preload("Owner").First(s, "public_id = ? and owner_id = ?", publicId, user.ID.String()); tx.Error != nil {
+	if tx := c.DbClient.Model(s).Preload("Owner").First(s, "public_id = ? AND (owner_id = ? or visibility = 'public')", publicId, user.ID.String()); tx.Error != nil {
 		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
 			utils.WriteRes(w, utils.Response{
 				Error:   tx.Error.Error(),
@@ -282,7 +286,7 @@ func (c *CodeHandler) GetSnippetNoAuth(w http.ResponseWriter, r *http.Request) {
 
 	s := new(models.Snippet)
 
-	if tx := c.DbClient.Model(s).Preload("Owner").First(s, "public_id = ?", publicId); tx.Error != nil {
+	if tx := c.DbClient.Model(s).First(s, "public_id = ? AND visibility = 'public'", publicId); tx.Error != nil {
 		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
 			utils.WriteRes(w, utils.Response{
 				Error:   tx.Error.Error(),
@@ -312,8 +316,9 @@ func (c *CodeHandler) GetSnippetNoAuth(w http.ResponseWriter, r *http.Request) {
 func (c *CodeHandler) DeleteSnippet(w http.ResponseWriter, r *http.Request) {
 	publicId := r.PathValue("publicId")
 
+	user := auth.GetUser(r)
 	snippet := models.Snippet{}
-	db := c.DbClient.DB.Delete(&snippet, "public_id = ?", publicId)
+	db := c.DbClient.DB.Delete(&snippet, "public_id = ? and owner_id = ?", publicId, user.ID)
 	if db.Error != nil {
 		if errors.Is(db.Error, gorm.ErrRecordNotFound) {
 			utils.WriteRes(w, utils.Response{Status: http.StatusNotFound, Message: "snippet not found", Error: db.Error.Error()})
@@ -333,7 +338,7 @@ func (c *CodeHandler) DeleteSnippet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *CodeHandler) GetUserSnippets(w http.ResponseWriter, r *http.Request) {
-	user := auth.AuthUser(r)
+	user := auth.GetUser(r)
 
 	var snippets []models.Snippet
 
@@ -355,4 +360,58 @@ func (c *CodeHandler) GetUserSnippets(w http.ResponseWriter, r *http.Request) {
 		Status:  http.StatusOK,
 		Message: "User's snippets retrieved successfully",
 	})
+}
+
+func (c *CodeHandler) ForkSnippet(w http.ResponseWriter, r *http.Request) {
+	publicId := r.PathValue("publicId")
+	user := auth.GetUser(r)
+
+	if publicId == "" {
+		utils.WriteRes(w, utils.Response{
+			Error:   "bad request: empty public id",
+			Data:    nil,
+			Status:  http.StatusBadRequest,
+			Message: "Invalid Public ID",
+		})
+		return
+	}
+
+	snippet := models.Snippet{}
+	db := c.DbClient.DB.First(&snippet, "public_id = ? and visibility = 'public'", publicId)
+	if db.Error != nil {
+		if errors.Is(db.Error, gorm.ErrRecordNotFound) {
+			utils.WriteRes(w, utils.Response{Status: http.StatusNotFound, Message: "snippet not found", Error: db.Error.Error()})
+		}
+	}
+
+	if snippet.OwnerId == user.ID {
+		utils.WriteRes(w, utils.Response{Status: http.StatusBadRequest, Message: "cannot fork your own snippet", Error: "cannot fork your own snippet"})
+		return
+	}
+
+	newSnippet := models.Snippet{
+		Code:     snippet.Code,
+		Language: snippet.Language,
+		Output:   snippet.Output,
+		Name:     snippet.Name,
+		OwnerId:  user.ID,
+	}
+
+	tx := c.DbClient.Create(&newSnippet)
+	if tx.Error != nil {
+		utils.WriteRes(w, utils.Response{
+			Error:   tx.Error.Error(),
+			Status:  http.StatusInternalServerError,
+			Message: "Failed to fork snippet",
+		})
+		return
+	}
+
+	utils.WriteRes(w, utils.Response{
+		Data:    newSnippet,
+		Status:  http.StatusOK,
+		Message: "Snippet forked successfully",
+	})
+
+	return
 }

@@ -73,7 +73,7 @@ func (d *DockerHandler) RunCodeSafe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	u := auth.AuthUser(r)
+	u := auth.GetUser(r)
 	uid := u.ID.String()
 
 	if _, okay := userToNextResetTime[uid]; !okay {

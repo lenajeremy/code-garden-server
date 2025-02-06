@@ -220,8 +220,11 @@ func (as *Service) GenerateJwtTokenFromVerificationToken(tokenStr string) (strin
 		return "", err
 	}
 
-	if err = as.saveUserToCache(token.User); err != nil {
-		return "", err
+	// TODO: Remove this line after the project has been dockerized.
+	if as.rds != nil {
+		if err = as.saveUserToCache(token.User); err != nil {
+			return "", err
+		}
 	}
 
 	return jwtToken, nil
@@ -244,8 +247,12 @@ func (as *Service) LoginWithPassword(email, password string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if err = as.saveUserToCache(user); err != nil {
-		return "", err
+
+	// TODO: Remove this line after the project has been dockerized.
+	if as.rds != nil {
+		if err = as.saveUserToCache(user); err != nil {
+			return "", err
+		}
 	}
 	return token, nil
 }
@@ -359,7 +366,7 @@ type CustomJWTClaims struct {
 	User models.User `json:"user"`
 }
 
-func AuthUser(r *http.Request) *models.User {
+func GetUser(r *http.Request) *models.User {
 	if user, ok := r.Context().Value("User").(*models.User); !ok {
 		panic(fmt.Errorf("attempting to get authenticated user in an unprotected route"))
 	} else {

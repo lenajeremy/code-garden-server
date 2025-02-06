@@ -29,7 +29,6 @@ func (db *DBClient) Setup() error {
 		models.Snippet{},
 		models.User{},
 		models.VerificationToken{},
-		models.ShareConstraint{},
 	)
 	if err != nil {
 		return err

@@ -90,18 +90,21 @@ func NewAuthMiddleware(s *Server) Middleware {
 
 			var user models.User
 
-			res, err := s.rdc.Get(context.Background(), q.String()).Result()
-			if err != nil {
-				log.Println("error getting user from cache")
-			}
+			// TODO: Remove this line after the project has been dockerized.
+			if s.rdc != nil {
+				res, err := s.rdc.Get(context.Background(), q.String()).Result()
+				if err != nil {
+					log.Println("error getting user from cache")
+				}
 
-			err = json.Unmarshal([]byte(res), &user)
-			if err != nil {
-				log.Println("Failed to unmarshal user from redis cache", res)
-			} else {
-				log.Println("Got User from redis cache")
-				ctx := context.WithValue(r.Context(), "User", &user)
-				return w, r.WithContext(ctx), true
+				err = json.Unmarshal([]byte(res), &user)
+				if err != nil {
+					log.Println("Failed to unmarshal user from redis cache", res)
+				} else {
+					log.Println("Got User from redis cache")
+					ctx := context.WithValue(r.Context(), "User", &user)
+					return w, r.WithContext(ctx), true
+				}
 			}
 
 			// fetch the user from the database

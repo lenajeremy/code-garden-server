@@ -54,6 +54,7 @@ func InitServer(p int, dc *client.Client, dbc *database.DBClient, rds *redis.Cli
 	appRouter.Get("/snippet/{publicId}/no-auth", codeHandler.GetSnippetNoAuth, &authMiddleware)
 	appRouter.Put("/snippet/{publicId}", codeHandler.UpdateSnippet)
 	appRouter.Delete("/snippet/{publicId}", codeHandler.DeleteSnippet)
+	appRouter.Post("/snippet/{publicId}/fork", codeHandler.ForkSnippet)
 
 	appRouter.Get("/snippets/mine", codeHandler.GetUserSnippets)
 
