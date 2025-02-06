@@ -41,6 +41,7 @@ const (
 	ALLOW_PUBLIC SnippetShareType = iota
 	ALLOW_EMAILS_ONLY
 	NO_ALLOW
+	// I want to Dockerize this repo
 )
 
 type ShareConstraint struct {
