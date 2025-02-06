@@ -25,7 +25,7 @@ case "$LANGUAGE" in
         ;;
     cpp)
         FILE="file.cpp"
-        RUN_CMD="g++ $FILE"
+        RUN_CMD="g++ $FILE && ./a.out"
         ;;
     swift)
         FILE="file.swift"
@@ -49,7 +49,7 @@ esac
 cat > "$FILE"
 
 # Run the code using the specified command
-eval $RUN_CMD
+eval "$RUN_CMD"
 
 # Delete the source code file after execution
 rm "$FILE"

@@ -25,7 +25,10 @@ type Service struct {
 
 func NewDockerService(dc *client.Client, dbClient *database.DBClient) *Service {
 	s := &Service{dc, dbClient}
-	s.SetupClient()
+	err := s.SetupClient()
+	if err != nil {
+		panic(err)
+	}
 	return s
 }
 
