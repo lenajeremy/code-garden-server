@@ -10,18 +10,18 @@ The Code Garden Server is a backend application designed to manage and serve dat
 2. **Initialize Git repository** - *Done*
 3. **Set up Go modules** - *Done*
 4. **Set up HTTP server using net/http package** - *Done*
-5. **Create user authentication system**
-    - Implement JWT authentication
-    - Set up user registration and login endpoints
+5. **Create user authentication system** - *Done*
+    - Implement JWT authentication - *Done*
+    - Set up user registration and login endpoints - *Done*
 6. **Design database schema** - *Done*
 7. **Implement CRUD operations for resources**
-    - Create endpoints for creating, reading, updating, and deleting resources
+    - Create endpoints for creating, reading, updating, and deleting resources - *Done*
 8. **Set up environment variables management** - *Done*
 9. **Write unit and integration tests**
     - Set up testing framework (e.g., Go testing package)
     - Write tests for authentication and CRUD operations
 10. **Configure Docker for containerization**
-    - Write Dockerfile
+    - Write Dockerfile - *Done*
     - Set up Docker Compose
 11. **Set up CI/CD pipeline**
     - Configure GitHub Actions for automated testing and deployment
@@ -34,10 +34,10 @@ The Code Garden Server is a backend application designed to manage and serve dat
 
 
 # personal note
-- set up authentication
-- creating new snippets
-- sharing and saving code snippets
-- retrieving code snippets when signed up
+- set up authentication - *Done*
+- creating new snippets - *Done*
+- sharing and saving code snippets - *Done*
+- retrieving code snippets when signed up - *Done*
 - dockerize repository
 - execution/file change history
 - collaboration

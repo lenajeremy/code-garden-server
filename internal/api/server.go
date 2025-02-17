@@ -58,7 +58,6 @@ func (s *Server) Start() {
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", s.Port),
 		s.mux,
 	))
-
 }
 func (s *Server) DefaultRouter() *Router {
 	return newRouter(s.mux, "/")
